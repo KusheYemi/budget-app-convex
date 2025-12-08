@@ -17,6 +17,10 @@ export const metadata: Metadata = {
   title: "Budget App - Monthly Budgeting Made Simple",
   description:
     "Take control of your monthly finances with smart budgeting, savings tracking, and spending insights.",
+  icons: {
+    icon: "/budget-app.jpg",
+    apple: "/budget-app.jpg",
+  },
 };
 
 export default function RootLayout({

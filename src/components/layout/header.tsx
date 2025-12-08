@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
@@ -26,8 +27,17 @@ export function Header({ email, year, month }: HeaderProps) {
       <div className="container flex h-14 items-center gap-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 font-semibold">
-          <span className="text-primary">Budget</span>
-          <span className="text-muted-foreground">App</span>
+          <Image
+            src="/budget-app.jpg"
+            alt="Budget App Logo"
+            width={32}
+            height={32}
+            className="rounded-md"
+          />
+          <span className="hidden xs:inline">
+            <span className="text-primary">Budget</span>
+            <span className="text-muted-foreground">App</span>
+          </span>
         </Link>
 
         {/* Navigation */}
