@@ -181,7 +181,9 @@ export function InsightsContent({
                   className="p-3 border rounded-lg space-y-2"
                 >
                   <div className="flex items-center justify-between">
-                    <p className="font-medium">{formatMonth(m.year, m.month)}</p>
+                    <p className="font-medium">
+                      {formatMonth(m.year, m.month)}
+                    </p>
                     <span
                       className={`text-sm font-medium ${
                         m.savingsRate < 0.2 ? "text-warning" : "text-savings"
@@ -193,15 +195,23 @@ export function InsightsContent({
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
                       <p className="text-muted-foreground text-xs">Income</p>
-                      <p className="font-medium">{formatCurrency(m.income, currency)}</p>
+                      <p className="font-medium">
+                        {formatCurrency(m.income, currency)}
+                      </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground text-xs">Savings</p>
-                      <p className="font-medium text-savings">{formatCurrency(m.savingsAmount, currency)}</p>
+                      <p className="font-medium text-savings">
+                        {formatCurrency(m.savingsAmount, currency)}
+                      </p>
                     </div>
                     <div className="col-span-2">
-                      <p className="text-muted-foreground text-xs">Total Allocated</p>
-                      <p className="font-medium">{formatCurrency(m.totalAllocated, currency)}</p>
+                      <p className="text-muted-foreground text-xs">
+                        Total Allocated
+                      </p>
+                      <p className="font-medium">
+                        {formatCurrency(m.totalAllocated, currency)}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -272,7 +282,9 @@ export function InsightsContent({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages - 1, p + 1))}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages - 1, p + 1))
+                  }
                   disabled={currentPage === totalPages - 1}
                 >
                   Next
