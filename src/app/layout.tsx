@@ -15,7 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Budget App - Monthly Budgeting Made Simple",
-  description: "Take control of your monthly finances with smart budgeting, savings tracking, and spending insights.",
+  description:
+    "Take control of your monthly finances with smart budgeting, savings tracking, and spending insights.",
 };
 
 export default function RootLayout({
@@ -26,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
+        suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
       >
         {children}

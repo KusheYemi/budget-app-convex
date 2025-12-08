@@ -32,7 +32,12 @@ interface CustomTooltipProps {
   currency: CurrencyCode;
 }
 
-const CustomTooltip = ({ active, payload, label, currency }: CustomTooltipProps) => {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+  currency,
+}: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-popover border rounded-lg shadow-lg p-3">
@@ -46,7 +51,10 @@ const CustomTooltip = ({ active, payload, label, currency }: CustomTooltipProps)
   return null;
 };
 
-export function AllocationBarChart({ data, currency }: AllocationBarChartProps) {
+export function AllocationBarChart({
+  data,
+  currency,
+}: AllocationBarChartProps) {
   // Filter out zero values and sort by value
   const filteredData = data
     .filter((d) => d.value > 0)
@@ -80,7 +88,11 @@ export function AllocationBarChart({ data, currency }: AllocationBarChartProps) 
               layout="vertical"
               margin={{ top: 5, right: 10, left: 5, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                horizontal={true}
+                vertical={false}
+              />
               <XAxis
                 type="number"
                 tickFormatter={(value) => formatCurrency(value, currency)}

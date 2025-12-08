@@ -33,7 +33,12 @@ interface CustomTooltipProps {
   currency: CurrencyCode;
 }
 
-const CustomTooltip = ({ active, payload, label, currency }: CustomTooltipProps) => {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+  currency,
+}: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-popover border rounded-lg shadow-lg p-3">
