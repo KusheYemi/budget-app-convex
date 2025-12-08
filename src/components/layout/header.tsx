@@ -38,7 +38,8 @@ export function Header({ email, year, month }: HeaderProps) {
               href={link.href}
               className={cn(
                 "px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                pathname === link.href || (link.href === "/" && pathname.startsWith("/budget"))
+                pathname === link.href ||
+                  (link.href === "/" && pathname.startsWith("/budget"))
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent"
               )}
@@ -51,9 +52,9 @@ export function Header({ email, year, month }: HeaderProps) {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Month Picker (only on budget pages) */}
+        {/* Month Picker (only on budget pages, hidden on mobile - shown in mobile nav area) */}
         {(pathname === "/" || pathname.startsWith("/budget")) && (
-          <div className="hidden sm:block">
+          <div className="hidden md:block">
             <MonthPicker year={year} month={month} />
           </div>
         )}
@@ -65,12 +66,34 @@ export function Header({ email, year, month }: HeaderProps) {
         <UserMenu email={email} />
       </div>
 
-      {/* Mobile Month Picker */}
-      {(pathname === "/" || pathname.startsWith("/budget")) && (
-        <div className="sm:hidden border-t px-4 py-2">
-          <MonthPicker year={year} month={month} />
+      {/* Mobile Navigation & Month Picker */}
+      <div className="md:hidden border-t">
+        {/* Mobile Nav Tabs */}
+        <div className="flex border-b">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                "flex-1 py-3 text-center text-sm font-medium transition-colors",
+                pathname === link.href ||
+                  (link.href === "/" && pathname.startsWith("/budget"))
+                  ? "bg-primary/10 text-primary border-b-2 border-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
-      )}
+
+        {/* Mobile Month Picker */}
+        {(pathname === "/" || pathname.startsWith("/budget")) && (
+          <div className="px-4 py-2">
+            <MonthPicker year={year} month={month} />
+          </div>
+        )}
+      </div>
     </header>
   );
 }

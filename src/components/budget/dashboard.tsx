@@ -12,7 +12,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AllocationPieChart } from "@/components/charts/allocation-pie-chart";
 import { AllocationBarChart } from "@/components/charts/allocation-bar-chart";
-import { getCurrentMonth, isCurrentMonth, formatCurrency, formatPercentage } from "@/lib/utils";
+import {
+  getCurrentMonth,
+  isCurrentMonth,
+  formatCurrency,
+  formatPercentage,
+} from "@/lib/utils";
 import { getBudgetMonth } from "@/app/actions/budget";
 import { getCategories } from "@/app/actions/categories";
 import { getUserProfile } from "@/app/actions/auth";
@@ -50,7 +55,9 @@ export function Dashboard({ initialYear, initialMonth }: DashboardProps) {
   const [showSavingsDialog, setShowSavingsDialog] = useState(false);
 
   // Optimistic allocations for instant UI updates
-  const [optimisticAllocations, setOptimisticAllocations] = useState<AllocationWithCategory[]>([]);
+  const [optimisticAllocations, setOptimisticAllocations] = useState<
+    AllocationWithCategory[]
+  >([]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -89,12 +96,15 @@ export function Dashboard({ initialYear, initialMonth }: DashboardProps) {
   }
 
   // Optimistic update for allocation
-  function handleOptimisticAllocationUpdate(categoryId: string, newAmount: number) {
-    const category = categories.find(c => c.id === categoryId);
+  function handleOptimisticAllocationUpdate(
+    categoryId: string,
+    newAmount: number
+  ) {
+    const category = categories.find((c) => c.id === categoryId);
     if (!category || !budgetMonth) return;
 
-    setOptimisticAllocations(prev => {
-      const existingIndex = prev.findIndex(a => a.categoryId === categoryId);
+    setOptimisticAllocations((prev) => {
+      const existingIndex = prev.findIndex((a) => a.categoryId === categoryId);
 
       if (newAmount === 0 && existingIndex >= 0) {
         return prev.filter((_, i) => i !== existingIndex);
@@ -174,14 +184,24 @@ export function Dashboard({ initialYear, initialMonth }: DashboardProps) {
       <main className="container py-6 space-y-6">
         {/* Summary Section */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold">Budget Overview</h1>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h1 className="text-xl sm:text-2xl font-bold">Budget Overview</h1>
             {!isReadOnly && (
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setShowIncomeDialog(true)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 sm:flex-none text-xs sm:text-sm"
+                  onClick={() => setShowIncomeDialog(true)}
+                >
                   Edit Income
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowSavingsDialog(true)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 sm:flex-none text-xs sm:text-sm"
+                  onClick={() => setShowSavingsDialog(true)}
+                >
                   Adjust Savings
                 </Button>
               </div>

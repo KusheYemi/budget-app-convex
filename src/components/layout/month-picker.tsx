@@ -41,7 +41,10 @@ export function MonthPicker({ year, month }: MonthPickerProps) {
       newYear += 1;
     }
     // Don't go beyond current month
-    if (newYear > current.year || (newYear === current.year && newMonth > current.month)) {
+    if (
+      newYear > current.year ||
+      (newYear === current.year && newMonth > current.month)
+    ) {
       return;
     }
     router.push(`/budget/${newYear}/${newMonth}`);
@@ -73,8 +76,13 @@ export function MonthPicker({ year, month }: MonthPickerProps) {
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <Button variant="outline" size="icon" onClick={goToPreviousMonth}>
+    <div className="flex items-center justify-center gap-1 sm:gap-2">
+      <Button
+        variant="outline"
+        size="icon"
+        className="h-8 w-8 sm:h-9 sm:w-9"
+        onClick={goToPreviousMonth}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -91,19 +99,21 @@ export function MonthPicker({ year, month }: MonthPickerProps) {
         <span className="sr-only">Previous month</span>
       </Button>
 
-      <Select
-        value={`${year}-${month}`}
-        onValueChange={goToMonth}
-      >
-        <SelectTrigger className="w-[180px]">
+      <Select value={`${year}-${month}`} onValueChange={goToMonth}>
+        <SelectTrigger className="w-[140px] sm:w-[180px] h-8 sm:h-9 text-sm">
           <SelectValue>{formatMonth(year, month)}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           {monthOptions.map((opt) => (
-            <SelectItem key={`${opt.year}-${opt.month}`} value={`${opt.year}-${opt.month}`}>
+            <SelectItem
+              key={`${opt.year}-${opt.month}`}
+              value={`${opt.year}-${opt.month}`}
+            >
               {formatMonth(opt.year, opt.month)}
               {isCurrentMonth(opt.year, opt.month) && (
-                <span className="ml-2 text-xs text-muted-foreground">(Current)</span>
+                <span className="ml-2 text-xs text-muted-foreground">
+                  (Current)
+                </span>
               )}
             </SelectItem>
           ))}
@@ -113,6 +123,7 @@ export function MonthPicker({ year, month }: MonthPickerProps) {
       <Button
         variant="outline"
         size="icon"
+        className="h-8 w-8 sm:h-9 sm:w-9"
         onClick={goToNextMonth}
         disabled={!canGoNext}
       >
@@ -133,7 +144,7 @@ export function MonthPicker({ year, month }: MonthPickerProps) {
       </Button>
 
       {!isCurrent && (
-        <Badge variant="secondary" className="ml-2">
+        <Badge variant="secondary" className="ml-1 sm:ml-2 text-xs">
           Read-only
         </Badge>
       )}

@@ -9,7 +9,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { formatCurrency, formatPercentage, calculatePercentage } from "@/lib/utils";
+import {
+  formatCurrency,
+  formatPercentage,
+  calculatePercentage,
+} from "@/lib/utils";
 import { updateAllocation } from "@/app/actions/allocations";
 import { deleteCategory } from "@/app/actions/categories";
 import type { CurrencyCode } from "@/lib/validators";
@@ -124,7 +128,7 @@ export function CategoryRow({
       </div>
 
       {/* Amount */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2">
         {isEditing && !isReadOnly && !isSavings ? (
           <Input
             type="number"
@@ -132,7 +136,7 @@ export function CategoryRow({
             onChange={(e) => setEditValue(e.target.value)}
             onBlur={handleSave}
             onKeyDown={handleKeyDown}
-            className="w-28 text-right"
+            className="w-24 sm:w-28 text-right text-sm"
             min="0"
             step="0.01"
             autoFocus
@@ -142,7 +146,7 @@ export function CategoryRow({
           <button
             onClick={() => !isReadOnly && !isSavings && setIsEditing(true)}
             className={cn(
-              "text-right font-mono tabular-nums px-2 py-1 rounded",
+              "text-right font-mono tabular-nums text-sm sm:text-base px-1 sm:px-2 py-1 rounded",
               !isReadOnly && !isSavings && "hover:bg-accent cursor-pointer",
               (isReadOnly || isSavings) && "cursor-default"
             )}
