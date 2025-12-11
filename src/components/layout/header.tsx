@@ -18,7 +18,7 @@ export function Header({ email, year, month }: HeaderProps) {
   const pathname = usePathname();
 
   const navLinks = [
-    { href: "/", label: "Budget" },
+    { href: "/dashboard", label: "Budget" },
     { href: "/insights", label: "Insights" },
   ];
 
@@ -63,7 +63,7 @@ export function Header({ email, year, month }: HeaderProps) {
         <div className="flex-1" />
 
         {/* Month Picker (only on budget pages, hidden on mobile - shown in mobile nav area) */}
-        {(pathname === "/" || pathname.startsWith("/budget")) && (
+        {(pathname === "/dashboard" || pathname.startsWith("/budget")) && (
           <div className="hidden md:block">
             <MonthPicker year={year} month={month} />
           </div>
@@ -98,7 +98,7 @@ export function Header({ email, year, month }: HeaderProps) {
         </div>
 
         {/* Mobile Month Picker */}
-        {(pathname === "/" || pathname.startsWith("/budget")) && (
+        {(pathname === "/dashboard" || pathname.startsWith("/budget")) && (
           <div className="px-4 py-2">
             <MonthPicker year={year} month={month} />
           </div>
