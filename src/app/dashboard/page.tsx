@@ -2,8 +2,9 @@ import { redirect } from "next/navigation";
 import { checkOnboardingStatus, getUserProfile } from "@/app/actions/auth";
 import { OnboardingModal } from "@/components/auth/onboarding-modal";
 import { Dashboard } from "@/components/budget/dashboard";
-import { getBudgetMonth } from "@/app/actions/budget";
+import { getOrCreateBudgetMonth } from "@/app/actions/budget";
 import { getCategories } from "@/app/actions/categories";
+import { getCurrentMonth } from "@/lib/utils";
 
 export default async function DashboardPage() {
   const { needsOnboarding, user } = await checkOnboardingStatus();
@@ -16,9 +17,11 @@ export default async function DashboardPage() {
     return <OnboardingModal />;
   }
 
+  const { year, month } = getCurrentMonth();
+
   const [profile, budgetMonth, categories] = await Promise.all([
     getUserProfile(),
-    getBudgetMonth(),
+    getOrCreateBudgetMonth(year, month),
     getCategories(),
   ]);
 

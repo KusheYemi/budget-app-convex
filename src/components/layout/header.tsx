@@ -20,6 +20,7 @@ export function Header({ email, year, month }: HeaderProps) {
   const navLinks = [
     { href: "/dashboard", label: "Budget" },
     { href: "/insights", label: "Insights" },
+    { href: "/history", label: "History" },
   ];
 
   return (

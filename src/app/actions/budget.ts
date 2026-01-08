@@ -77,6 +77,11 @@ export async function getOrCreateBudgetMonth(year: number, month: number) {
         include: {
           category: true,
         },
+        orderBy: {
+          category: {
+            sortOrder: "asc",
+          },
+        },
       },
     },
   });
@@ -100,6 +105,11 @@ export async function getOrCreateBudgetMonth(year: number, month: number) {
         allocations: {
           include: {
             category: true,
+          },
+          orderBy: {
+            category: {
+              sortOrder: "asc",
+            },
           },
         },
       },
