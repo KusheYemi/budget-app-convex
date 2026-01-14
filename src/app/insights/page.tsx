@@ -1,28 +1,43 @@
-import { redirect } from "next/navigation";
-import { getInsightsData } from "@/app/actions/insights";
-import { getUserProfile } from "@/app/actions/auth";
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useConvexAuth, useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { InsightsContent } from "@/components/insights/insights-content";
 import type { CurrencyCode } from "@/lib/validators";
+import { InsightsLoading } from "@/components/loading/insights-loading";
 
-export default async function InsightsPage() {
-  const [profile, insightsData] = await Promise.all([
-    getUserProfile(),
-    getInsightsData(),
-  ]);
+export default function InsightsPage() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
+  const user = useQuery(api.users.getCurrentUser);
+  const insightsData = useQuery(api.insights.getInsightsData);
 
-  if (!profile) {
-    redirect("/login");
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [authLoading, isAuthenticated, router]);
+
+  if (authLoading || user === undefined || insightsData === undefined) {
+    return <InsightsLoading />;
+  }
+
+  if (!isAuthenticated || !user) {
+    return null;
   }
 
   if (!insightsData) {
-    redirect("/");
+    router.push("/dashboard");
+    return null;
   }
 
   return (
     <InsightsContent
       data={insightsData}
-      currency={profile.currency as CurrencyCode}
-      email={profile.email}
+      currency={(user.currency as CurrencyCode) ?? "SLE"}
+      email={user.email ?? ""}
     />
   );
 }

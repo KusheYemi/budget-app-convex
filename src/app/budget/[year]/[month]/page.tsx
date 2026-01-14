@@ -1,49 +1,55 @@
-import { Dashboard } from "@/components/budget/dashboard";
-import { notFound, redirect } from "next/navigation";
-import { getBudgetMonth } from "@/app/actions/budget";
-import { getCategories } from "@/app/actions/categories";
-import { getUserProfile } from "@/app/actions/auth";
+"use client";
 
-interface PageProps {
-  params: Promise<{
-    year: string;
-    month: string;
-  }>;
+import { useEffect, useMemo } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useConvexAuth } from "convex/react";
+import { Dashboard } from "@/components/budget/dashboard";
+import { BudgetLoading } from "@/components/loading/budget-loading";
+
+function parseParam(value: string | string[] | undefined) {
+  if (typeof value !== "string") {
+    return NaN;
+  }
+  return Number.parseInt(value, 10);
 }
 
-export default async function HistoricalBudgetPage({ params }: PageProps) {
-  const { year, month } = await params;
+export default function HistoricalBudgetPage() {
+  const router = useRouter();
+  const params = useParams();
+  const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
 
-  const yearNum = parseInt(year, 10);
-  const monthNum = parseInt(month, 10);
-
-  // Validate year and month
-  if (
-    isNaN(yearNum) ||
-    isNaN(monthNum) ||
-    monthNum < 1 ||
-    monthNum > 12 ||
-    yearNum < 2020 ||
-    yearNum > 2100
-  ) {
-    notFound();
-  }
-
-  const [profile, budgetMonth, categories] = await Promise.all([
-    getUserProfile(),
-    getBudgetMonth(yearNum, monthNum),
-    getCategories(),
-  ]);
-
-  if (!profile) {
-    redirect("/login");
-  }
-
-  return (
-    <Dashboard
-      initialYear={yearNum}
-      initialMonth={monthNum}
-      initialData={{ profile, budgetMonth: budgetMonth as never, categories }}
-    />
+  const year = parseParam(params.year);
+  const month = parseParam(params.month);
+  const isValid = useMemo(
+    () =>
+      Number.isFinite(year) &&
+      Number.isFinite(month) &&
+      month >= 1 &&
+      month <= 12 &&
+      year >= 2020 &&
+      year <= 2100,
+    [year, month]
   );
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [authLoading, isAuthenticated, router]);
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated && !isValid) {
+      router.replace("/dashboard");
+    }
+  }, [authLoading, isAuthenticated, isValid, router]);
+
+  if (authLoading || !isValid) {
+    return <BudgetLoading />;
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return <Dashboard initialYear={year} initialMonth={month} />;
 }

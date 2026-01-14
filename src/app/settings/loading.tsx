@@ -1,6 +1,1 @@
-import { LoadingPage } from "@/components/loading-page";
-
-export default function SettingsLoading() {
-  return <LoadingPage label="Loading settings..." />;
-}
-
+export { SettingsLoading as default } from "@/components/loading/settings-loading";

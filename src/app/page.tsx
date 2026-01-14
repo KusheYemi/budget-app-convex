@@ -1,7 +1,15 @@
-import { checkOnboardingStatus } from "@/app/actions/auth";
-import { LandingPage } from "@/components/landing-page";
+"use client";
 
-export default async function HomePage() {
-  const { user } = await checkOnboardingStatus();
-  return <LandingPage isLoggedIn={!!user} />;
+import { useConvexAuth } from "convex/react";
+import { LandingPage } from "@/components/landing-page";
+import { HomeLoading } from "@/components/loading/home-loading";
+
+export default function HomePage() {
+  const { isAuthenticated, isLoading } = useConvexAuth();
+
+  if (isLoading) {
+    return <HomeLoading />;
+  }
+
+  return <LandingPage isLoggedIn={isAuthenticated} />;
 }

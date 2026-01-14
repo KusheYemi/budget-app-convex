@@ -1,6 +1,1 @@
-import { LoadingPage } from "@/components/loading-page";
-
-export default function AuthLoading() {
-  return <LoadingPage label="Loading..." />;
-}
-
+export { AuthLoading as default } from "@/components/loading/auth-loading";

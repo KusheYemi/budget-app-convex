@@ -1,6 +1,1 @@
-import { LoadingPage } from "@/components/loading-page";
-
-export default function HistoricalBudgetLoading() {
-  return <LoadingPage label="Loading budget..." />;
-}
-
+export { BudgetLoading as default } from "@/components/loading/budget-loading";

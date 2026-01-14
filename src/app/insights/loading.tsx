@@ -1,6 +1,1 @@
-import { LoadingPage } from "@/components/loading-page";
-
-export default function InsightsLoading() {
-  return <LoadingPage label="Loading insights..." />;
-}
-
+export { InsightsLoading as default } from "@/components/loading/insights-loading";
