@@ -1,0 +1,241 @@
+import { v } from "convex/values";
+import { query, mutation } from "./_generated/server";
+import { auth } from "./auth";
+import { Doc, Id } from "./_generated/dataModel";
+
+const MIN_SAVINGS_RATE = 0.20;
+
+// Helper to get current month
+function getCurrentMonth() {
+  const now = new Date();
+  return {
+    year: now.getFullYear(),
+    month: now.getMonth() + 1,
+  };
+}
+
+// Get budget month with allocations
+export const getBudgetMonth = query({
+  args: {
+    year: v.optional(v.number()),
+    month: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await auth.getUserId(ctx);
+    if (!userId) return null;
+
+    const current = getCurrentMonth();
+    const targetYear = args.year ?? current.year;
+    const targetMonth = args.month ?? current.month;
+
+    const budgetMonth = await ctx.db
+      .query("budgetMonths")
+      .withIndex("by_user_year_month", (q) =>
+        q.eq("userId", userId).eq("year", targetYear).eq("month", targetMonth)
+      )
+      .first();
+
+    if (!budgetMonth) return null;
+
+    // Get allocations with categories
+    const allocations = await ctx.db
+      .query("allocations")
+      .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", budgetMonth._id))
+      .collect();
+
+    // Fetch categories for each allocation
+    const allocationsWithCategories = await Promise.all(
+      allocations.map(async (allocation) => {
+        const category = await ctx.db.get(allocation.categoryId);
+        return {
+          ...allocation,
+          category,
+        };
+      })
+    );
+
+    // Sort by category sortOrder
+    allocationsWithCategories.sort((a, b) => {
+      const aOrder = a.category?.sortOrder ?? 0;
+      const bOrder = b.category?.sortOrder ?? 0;
+      return aOrder - bOrder;
+    });
+
+    return {
+      ...budgetMonth,
+      allocations: allocationsWithCategories,
+    };
+  },
+});
+
+// Get or create budget month
+export const getOrCreateBudgetMonth = mutation({
+  args: {
+    year: v.number(),
+    month: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await auth.getUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    // Check if exists
+    let budgetMonth = await ctx.db
+      .query("budgetMonths")
+      .withIndex("by_user_year_month", (q) =>
+        q.eq("userId", userId).eq("year", args.year).eq("month", args.month)
+      )
+      .first();
+
+    if (!budgetMonth) {
+      // Get most recent budget month to copy income from
+      const allBudgets = await ctx.db
+        .query("budgetMonths")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .collect();
+
+      // Sort to find most recent
+      allBudgets.sort((a, b) => {
+        if (a.year !== b.year) return b.year - a.year;
+        return b.month - a.month;
+      });
+
+      const lastBudget = allBudgets[0];
+
+      const budgetId = await ctx.db.insert("budgetMonths", {
+        userId,
+        year: args.year,
+        month: args.month,
+        income: lastBudget?.income ?? 0,
+        savingsRate: 0.20,
+      });
+
+      budgetMonth = await ctx.db.get(budgetId);
+    }
+
+    // Get allocations
+    const allocations = await ctx.db
+      .query("allocations")
+      .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", budgetMonth!._id))
+      .collect();
+
+    const allocationsWithCategories = await Promise.all(
+      allocations.map(async (allocation) => {
+        const category = await ctx.db.get(allocation.categoryId);
+        return { ...allocation, category };
+      })
+    );
+
+    allocationsWithCategories.sort((a, b) => {
+      const aOrder = a.category?.sortOrder ?? 0;
+      const bOrder = b.category?.sortOrder ?? 0;
+      return aOrder - bOrder;
+    });
+
+    return {
+      ...budgetMonth,
+      allocations: allocationsWithCategories,
+    };
+  },
+});
+
+// Update income
+export const updateIncome = mutation({
+  args: {
+    budgetMonthId: v.id("budgetMonths"),
+    income: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await auth.getUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    if (args.income < 0) {
+      throw new Error("Income cannot be negative");
+    }
+
+    const budgetMonth = await ctx.db.get(args.budgetMonthId);
+    if (!budgetMonth || budgetMonth.userId !== userId) {
+      throw new Error("Budget month not found");
+    }
+
+    await ctx.db.patch(args.budgetMonthId, { income: args.income });
+    return { success: true };
+  },
+});
+
+// Update savings rate
+export const updateSavingsRate = mutation({
+  args: {
+    budgetMonthId: v.id("budgetMonths"),
+    savingsRate: v.number(),
+    reason: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await auth.getUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    if (args.savingsRate < 0 || args.savingsRate > 1) {
+      throw new Error("Savings rate must be between 0% and 100%");
+    }
+
+    if (args.savingsRate < MIN_SAVINGS_RATE) {
+      if (!args.reason || args.reason.trim().length < 10) {
+        throw new Error(
+          "Please provide a reason (at least 10 characters) for saving less than 20%"
+        );
+      }
+    }
+
+    const budgetMonth = await ctx.db.get(args.budgetMonthId);
+    if (!budgetMonth || budgetMonth.userId !== userId) {
+      throw new Error("Budget month not found");
+    }
+
+    await ctx.db.patch(args.budgetMonthId, {
+      savingsRate: args.savingsRate,
+      adjustmentReason: args.savingsRate < MIN_SAVINGS_RATE ? args.reason : undefined,
+    });
+
+    return { success: true };
+  },
+});
+
+// Get all budget months
+export const getAllBudgetMonths = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await auth.getUserId(ctx);
+    if (!userId) return [];
+
+    const budgetMonths = await ctx.db
+      .query("budgetMonths")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+
+    // Sort by year and month descending
+    budgetMonths.sort((a, b) => {
+      if (a.year !== b.year) return b.year - a.year;
+      return b.month - a.month;
+    });
+
+    // Get allocations for each
+    const result = await Promise.all(
+      budgetMonths.map(async (bm) => {
+        const allocations = await ctx.db
+          .query("allocations")
+          .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", bm._id))
+          .collect();
+
+        const allocationsWithCategories = await Promise.all(
+          allocations.map(async (a) => {
+            const category = await ctx.db.get(a.categoryId);
+            return { ...a, category };
+          })
+        );
+
+        return { ...bm, allocations: allocationsWithCategories };
+      })
+    );
+
+    return result;
+  },
+});

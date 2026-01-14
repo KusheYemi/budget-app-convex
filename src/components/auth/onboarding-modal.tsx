@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,11 +15,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { completeOnboarding } from "@/app/actions/auth";
 import { CURRENCIES, type CurrencyCode } from "@/lib/validators";
 
 export function OnboardingModal() {
   const router = useRouter();
+  const completeOnboarding = useMutation(api.users.completeOnboarding);
   const [step, setStep] = useState(1);
   const [income, setIncome] = useState("");
   const [currency, setCurrency] = useState<CurrencyCode>("SLE");
@@ -33,16 +35,15 @@ export function OnboardingModal() {
     setLoading(true);
     setError(null);
 
-    const result = await completeOnboarding({
-      income: parseFloat(income),
-      currency,
-    });
-
-    if (result.error) {
-      setError(result.error);
-      setLoading(false);
-    } else {
+    try {
+      await completeOnboarding({
+        income: parseFloat(income),
+        currency,
+      });
       router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to complete setup");
+      setLoading(false);
     }
   }
 

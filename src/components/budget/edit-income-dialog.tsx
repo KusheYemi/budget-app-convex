@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,8 +14,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { updateIncome } from "@/app/actions/budget";
 import { CURRENCIES, type CurrencyCode } from "@/lib/validators";
+import type { Id } from "../../../convex/_generated/dataModel";
 
 interface EditIncomeDialogProps {
   open: boolean;
@@ -32,6 +34,7 @@ export function EditIncomeDialog({
   currency,
   onSuccess,
 }: EditIncomeDialogProps) {
+  const updateIncome = useMutation(api.budgets.updateIncome);
   const [income, setIncome] = useState(currentIncome.toString());
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -53,15 +56,17 @@ export function EditIncomeDialog({
     }
 
     setLoading(true);
-    const result = await updateIncome(budgetMonthId, newIncome);
-    setLoading(false);
-
-    if (result.error) {
-      setError(result.error);
-    } else {
+    try {
+      await updateIncome({
+        budgetMonthId: budgetMonthId as Id<"budgetMonths">,
+        income: newIncome,
+      });
       onSuccess?.();
       onOpenChange(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update income");
     }
+    setLoading(false);
   }
 
   return (

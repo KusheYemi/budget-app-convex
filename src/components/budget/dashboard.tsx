@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState, useTransition, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Loader2 } from "lucide-react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { Header } from "@/components/layout/header";
 import { SummaryCard } from "./summary-card";
 import { CategoryList } from "./category-list";
@@ -18,51 +20,31 @@ import {
   formatCurrency,
   formatPercentage,
 } from "@/lib/utils";
-import { getBudgetMonth } from "@/app/actions/budget";
-import { getCategories } from "@/app/actions/categories";
-import { getUserProfile } from "@/app/actions/auth";
-import { copyAllocationsFromPreviousMonthForBudget } from "@/app/actions/allocations";
 import type { CurrencyCode } from "@/lib/validators";
-import type { Category, Allocation, BudgetMonth } from "@prisma/client";
-
-interface AllocationWithCategory extends Allocation {
-  category: Category;
-}
-
-interface BudgetMonthData extends BudgetMonth {
-  allocations: AllocationWithCategory[];
-}
 
 interface DashboardProps {
   initialYear?: number;
   initialMonth?: number;
   initialData?: {
-    profile: Awaited<ReturnType<typeof getUserProfile>> | null;
-    budgetMonth: BudgetMonthData | null;
-    categories: Category[];
+    profile: unknown;
+    budgetMonth: unknown;
+    categories: unknown[];
   };
 }
 
 export function Dashboard({ initialYear, initialMonth, initialData }: DashboardProps) {
-  const [isPending, startTransition] = useTransition();
   const current = getCurrentMonth();
   const year = initialYear ?? current.year;
   const month = initialMonth ?? current.month;
   const isReadOnly = !isCurrentMonth(year, month);
 
-  const [loading, setLoading] = useState(!initialData);
-  const [budgetMonth, setBudgetMonth] = useState<BudgetMonthData | null>(
-    (initialData?.budgetMonth as BudgetMonthData) ?? null
-  );
-  const [categories, setCategories] = useState<Category[]>(
-    initialData?.categories ?? []
-  );
-  const [currency, setCurrency] = useState<CurrencyCode>(
-    (initialData?.profile?.currency as CurrencyCode) ?? "SLE"
-  );
-  const [email, setEmail] = useState<string>(
-    initialData?.profile?.email ?? ""
-  );
+  // Convex queries
+  const user = useQuery(api.users.getCurrentUser);
+  const budgetMonth = useQuery(api.budgets.getBudgetMonth, { year, month });
+  const categories = useQuery(api.categories.getCategories);
+
+  // Convex mutations
+  const copyAllocations = useMutation(api.allocations.copyAllocationsFromPreviousMonthAuto);
 
   const [showIncomeDialog, setShowIncomeDialog] = useState(false);
   const [showSavingsDialog, setShowSavingsDialog] = useState(false);
@@ -70,55 +52,33 @@ export function Dashboard({ initialYear, initialMonth, initialData }: DashboardP
 
   // Optimistic allocations for instant UI updates
   const [optimisticAllocations, setOptimisticAllocations] = useState<
-    AllocationWithCategory[]
-  >(
-    (initialData?.budgetMonth?.allocations as AllocationWithCategory[]) ?? []
-  );
+    Array<{ categoryId: string; amount: number; category: { isSavings: boolean; id: string; name: string; color: string } }>
+  >([]);
 
-  const didUseInitial = useRef(!!initialData);
-
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [profile, budget, cats] = await Promise.all([
-        getUserProfile(),
-        getBudgetMonth(year, month),
-        getCategories(),
-      ]);
-
-      if (profile) {
-        setCurrency(profile.currency as CurrencyCode);
-        setEmail(profile.email);
-      }
-      setBudgetMonth(budget as BudgetMonthData);
-      setOptimisticAllocations(budget?.allocations || []);
-      setCategories(cats);
-    } catch (error) {
-      console.error("Error loading budget data:", error);
-    }
-    setLoading(false);
-  }, [year, month]);
-
+  // Sync optimistic allocations with server data
   useEffect(() => {
-    if (didUseInitial.current) {
-      didUseInitial.current = false;
-      return;
+    if (budgetMonth?.allocations) {
+      setOptimisticAllocations(
+        budgetMonth.allocations.map((a: { categoryId: string; amount: number; category: { isSavings: boolean; _id: string; name: string; color: string } | null }) => ({
+          categoryId: a.categoryId,
+          amount: a.amount,
+          category: a.category ? {
+            isSavings: a.category.isSavings,
+            id: a.category._id,
+            name: a.category.name,
+            color: a.category.color,
+          } : { isSavings: false, id: a.categoryId, name: "", color: "#6366f1" },
+        }))
+      );
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadData();
-  }, [loadData]);
-
-  // Refresh data after mutations
-  function refreshData() {
-    startTransition(() => loadData());
-  }
+  }, [budgetMonth?.allocations]);
 
   // Optimistic update for allocation
-  function handleOptimisticAllocationUpdate(
+  const handleOptimisticAllocationUpdate = useCallback((
     categoryId: string,
     newAmount: number
-  ) {
-    const category = categories.find((c) => c.id === categoryId);
+  ) => {
+    const category = categories?.find((c) => c._id === categoryId);
     if (!category || !budgetMonth) return;
 
     setOptimisticAllocations((prev) => {
@@ -130,41 +90,44 @@ export function Dashboard({ initialYear, initialMonth, initialData }: DashboardP
         const updated = [...prev];
         updated[existingIndex] = {
           ...updated[existingIndex],
-          amount: newAmount as never,
+          amount: newAmount,
         };
         return updated;
       } else if (newAmount > 0) {
         return [
           ...prev,
           {
-            id: `temp-${categoryId}`,
-            budgetMonthId: budgetMonth.id,
             categoryId,
-            amount: newAmount as never,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            category,
-          } as AllocationWithCategory,
+            amount: newAmount,
+            category: {
+              isSavings: category.isSavings,
+              id: category._id,
+              name: category.name,
+              color: category.color,
+            },
+          },
         ];
       }
       return prev;
     });
-  }
+  }, [categories, budgetMonth]);
 
   async function handleCopyPreviousMonth() {
     if (!budgetMonth) return;
     setIsCopying(true);
-    const result = await copyAllocationsFromPreviousMonthForBudget(budgetMonth.id);
-    setIsCopying(false);
-
-    if (result?.error) {
-      toast.error("Copy failed", { description: result.error });
-      return;
+    try {
+      await copyAllocations({ budgetMonthId: budgetMonth._id });
+      toast.success("Copied previous month allocations");
+    } catch (err) {
+      toast.error("Copy failed", { description: err instanceof Error ? err.message : "Unknown error" });
     }
-
-    toast.success("Copied previous month allocations");
-    refreshData();
+    setIsCopying(false);
   }
+
+  // Loading state
+  const loading = user === undefined || budgetMonth === undefined || categories === undefined;
+  const currency = (user?.currency as CurrencyCode) ?? "SLE";
+  const email = user?.email ?? "";
 
   if (loading) {
     return (
@@ -193,26 +156,52 @@ export function Dashboard({ initialYear, initialMonth, initialData }: DashboardP
     );
   }
 
-  const income = Number(budgetMonth.income);
+  const income = budgetMonth.income;
   const savingsRate = budgetMonth.savingsRate;
   const savingsAmount = income * savingsRate;
   const totalAllocated =
     savingsAmount +
     optimisticAllocations
       .filter((a) => !a.category.isSavings)
-      .reduce((sum, a) => sum + Number(a.amount), 0);
+      .reduce((sum, a) => sum + a.amount, 0);
+
+  // Transform categories for CategoryList
+  const categoriesForList = categories.map((c) => ({
+    id: c._id,
+    userId: "", // Not needed for display
+    name: c.name,
+    color: c.color,
+    isSavings: c.isSavings,
+    isDefault: c.isDefault,
+    sortOrder: c.sortOrder,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }));
+
+  // Transform allocations for CategoryList
+  const allocationsForList = optimisticAllocations.map((a) => ({
+    id: `alloc-${a.categoryId}`,
+    budgetMonthId: budgetMonth._id,
+    categoryId: a.categoryId,
+    amount: a.amount as never,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    category: {
+      id: a.category.id,
+      userId: "",
+      name: a.category.name,
+      color: a.category.color,
+      isSavings: a.category.isSavings,
+      isDefault: false,
+      sortOrder: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  }));
 
   return (
     <div className="min-h-screen bg-background">
       <Header email={email} year={year} month={month} />
-
-      {/* Loading overlay for transitions */}
-      {isPending && (
-        <div className="fixed top-16 right-4 z-50 bg-card border rounded-lg shadow-lg p-3 flex items-center gap-2">
-          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-          <span className="text-sm text-muted-foreground">Updating...</span>
-        </div>
-      )}
 
       <main className="container py-6 space-y-6">
         {/* Summary Section */}
@@ -262,15 +251,15 @@ export function Dashboard({ initialYear, initialMonth, initialData }: DashboardP
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Categories */}
           <CategoryList
-            categories={categories}
-            allocations={optimisticAllocations}
-            budgetMonthId={budgetMonth.id}
+            categories={categoriesForList}
+            allocations={allocationsForList}
+            budgetMonthId={budgetMonth._id}
             totalIncome={income}
             savingsRate={savingsRate}
             currency={currency}
             isReadOnly={isReadOnly}
             onAllocationUpdate={handleOptimisticAllocationUpdate}
-            onRefresh={refreshData}
+            onRefresh={() => {}} // Convex auto-refreshes
           />
 
           {/* Quick Stats / Savings Info */}
@@ -318,14 +307,8 @@ export function Dashboard({ initialYear, initialMonth, initialData }: DashboardP
                   .map((c) => ({
                     name: c.name,
                     value: optimisticAllocations.find(
-                      (a) => a.categoryId === c.id
-                    )
-                      ? Number(
-                          optimisticAllocations.find(
-                            (a) => a.categoryId === c.id
-                          )!.amount
-                        )
-                      : 0,
+                      (a) => a.categoryId === c._id
+                    )?.amount ?? 0,
                     color: c.color,
                   })),
               ]}
@@ -344,14 +327,8 @@ export function Dashboard({ initialYear, initialMonth, initialData }: DashboardP
                   .map((c) => ({
                     name: c.name,
                     value: optimisticAllocations.find(
-                      (a) => a.categoryId === c.id
-                    )
-                      ? Number(
-                          optimisticAllocations.find(
-                            (a) => a.categoryId === c.id
-                          )!.amount
-                        )
-                      : 0,
+                      (a) => a.categoryId === c._id
+                    )?.amount ?? 0,
                     color: c.color,
                   })),
               ]}
@@ -365,21 +342,21 @@ export function Dashboard({ initialYear, initialMonth, initialData }: DashboardP
       <EditIncomeDialog
         open={showIncomeDialog}
         onOpenChange={setShowIncomeDialog}
-        budgetMonthId={budgetMonth.id}
+        budgetMonthId={budgetMonth._id}
         currentIncome={income}
         currency={currency}
-        onSuccess={refreshData}
+        onSuccess={() => {}} // Convex auto-refreshes
       />
 
       <SavingsRateDialog
         open={showSavingsDialog}
         onOpenChange={setShowSavingsDialog}
-        budgetMonthId={budgetMonth.id}
+        budgetMonthId={budgetMonth._id}
         currentRate={savingsRate}
         currentReason={budgetMonth.adjustmentReason}
         income={income}
         currency={currency}
-        onSuccess={refreshData}
+        onSuccess={() => {}} // Convex auto-refreshes
       />
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Loader2,
@@ -16,10 +17,10 @@ import {
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signUp } from "@/app/actions/auth";
 
 // Password strength calculation
 function calculatePasswordStrength(password: string): {
@@ -51,6 +52,8 @@ const passwordRequirements = [
 ];
 
 export function SignUpForm() {
+  const router = useRouter();
+  const { signIn } = useAuthActions();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -67,10 +70,13 @@ export function SignUpForm() {
 
   const passwordsMatch = password === confirmPassword && confirmPassword !== "";
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setLoading(true);
     setError(null);
 
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
     const pwd = formData.get("password") as string;
     const confirmPwd = formData.get("confirmPassword") as string;
 
@@ -102,19 +108,19 @@ export function SignUpForm() {
       return;
     }
 
-    const result = await signUp(formData);
-
-    if (result?.error) {
-      setError(result.error);
-      toast.error("Sign up failed", {
-        description: result.error,
-      });
-      setLoading(false);
-    } else {
+    try {
+      await signIn("password", { email, password: pwd, flow: "signUp" });
       toast.success("Account created!", {
         description: "Welcome to Budget App. Let's set up your budget.",
       });
-      // Server action will redirect
+      router.push("/");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Sign up failed";
+      setError(errorMessage);
+      toast.error("Sign up failed", {
+        description: errorMessage,
+      });
+      setLoading(false);
     }
   }
 
@@ -142,7 +148,7 @@ export function SignUpForm() {
         transition={{ duration: 0.4, delay: 0.1 }}
         className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 lg:p-8 shadow-xl"
       >
-        <form action={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Error Message */}
           <AnimatePresence mode="wait">
             {error && (

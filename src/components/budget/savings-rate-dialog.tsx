@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -13,17 +15,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { updateSavingsRate } from "@/app/actions/budget";
 import { formatCurrency, formatPercentage, MIN_SAVINGS_RATE_PERCENT } from "@/lib/utils";
 import type { CurrencyCode } from "@/lib/validators";
 import { cn } from "@/lib/utils";
+import type { Id } from "../../../convex/_generated/dataModel";
 
 interface SavingsRateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   budgetMonthId: string;
   currentRate: number; // 0-1
-  currentReason: string | null;
+  currentReason: string | null | undefined;
   income: number;
   currency: CurrencyCode;
   onSuccess?: () => void;
@@ -39,6 +41,7 @@ export function SavingsRateDialog({
   currency,
   onSuccess,
 }: SavingsRateDialogProps) {
+  const updateSavingsRate = useMutation(api.budgets.updateSavingsRate);
   const [rate, setRate] = useState(currentRate * 100);
   const [reason, setReason] = useState(currentReason || "");
   const [error, setError] = useState<string | null>(null);
@@ -64,19 +67,18 @@ export function SavingsRateDialog({
     }
 
     setLoading(true);
-    const result = await updateSavingsRate(
-      budgetMonthId,
-      rate / 100,
-      needsReason ? reason.trim() : null
-    );
-    setLoading(false);
-
-    if (result.error) {
-      setError(result.error);
-    } else {
+    try {
+      await updateSavingsRate({
+        budgetMonthId: budgetMonthId as Id<"budgetMonths">,
+        savingsRate: rate / 100,
+        reason: needsReason ? reason.trim() : undefined,
+      });
       onSuccess?.();
       onOpenChange(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update savings rate");
     }
+    setLoading(false);
   }
 
   return (

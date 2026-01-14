@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { createCategory } from "@/app/actions/categories";
 
 const PRESET_COLORS = [
   "#6366f1", // Indigo
@@ -34,6 +35,7 @@ interface AddCategoryDialogProps {
 }
 
 export function AddCategoryDialog({ open, onOpenChange, onSuccess }: AddCategoryDialogProps) {
+  const createCategory = useMutation(api.categories.createCategory);
   const [name, setName] = useState("");
   const [color, setColor] = useState(PRESET_COLORS[0]);
   const [error, setError] = useState<string | null>(null);
@@ -49,17 +51,16 @@ export function AddCategoryDialog({ open, onOpenChange, onSuccess }: AddCategory
     }
 
     setLoading(true);
-    const result = await createCategory(name.trim(), color);
-    setLoading(false);
-
-    if (result.error) {
-      setError(result.error);
-    } else {
+    try {
+      await createCategory({ name: name.trim(), color });
       setName("");
       setColor(PRESET_COLORS[0]);
       onOpenChange(false);
       onSuccess?.();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create category");
     }
+    setLoading(false);
   }
 
   function handleClose() {

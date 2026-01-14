@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,11 +16,10 @@ import {
   formatPercentage,
   calculatePercentage,
 } from "@/lib/utils";
-import { updateAllocation } from "@/app/actions/allocations";
-import { deleteCategory } from "@/app/actions/categories";
 import type { CurrencyCode } from "@/lib/validators";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import type { Id } from "../../../convex/_generated/dataModel";
 
 interface CategoryRowProps {
   id: string;
@@ -49,6 +50,9 @@ export function CategoryRow({
   onRefresh,
   onDelete,
 }: CategoryRowProps) {
+  const updateAllocation = useMutation(api.allocations.updateAllocation);
+  const deleteCategoryMutation = useMutation(api.categories.deleteCategory);
+
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(amount.toString());
   const [isLoading, setIsLoading] = useState(false);
@@ -72,18 +76,21 @@ export function CategoryRow({
 
     // Background save
     setIsLoading(true);
-    const result = await updateAllocation(budgetMonthId, id, newAmount);
-    setIsLoading(false);
-
-    if (result.success) {
+    try {
+      await updateAllocation({
+        budgetMonthId: budgetMonthId as Id<"budgetMonths">,
+        categoryId: id as Id<"categories">,
+        amount: newAmount,
+      });
       onRefresh?.();
-    } else {
+    } catch (err) {
       // Revert on error
       onUpdate?.(id, amount);
       toast.error("Failed to update allocation", {
-        description: result.error ?? "Please try again.",
+        description: err instanceof Error ? err.message : "Please try again.",
       });
     }
+    setIsLoading(false);
   }
 
   async function handleDelete() {
@@ -95,18 +102,17 @@ export function CategoryRow({
     if (!confirmed) return;
 
     setIsLoading(true);
-    const result = await deleteCategory(id);
-    setIsLoading(false);
-
-    if (result.success) {
+    try {
+      await deleteCategoryMutation({ categoryId: id as Id<"categories"> });
       onDelete?.(id);
       onRefresh?.();
       toast.success("Category deleted");
-    } else {
+    } catch (err) {
       toast.error("Failed to delete category", {
-        description: result.error ?? "Please try again.",
+        description: err instanceof Error ? err.message : "Please try again.",
       });
     }
+    setIsLoading(false);
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {

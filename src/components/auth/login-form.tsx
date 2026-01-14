@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Loader2,
@@ -13,34 +14,41 @@ import {
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signIn } from "@/app/actions/auth";
 
 export function LoginForm() {
+  const router = useRouter();
+  const { signIn } = useAuthActions();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const result = await signIn(formData);
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
-    if (result?.error) {
-      setError(result.error);
-      toast.error("Sign in failed", {
-        description: result.error,
-      });
-      setLoading(false);
-    } else {
+    try {
+      await signIn("password", { email, password, flow: "signIn" });
       toast.success("Welcome back!", {
         description: "You have been signed in successfully.",
       });
-      // Server action will redirect
+      router.push("/");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Sign in failed";
+      setError(errorMessage);
+      toast.error("Sign in failed", {
+        description: errorMessage,
+      });
+      setLoading(false);
     }
   }
 
@@ -66,7 +74,7 @@ export function LoginForm() {
         transition={{ duration: 0.4, delay: 0.1 }}
         className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 lg:p-8 shadow-xl"
       >
-        <form action={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Error Message */}
           <AnimatePresence mode="wait">
             {error && (

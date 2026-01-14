@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { useAuthActions } from "@convex-dev/auth/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +14,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { signOut } from "@/app/actions/auth";
 
 interface UserMenuProps {
   email?: string;
@@ -21,6 +21,7 @@ interface UserMenuProps {
 
 export function UserMenu({ email }: UserMenuProps) {
   const router = useRouter();
+  const { signOut } = useAuthActions();
   const [mounted, setMounted] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
 
@@ -32,7 +33,12 @@ export function UserMenu({ email }: UserMenuProps) {
 
   async function handleSignOut() {
     setSigningOut(true);
-    await signOut();
+    try {
+      await signOut();
+      router.push("/login");
+    } catch {
+      setSigningOut(false);
+    }
   }
 
   const initials = email
