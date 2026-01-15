@@ -38,9 +38,15 @@ Create a `.env.local` file in the root directory:
 ```env
 NEXT_PUBLIC_CONVEX_URL=https://your-project.convex.cloud
 CONVEX_DEPLOYMENT=dev:your-deployment
+RESEND_FROM_EMAIL=Ledgerise <no-reply@yourdomain.com>
+RESEND_SMTP_PASSWORD=your_resend_api_key
+# Optional overrides
+RESEND_SMTP_HOST=smtp.resend.com
+RESEND_SMTP_PORT=465
+RESEND_SMTP_USER=resend
 ```
 
-Set Convex Auth server-side variables via `npx convex env set` (e.g. `SITE_URL`, `JWT_PRIVATE_KEY`, `JWKS`).
+Set Convex Auth server-side variables via `npx convex env set` (e.g. `SITE_URL`, `JWT_PRIVATE_KEY`, `JWKS`, `RESEND_SMTP_PASSWORD`, `RESEND_FROM_EMAIL`).
 
 ### Installation
 

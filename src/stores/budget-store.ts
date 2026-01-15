@@ -1,23 +1,38 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import type { Category, Allocation, BudgetMonth } from "@prisma/client";
 
-interface AllocationWithCategory extends Allocation {
+interface Category {
+  id: string;
+  name: string;
+  color: string;
+  isSavings: boolean;
+  sortOrder: number;
+}
+
+interface Allocation {
+  id: string;
+  budgetMonthId: string;
+  categoryId: string;
+  amount: number;
   category: Category;
 }
 
-interface BudgetMonthWithAllocations extends BudgetMonth {
-  allocations: AllocationWithCategory[];
+interface BudgetMonth {
+  id: string;
+  income: number;
+  savingsRate: number;
+  adjustmentReason?: string | null;
+  allocations: Allocation[];
 }
 
 interface BudgetState {
   // Data
-  budgetMonth: BudgetMonthWithAllocations | null;
+  budgetMonth: BudgetMonth | null;
   categories: Category[];
   currency: string;
 
   // Actions
-  setBudgetMonth: (budgetMonth: BudgetMonthWithAllocations | null) => void;
+  setBudgetMonth: (budgetMonth: BudgetMonth | null) => void;
   setCategories: (categories: Category[]) => void;
   setCurrency: (currency: string) => void;
   setIncome: (income: number) => void;
@@ -58,7 +73,7 @@ export const useBudgetStore = create<BudgetState>()(
     setIncome: (income) =>
       set((state) => {
         if (state.budgetMonth) {
-          state.budgetMonth.income = income as unknown as import("@prisma/client/runtime/library").Decimal;
+          state.budgetMonth.income = income;
         }
       }),
 
@@ -84,7 +99,7 @@ export const useBudgetStore = create<BudgetState>()(
             state.budgetMonth.allocations.splice(existingIndex, 1);
           } else {
             // Update allocation
-            state.budgetMonth.allocations[existingIndex].amount = amount as unknown as import("@prisma/client/runtime/library").Decimal;
+            state.budgetMonth.allocations[existingIndex].amount = amount;
           }
         } else if (amount > 0) {
           // Find the category
@@ -95,9 +110,7 @@ export const useBudgetStore = create<BudgetState>()(
               id: `temp-${categoryId}`,
               budgetMonthId: state.budgetMonth.id,
               categoryId,
-              amount: amount as unknown as import("@prisma/client/runtime/library").Decimal,
-              createdAt: new Date(),
-              updatedAt: new Date(),
+              amount,
               category,
             });
           }

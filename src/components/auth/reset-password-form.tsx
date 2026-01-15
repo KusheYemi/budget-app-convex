@@ -5,13 +5,22 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Eye, EyeOff, Lock, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { updatePassword } from "@/app/actions/auth";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
 
-export function ResetPasswordForm({ email }: { email: string }) {
+export function ResetPasswordForm({
+  email: initialEmail,
+  code,
+}: {
+  email?: string;
+  code: string;
+}) {
   const router = useRouter();
+  const { signIn } = useAuthActions();
+  const [email, setEmail] = useState(initialEmail ?? "");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,25 +35,40 @@ export function ResetPasswordForm({ email }: { email: string }) {
     e.preventDefault();
     setError(null);
 
+    if (!code) {
+      setError("This reset link is missing or invalid. Request a new one.");
+      return;
+    }
+
+    if (!email) {
+      setError("Please enter the email you used to create your account.");
+      return;
+    }
+
     if (!passwordsMatch) {
       setError("Passwords do not match");
       return;
     }
 
     setLoading(true);
-    const result = await updatePassword(password);
-    setLoading(false);
-
-    if (result?.error) {
-      setError(result.error);
-      toast.error("Reset failed", { description: result.error });
-      return;
+    try {
+      await signIn("password", {
+        flow: "reset-verification",
+        email,
+        code,
+        newPassword: password,
+      });
+      toast.success("Password updated", {
+        description: "You can now continue to your dashboard.",
+      });
+      router.push("/dashboard");
+    } catch (err) {
+      const message = getAuthErrorMessage(err, "reset");
+      setError(message);
+      toast.error("Reset failed", { description: message });
+    } finally {
+      setLoading(false);
     }
-
-    toast.success("Password updated", {
-      description: "You can now continue to your dashboard.",
-    });
-    router.push("/dashboard");
   }
 
   return (
@@ -82,6 +106,26 @@ export function ResetPasswordForm({ email }: { email: string }) {
               </motion.div>
             )}
           </AnimatePresence>
+
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-sm font-medium">
+              Email address
+            </Label>
+            <div className="relative">
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="you@example.com"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+                className="h-12 bg-background/50 border-border/50 rounded-xl transition-all focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="password" className="text-sm font-medium">
@@ -181,4 +225,3 @@ export function ResetPasswordForm({ email }: { email: string }) {
     </div>
   );
 }
-

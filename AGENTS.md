@@ -45,6 +45,6 @@ npm run import-data  # Import demo data into Convex
 ## Security & Configuration Tips
 
 - Store Convex public settings in `.env.local` (`NEXT_PUBLIC_CONVEX_URL`, `CONVEX_DEPLOYMENT`).
-- Configure `SITE_URL`, `JWT_PRIVATE_KEY`, and `JWKS` via `npx convex env set` (not in git).
+- Configure `SITE_URL`, `JWT_PRIVATE_KEY`, `JWKS`, `RESEND_SMTP_PASSWORD`, and `RESEND_FROM_EMAIL` via `npx convex env set` (not in git).
 - Never commit secrets or production credentials.
 - For local data refreshes, prefer `npm run import-data` over manual edits.

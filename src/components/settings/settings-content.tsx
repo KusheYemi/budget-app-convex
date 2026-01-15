@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation } from "convex/react";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -13,9 +14,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Lock, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { updateCurrency, updatePassword } from "@/app/actions/auth";
+import { api } from "../../../convex/_generated/api";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
 import { CURRENCIES, type CurrencyCode } from "@/lib/validators";
 
 interface SettingsContentProps {
@@ -31,60 +33,55 @@ export function SettingsContent({
   year,
   month,
 }: SettingsContentProps) {
+  const updateCurrency = useMutation(api.users.updateCurrency);
+  const { signIn } = useAuthActions();
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyCode>(currency);
   const [saving, setSaving] = useState(false);
-
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const [changingPassword, setChangingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [sendingReset, setSendingReset] = useState(false);
 
   async function handleSave() {
     setSaving(true);
-    const result = await updateCurrency(selectedCurrency);
-    setSaving(false);
-
-    if (result?.error) {
+    try {
+      await updateCurrency({ currency: selectedCurrency });
+      toast.success("Settings updated");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Please try again.";
       toast.error("Failed to update settings", {
-        description: result.error,
+        description: message,
       });
-      return;
+    } finally {
+      setSaving(false);
     }
-
-    toast.success("Settings updated");
   }
 
-  async function handleChangePassword(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSendResetLink() {
     setPasswordError(null);
 
-    if (!newPassword || !confirmNewPassword) {
-      setPasswordError("Please enter and confirm your new password");
+    if (!email) {
+      setPasswordError("We couldn't find an email for this account.");
       return;
     }
 
-    if (newPassword !== confirmNewPassword) {
-      setPasswordError("Passwords do not match");
-      return;
-    }
-
-    setChangingPassword(true);
-    const result = await updatePassword(newPassword);
-    setChangingPassword(false);
-
-    if (result?.error) {
-      setPasswordError(result.error);
-      toast.error("Failed to change password", {
-        description: result.error,
+    setSendingReset(true);
+    try {
+      await signIn("password", {
+        flow: "reset",
+        email,
+        redirectTo: `/reset-password?email=${encodeURIComponent(email)}`,
       });
-      return;
+      toast.success("Check your email", {
+        description: "We sent you a password reset link.",
+      });
+    } catch (err) {
+      const message = getAuthErrorMessage(err, "reset");
+      setPasswordError(message);
+      toast.error("Reset failed", {
+        description: message,
+      });
+    } finally {
+      setSendingReset(false);
     }
-
-    setNewPassword("");
-    setConfirmNewPassword("");
-    toast.success("Password updated");
   }
 
   return (
@@ -139,90 +136,26 @@ export function SettingsContent({
           <CardHeader>
             <CardTitle className="text-lg">Security</CardTitle>
             <CardDescription>
-              Change your password. Must be at least 8 characters and include an uppercase letter, lowercase letter, and a number.
+              We&apos;ll email you a secure link to reset your password.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleChangePassword} className="space-y-4">
-              {passwordError && (
-                <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
-                  {passwordError}
-                </div>
+          <CardContent className="space-y-4">
+            {passwordError && (
+              <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
+                {passwordError}
+              </div>
+            )}
+
+            <p className="text-sm text-muted-foreground">
+              We&apos;ll send the reset link to <span className="font-medium">{email}</span>.
+            </p>
+
+            <Button onClick={handleSendResetLink} disabled={sendingReset}>
+              {sendingReset && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">New password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="newPassword"
-                    type={showNewPassword ? "text" : "password"}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    autoComplete="new-password"
-                    disabled={changingPassword}
-                    className="pl-9 pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
-                    onClick={() => setShowNewPassword((v) => !v)}
-                    disabled={changingPassword}
-                  >
-                    {showNewPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <span className="sr-only">
-                      {showNewPassword ? "Hide password" : "Show password"}
-                    </span>
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirmNewPassword">Confirm new password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="confirmNewPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={confirmNewPassword}
-                    onChange={(e) => setConfirmNewPassword(e.target.value)}
-                    autoComplete="new-password"
-                    disabled={changingPassword}
-                    className="pl-9 pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
-                    onClick={() => setShowConfirmPassword((v) => !v)}
-                    disabled={changingPassword}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <span className="sr-only">
-                      {showConfirmPassword ? "Hide password" : "Show password"}
-                    </span>
-                  </Button>
-                </div>
-              </div>
-
-              <Button type="submit" disabled={changingPassword}>
-                {changingPassword && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                {changingPassword ? "Updating..." : "Update password"}
-              </Button>
-            </form>
+              {sendingReset ? "Sending..." : "Email reset link"}
+            </Button>
           </CardContent>
         </Card>
       </main>

@@ -175,7 +175,7 @@ export default function AuthLayout({
               >
                 <Wallet className="w-6 h-6" />
               </motion.div>
-              <span className="text-2xl font-bold">Budget App</span>
+              <span className="text-2xl font-bold">Ledgerise</span>
             </Link>
           </motion.div>
 

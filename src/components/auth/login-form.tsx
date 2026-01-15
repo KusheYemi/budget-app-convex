@@ -18,6 +18,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
 
 export function LoginForm() {
   const router = useRouter();
@@ -43,7 +44,7 @@ export function LoginForm() {
       });
       router.push("/");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Sign in failed";
+      const errorMessage = getAuthErrorMessage(err, "signIn");
       setError(errorMessage);
       toast.error("Sign in failed", {
         description: errorMessage,
@@ -219,7 +220,7 @@ export function LoginForm() {
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-card px-3 text-muted-foreground">
-              New to Budget App?
+              New to Ledgerise?
             </span>
           </div>
         </div>

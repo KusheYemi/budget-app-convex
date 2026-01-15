@@ -2,35 +2,44 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Mail, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { sendPasswordResetEmail } from "@/app/actions/auth";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
 
 export function ResetRequestForm() {
+  const { signIn } = useAuthActions();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
-    const result = await sendPasswordResetEmail(email);
-    setLoading(false);
-
-    if (result?.error) {
-      toast.error("Reset failed", { description: result.error });
-      return;
+    try {
+      await signIn("password", {
+        flow: "reset",
+        email,
+        redirectTo: `/reset-password?email=${encodeURIComponent(email)}`,
+      });
+      setSent(true);
+      toast.success("Check your email", {
+        description: "We sent you a password reset link.",
+      });
+    } catch (err) {
+      const message = getAuthErrorMessage(err, "reset");
+      setError(message);
+      toast.error("Reset failed", { description: message });
+    } finally {
+      setLoading(false);
     }
-
-    setSent(true);
-    toast.success("Check your email", {
-      description: "We sent you a password reset link.",
-    });
   }
 
   return (
@@ -69,6 +78,20 @@ export function ResetRequestForm() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
+            <AnimatePresence mode="wait">
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="p-4 text-sm text-destructive bg-destructive/10 rounded-xl border border-destructive/20 flex items-center gap-3"
+                >
+                  <div className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
                 Email address
@@ -120,4 +143,3 @@ export function ResetRequestForm() {
     </div>
   );
 }
-

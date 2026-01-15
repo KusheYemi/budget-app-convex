@@ -22,8 +22,17 @@ import {
   MIN_SAVINGS_RATE,
   MIN_SAVINGS_RATE_PERCENT,
 } from "@/lib/utils";
-import type { HistoryMonth } from "@/app/actions/history";
 import type { CurrencyCode } from "@/lib/validators";
+
+interface HistoryMonth {
+  year: number;
+  month: number;
+  income: number;
+  savingsRate: number;
+  savingsAmount: number;
+  totalAllocated: number;
+  adjustmentReason?: string | null;
+}
 
 interface HistoryContentProps {
   months: HistoryMonth[];

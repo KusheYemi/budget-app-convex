@@ -30,14 +30,14 @@ export function Header({ email, year, month }: HeaderProps) {
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <Image
             src="/budget-app.jpg"
-            alt="Budget App Logo"
+            alt="Ledgerise Logo"
             width={32}
             height={32}
             className="rounded-md"
           />
           <span className="hidden xs:inline">
-            <span className="text-primary">Budget</span>
-            <span className="text-muted-foreground">App</span>
+            <span className="text-primary">Ledger</span>
+            <span className="text-muted-foreground">ise</span>
           </span>
         </Link>
 

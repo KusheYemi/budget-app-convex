@@ -21,6 +21,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
 
 // Password strength calculation
 function calculatePasswordStrength(password: string): {
@@ -111,11 +112,11 @@ export function SignUpForm() {
     try {
       await signIn("password", { email, password: pwd, flow: "signUp" });
       toast.success("Account created!", {
-        description: "Welcome to Budget App. Let's set up your budget.",
+        description: "Welcome to Ledgerise. Let's set up your budget.",
       });
       router.push("/");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Sign up failed";
+      const errorMessage = getAuthErrorMessage(err, "signUp");
       setError(errorMessage);
       toast.error("Sign up failed", {
         description: errorMessage,

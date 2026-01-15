@@ -5,10 +5,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CategoryRow } from "./category-row";
 import { AddCategoryDialog } from "./add-category-dialog";
-import type { Category, Allocation } from "@prisma/client";
 import type { CurrencyCode } from "@/lib/validators";
 
-interface AllocationWithCategory extends Allocation {
+interface Category {
+  id: string;
+  name: string;
+  color: string;
+  isSavings: boolean;
+  sortOrder: number;
+}
+
+interface AllocationWithCategory {
+  categoryId: string;
+  amount: number;
   category: Category;
 }
 

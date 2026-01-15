@@ -176,7 +176,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
               <Wallet className="w-5 h-5" />
             </motion.div>
             <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Budget App
+              Ledgerise
             </span>
           </Link>
           <div className="flex items-center gap-3">
@@ -899,7 +899,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
               <div className="w-9 h-9 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center text-primary-foreground">
                 <Wallet className="w-5 h-5" />
               </div>
-              <span>Budget App</span>
+              <span>Ledgerise</span>
             </div>
             <div className="flex items-center gap-8 text-sm text-muted-foreground">
               <Link href="#" className="hover:text-foreground transition-colors">
@@ -913,7 +913,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
               </Link>
             </div>
             <div className="text-sm text-muted-foreground">
-              © 2025 Budget App. All rights reserved.
+              © 2025 Ledgerise. All rights reserved.
             </div>
           </div>
         </div>

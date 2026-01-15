@@ -14,8 +14,34 @@ import {
   getCurrentMonth,
   MIN_SAVINGS_RATE_PERCENT,
 } from "@/lib/utils";
-import type { InsightsData } from "@/app/actions/insights";
 import type { CurrencyCode } from "@/lib/validators";
+
+interface InsightsData {
+  totalMonths: number;
+  averageIncome: number;
+  averageSavingsRate: number;
+  averageSavingsAmount: number;
+  totalSaved: number;
+  monthlyTrends: Array<{
+    year: number;
+    month: number;
+    income: number;
+    savingsRate: number;
+    savingsAmount: number;
+    totalAllocated: number;
+  }>;
+  topCategories: Array<{
+    name: string;
+    total: number;
+    color: string;
+  }>;
+  monthsWithLowSavings: Array<{
+    year: number;
+    month: number;
+    savingsRate: number;
+    adjustmentReason?: string | null;
+  }>;
+}
 
 interface InsightsContentProps {
   data: InsightsData;

@@ -51,7 +51,7 @@ export function OnboardingModal() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Welcome to Budget App!</CardTitle>
+          <CardTitle className="text-2xl">Welcome to Ledgerise!</CardTitle>
           <CardDescription>
             Let&apos;s set up your first monthly budget
           </CardDescription>
