@@ -127,7 +127,7 @@ export function CategoryRow({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 p-3 rounded-lg border transition-colors",
+        "flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border transition-colors",
         isSavings && "bg-savings/5 border-savings/20"
       )}
     >
@@ -156,7 +156,7 @@ export function CategoryRow({
             onChange={(e) => setEditValue(e.target.value)}
             onBlur={handleSave}
             onKeyDown={handleKeyDown}
-            className="w-20 sm:w-28 text-right text-sm"
+            className="w-24 sm:w-28 h-10 sm:h-9 text-right text-sm"
             min="0"
             step="0.01"
             autoFocus
@@ -180,7 +180,7 @@ export function CategoryRow({
         {!isReadOnly && !isSavings && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-10 w-10 sm:h-8 sm:w-8">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"

@@ -166,7 +166,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
         transition={{ duration: 0.5, delay: 0.2 }}
         className="fixed top-0 w-full z-50 bg-background/60 backdrop-blur-xl border-b border-border/40"
       >
-        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 font-bold text-xl group">
             <motion.div
               className="w-9 h-9 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/25"
@@ -244,7 +244,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
       <section ref={heroRef} className="relative min-h-screen flex items-center pt-16">
         <motion.div
           style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
-          className="container mx-auto px-6 py-20 lg:py-32"
+          className="container mx-auto px-4 sm:px-6 py-16 sm:py-20 lg:py-32"
         >
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             {/* Left: Text Content */}
@@ -325,7 +325,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                 initial={{ opacity: 0, y: 30 }}
                 animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.5 }}
-                className="mt-10 flex items-center gap-6 justify-center lg:justify-start text-sm text-muted-foreground"
+                className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center gap-3 sm:gap-6 justify-center lg:justify-start text-sm text-muted-foreground"
               >
                 <div className="flex items-center gap-2">
                   <Lock className="w-4 h-4 text-green-500" />
@@ -348,7 +348,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
               <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-3xl blur-3xl opacity-50" />
 
               {/* Main Demo Card */}
-              <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl p-6 shadow-2xl">
+              <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl">
                 {/* Currency Switcher Preview */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
@@ -499,16 +499,16 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                 </div>
               </div>
 
-              {/* Floating elements */}
+              {/* Floating elements - hidden on mobile to prevent overflow */}
               <motion.div
-                className="absolute -right-4 top-1/4 bg-card border rounded-xl p-3 shadow-lg"
+                className="hidden sm:block absolute -right-4 top-1/4 bg-card border rounded-xl p-3 shadow-lg"
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 3, repeat: Infinity }}
               >
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
               </motion.div>
               <motion.div
-                className="absolute -left-4 bottom-1/4 bg-card border rounded-xl p-3 shadow-lg"
+                className="hidden sm:block absolute -left-4 bottom-1/4 bg-card border rounded-xl p-3 shadow-lg"
                 animate={{ y: [0, 10, 0] }}
                 transition={{ duration: 4, repeat: Infinity }}
               >
@@ -536,8 +536,8 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
 
       {/* Stats Section */}
       <section className="py-20 border-y border-border/50 bg-secondary/20">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
             <StatCard value="10K+" label="Active Users" delay={0} />
             <StatCard value="$2M+" label="Tracked Monthly" delay={0.1} />
             <StatCard value="20%" label="Avg. Savings Rate" delay={0.2} />
@@ -547,8 +547,8 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
       </section>
 
       {/* Features Bento Grid */}
-      <section id="demo" className="py-24">
-        <div className="container mx-auto px-6">
+      <section id="demo" className="py-16 sm:py-24">
+        <div className="container mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -757,8 +757,8 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
       </section>
 
       {/* How it Works */}
-      <section id="how-it-works" className="py-24 bg-secondary/20">
-        <div className="container mx-auto px-6">
+      <section id="how-it-works" className="py-16 sm:py-24 bg-secondary/20">
+        <div className="container mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -828,7 +828,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-6">
+      <section className="py-16 sm:py-24 px-4 sm:px-6">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -892,8 +892,8 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
       </section>
 
       {/* Footer */}
-      <footer className="py-16 border-t bg-background">
-        <div className="container mx-auto px-6">
+      <footer className="py-12 sm:py-16 border-t bg-background">
+        <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="flex items-center gap-2.5 font-bold text-xl">
               <div className="w-9 h-9 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center text-primary-foreground">

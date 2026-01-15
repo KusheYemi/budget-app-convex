@@ -209,31 +209,34 @@ export function Dashboard({ initialYear, initialMonth, initialData }: DashboardP
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <h1 className="text-xl sm:text-2xl font-bold">Budget Overview</h1>
             {!isReadOnly && (
-              <div className="flex gap-2">
+              <div className="grid grid-cols-3 sm:flex gap-2 w-full sm:w-auto">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 sm:flex-none text-xs sm:text-sm"
+                  className="text-xs sm:text-sm"
                   onClick={() => setShowIncomeDialog(true)}
                 >
-                  Edit Income
+                  <span className="sm:hidden">Income</span>
+                  <span className="hidden sm:inline">Edit Income</span>
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 sm:flex-none text-xs sm:text-sm"
+                  className="text-xs sm:text-sm"
                   onClick={() => setShowSavingsDialog(true)}
                 >
-                  Adjust Savings
+                  <span className="sm:hidden">Savings</span>
+                  <span className="hidden sm:inline">Adjust Savings</span>
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 sm:flex-none text-xs sm:text-sm"
+                  className="text-xs sm:text-sm"
                   onClick={handleCopyPreviousMonth}
                   disabled={isCopying}
                 >
-                  {isCopying ? "Copying..." : "Copy Last Month"}
+                  <span className="sm:hidden">{isCopying ? "..." : "Copy"}</span>
+                  <span className="hidden sm:inline">{isCopying ? "Copying..." : "Copy Last Month"}</span>
                 </Button>
               </div>
             )}
@@ -248,7 +251,7 @@ export function Dashboard({ initialYear, initialMonth, initialData }: DashboardP
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
           {/* Categories */}
           <CategoryList
             categories={categoriesForList}

@@ -65,7 +65,7 @@ export function IncomeSavingsLineChart({
           <CardTitle className="text-lg">Income vs Savings Trend</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-64 flex items-center justify-center text-muted-foreground">
+          <div className="h-48 sm:h-56 md:h-64 flex items-center justify-center text-muted-foreground">
             No data to display
           </div>
         </CardContent>
@@ -85,35 +85,53 @@ export function IncomeSavingsLineChart({
         <CardTitle className="text-lg">Income vs Savings Trend</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-80">
+        <div className="h-56 sm:h-64 md:h-80">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={chartData}
-              margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+              margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="name"
-                tick={{ fontSize: 10 }}
+                tick={{ fontSize: 9 }}
                 angle={-45}
                 textAnchor="end"
-                height={60}
+                height={50}
+                tickFormatter={(value) => {
+                  // Shorten month names on mobile (e.g., "Jan 2024" instead of "January 2024")
+                  const parts = value.split(" ");
+                  if (parts.length === 2) {
+                    return `${parts[0].slice(0, 3)} ${parts[1].slice(2)}`;
+                  }
+                  return value;
+                }}
               />
               <YAxis
-                tickFormatter={(value) => formatCurrency(value, currency)}
-                tick={{ fontSize: 10 }}
-                width={50}
+                tickFormatter={(value) => {
+                  // Shorten currency display
+                  if (value >= 1000) {
+                    return `${(value / 1000).toFixed(0)}k`;
+                  }
+                  return value.toString();
+                }}
+                tick={{ fontSize: 9 }}
+                width={40}
               />
               <Tooltip content={<CustomTooltip currency={currency} />} />
-              <Legend />
+              <Legend
+                verticalAlign="top"
+                height={30}
+                wrapperStyle={{ fontSize: "12px" }}
+              />
               <Line
                 type="monotone"
                 dataKey="income"
                 name="Income"
                 stroke="#2563eb"
                 strokeWidth={2}
-                dot={{ fill: "#2563eb", r: 4 }}
-                activeDot={{ r: 6 }}
+                dot={{ fill: "#2563eb", r: 3 }}
+                activeDot={{ r: 5 }}
               />
               <Line
                 type="monotone"
@@ -121,8 +139,8 @@ export function IncomeSavingsLineChart({
                 name="Savings"
                 stroke="#6366f1"
                 strokeWidth={2}
-                dot={{ fill: "#6366f1", r: 4 }}
-                activeDot={{ r: 6 }}
+                dot={{ fill: "#6366f1", r: 3 }}
+                activeDot={{ r: 5 }}
               />
             </LineChart>
           </ResponsiveContainer>

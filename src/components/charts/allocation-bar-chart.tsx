@@ -67,7 +67,7 @@ export function AllocationBarChart({
           <CardTitle className="text-lg">Category Breakdown</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-64 flex items-center justify-center text-muted-foreground">
+          <div className="h-48 sm:h-56 md:h-64 flex items-center justify-center text-muted-foreground">
             No allocations to display
           </div>
         </CardContent>
@@ -81,12 +81,12 @@ export function AllocationBarChart({
         <CardTitle className="text-lg">Category Breakdown</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-64">
+        <div className="h-48 sm:h-56 md:h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={filteredData}
               layout="vertical"
-              margin={{ top: 5, right: 10, left: 5, bottom: 5 }}
+              margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
             >
               <CartesianGrid
                 strokeDasharray="3 3"
@@ -96,13 +96,16 @@ export function AllocationBarChart({
               <XAxis
                 type="number"
                 tickFormatter={(value) => formatCurrency(value, currency)}
-                tick={{ fontSize: 10 }}
+                tick={{ fontSize: 9 }}
               />
               <YAxis
                 type="category"
                 dataKey="name"
-                width={60}
-                tick={{ fontSize: 10 }}
+                width={70}
+                tick={{ fontSize: 9 }}
+                tickFormatter={(value) =>
+                  value.length > 10 ? `${value.slice(0, 9)}...` : value
+                }
               />
               <Tooltip content={<CustomTooltip currency={currency} />} />
               <Bar dataKey="value" radius={[0, 4, 4, 0]}>

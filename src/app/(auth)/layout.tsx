@@ -160,7 +160,7 @@ export default function AuthLayout({
         </div>
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col justify-between h-full p-8 lg:p-12 text-white min-h-[300px] lg:min-h-screen">
+        <div className="relative z-10 flex flex-col justify-between h-full p-4 sm:p-6 lg:p-12 text-white min-h-[200px] sm:min-h-[250px] lg:min-h-screen">
           {/* Logo */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -277,7 +277,7 @@ export default function AuthLayout({
       </div>
 
       {/* Right Side - Form Area */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}

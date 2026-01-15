@@ -129,7 +129,7 @@ export function InsightsContent({
         </div>
 
         {/* Charts Row */}
-        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
           {/* Income vs Savings Trend */}
           <IncomeSavingsLineChart
             data={data.monthlyTrends}

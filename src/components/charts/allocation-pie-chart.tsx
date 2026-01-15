@@ -69,15 +69,16 @@ export function AllocationPieChart({ data, currency }: AllocationPieChartProps) 
         <CardTitle className="text-lg">Spending Distribution</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-64">
+        {/* Chart container */}
+        <div className="h-44 sm:h-48">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={filteredData}
                 cx="50%"
                 cy="50%"
-                innerRadius={60}
-                outerRadius={80}
+                innerRadius={40}
+                outerRadius={60}
                 paddingAngle={2}
                 dataKey="value"
                 nameKey="name"
@@ -87,26 +88,26 @@ export function AllocationPieChart({ data, currency }: AllocationPieChartProps) 
                 ))}
               </Pie>
               <Tooltip content={<CustomTooltip currency={currency} total={total} />} />
-              <Legend
-                layout="horizontal"
-                verticalAlign="bottom"
-                align="center"
-                formatter={(value, entry) => {
-                  const payload = entry?.payload as CategoryData | undefined;
-                  const percent =
-                    payload && total > 0 ? (payload.value / total) * 100 : 0;
-                  return (
-                    <span className="text-sm text-foreground">
-                      {value}
-                      <span className="ml-1 text-muted-foreground">
-                        ({formatPercentage(percent, 0)})
-                      </span>
-                    </span>
-                  );
-                }}
-              />
             </PieChart>
           </ResponsiveContainer>
+        </div>
+        {/* Legend below chart */}
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2">
+          {filteredData.map((entry) => {
+            const percent = total > 0 ? (entry.value / total) * 100 : 0;
+            return (
+              <div key={entry.name} className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <div
+                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: entry.color }}
+                />
+                <span className="text-foreground">{entry.name}</span>
+                <span className="text-muted-foreground">
+                  ({formatPercentage(percent, 0)})
+                </span>
+              </div>
+            );
+          })}
         </div>
       </CardContent>
     </Card>
