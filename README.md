@@ -1,6 +1,6 @@
 # Budget App
 
-A modern, responsive monthly budgeting web app built with Next.js, Supabase, and Prisma.
+A modern, responsive monthly budgeting web app built with Next.js and Convex.
 
 ## Features
 
@@ -17,9 +17,8 @@ A modern, responsive monthly budgeting web app built with Next.js, Supabase, and
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router, TypeScript)
-- **Database**: PostgreSQL via Supabase
-- **ORM**: Prisma
-- **Auth**: Supabase Auth (email/password)
+- **Backend/Database**: Convex
+- **Auth**: Convex Auth (email/password)
 - **UI**: shadcn/ui + Tailwind CSS v4
 - **Charts**: Recharts
 - **State**: Zustand
@@ -30,23 +29,18 @@ A modern, responsive monthly budgeting web app built with Next.js, Supabase, and
 ### Prerequisites
 
 - Node.js 18+
-- A Supabase project (free tier works)
+- A Convex project (free tier works)
 
 ### Environment Variables
 
 Create a `.env.local` file in the root directory:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_CONVEX_URL=https://your-project.convex.cloud
+CONVEX_DEPLOYMENT=dev:your-deployment
 ```
 
-Create a `.env` file for Prisma:
-
-```env
-DATABASE_URL="postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres?pgbouncer=true"
-DIRECT_URL="postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:5432/postgres"
-```
+Set Convex Auth server-side variables via `npx convex env set` (e.g. `SITE_URL`, `JWT_PRIVATE_KEY`, `JWKS`).
 
 ### Installation
 
@@ -54,14 +48,8 @@ DIRECT_URL="postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler
 # Install dependencies
 npm install
 
-# Generate Prisma client
-npx prisma generate
-
-# Run database migrations
-npx prisma migrate dev
-
-# Optional: seed a demo user (requires SEED_USER_ID + SEED_EMAIL)
-npm run seed
+# Run Convex dev backend (first run configures your project)
+npx convex dev
 
 # Start development server
 npm run dev
@@ -79,8 +67,8 @@ src/
 │   │   └── signup/
 │   ├── budget/[year]/[month]/  # Historical month view
 │   ├── insights/         # Statistics page
-│   ├── actions/          # Server actions
 │   └── page.tsx          # Dashboard (current month)
+├── convex/               # Convex functions + schema
 ├── components/
 │   ├── auth/             # Auth forms
 │   ├── budget/           # Budget UI components
@@ -88,10 +76,10 @@ src/
 │   ├── layout/           # Header, navigation
 │   └── ui/               # shadcn/ui components
 ├── lib/
-│   ├── prisma.ts         # Prisma client singleton
-│   ├── supabase/         # Supabase clients
 │   ├── utils.ts          # Utility functions
 │   └── validators.ts     # Zod schemas
+├── hooks/
+│   └── use-auth.ts        # Convex auth hook
 └── stores/
     └── budget-store.ts   # Zustand store
 ```
@@ -119,22 +107,26 @@ Past months are automatically locked and displayed in read-only mode. Only the c
 
 ## Database Schema
 
-- **User**: Email, currency preference
-- **BudgetMonth**: Year, month, income, savings rate, adjustment reason
-- **Category**: Name, color, sort order, isSavings flag
-- **Allocation**: Links budget months to categories with amounts
+Core Convex tables:
+- **users**: Email, currency preference
+- **budgetMonths**: Year, month, income, savings rate, adjustment reason
+- **categories**: Name, color, sort order, isSavings flag
+- **allocations**: Links budget months to categories with amounts
+
+Convex Auth adds its own auth tables for accounts, sessions, and tokens.
 
 ## Deployment
 
 The app can be deployed to Vercel:
 
 ```bash
+npx convex deploy
 npm run build
 ```
 
 Make sure to:
 1. Set environment variables in your hosting platform
-2. Run Prisma migrations against your production database
+2. Configure Convex Auth env vars in your Convex deployment
 
 ## License
 

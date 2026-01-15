@@ -2,11 +2,12 @@
 
 ## Project Structure & Module Organization
 
-- `src/app/` contains Next.js App Router routes, layouts, and server actions.
+- `src/app/` contains Next.js App Router routes and layouts.
+- `convex/` contains Convex functions, schema, auth config, and HTTP routes.
 - `src/components/` holds UI and feature components (kebab-case filenames, PascalCase exports).
-- `src/lib/` provides shared utilities (Supabase clients, Prisma client, helpers, validators).
+- `src/lib/` provides shared utilities (helpers, validators).
+- `src/hooks/` contains reusable hooks (Convex auth, etc.).
 - `src/stores/` contains Zustand state stores.
-- `prisma/` includes the schema and `seed.mjs` for database seeding.
 - `public/` stores static assets served by Next.js.
 
 ## Build, Test, and Development Commands
@@ -14,12 +15,12 @@
 ```bash
 npm install          # Install dependencies
 npm run dev          # Run local dev server at http://localhost:3000
+npx convex dev       # Run Convex dev backend + generate types
 npm run build        # Build for production
 npm run start        # Start production server
 npm run lint         # Run ESLint (Next.js + TS rules)
-npx prisma generate  # Generate Prisma client
-npx prisma migrate dev  # Run local migrations
-npm run seed         # Seed demo data (requires SEED_* env vars)
+npx convex deploy    # Deploy Convex functions to production
+npm run import-data  # Import demo data into Convex
 ```
 
 ## Coding Style & Naming Conventions
@@ -43,6 +44,7 @@ npm run seed         # Seed demo data (requires SEED_* env vars)
 
 ## Security & Configuration Tips
 
-- Store Supabase public settings in `.env.local` and database URLs in `.env`.
+- Store Convex public settings in `.env.local` (`NEXT_PUBLIC_CONVEX_URL`, `CONVEX_DEPLOYMENT`).
+- Configure `SITE_URL`, `JWT_PRIVATE_KEY`, and `JWKS` via `npx convex env set` (not in git).
 - Never commit secrets or production credentials.
-- For local DB resets, prefer migrations + `npm run seed` over manual edits.
+- For local data refreshes, prefer `npm run import-data` over manual edits.
