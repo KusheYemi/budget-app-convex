@@ -60,8 +60,10 @@ export function Dashboard({
   >([]);
 
   // Sync optimistic allocations with server data
+  // This effect intentionally syncs React state with Convex query results
   useEffect(() => {
     if (budgetMonth?.allocations) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOptimisticAllocations(
         budgetMonth.allocations.map((a: { categoryId: string; amount: number; category: { isSavings: boolean; _id: string; name: string; color: string } | null }) => ({
           categoryId: a.categoryId,
@@ -93,6 +95,7 @@ export function Dashboard({
     }
 
     let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async effect tracking state
     setIsCreatingBudgetMonth(true);
     setHasAttemptedCreate(true);
     setCreateError(null);

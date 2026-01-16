@@ -1,13 +1,14 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { Id } from "./_generated/dataModel";
 
 // IMPORTANT: Delete this file after data import is complete!
 
 // ID mapping types
 type OldToNewIdMap = {
-  users: Map<string, string>;
-  categories: Map<string, string>;
-  budgetMonths: Map<string, string>;
+  users: Map<string, Id<"users">>;
+  categories: Map<string, Id<"categories">>;
+  budgetMonths: Map<string, Id<"budgetMonths">>;
 };
 
 // Data structure types matching the export format
@@ -84,7 +85,7 @@ export const importData = mutation({
           .withIndex("email", (q) => q.eq("email", userData.email))
           .first();
 
-        let newUserId: string;
+        let newUserId: Id<"users">;
 
         if (existingUser) {
           // Update existing user
@@ -109,11 +110,11 @@ export const importData = mutation({
             // Check if category already exists
             const existingCategory = await ctx.db
               .query("categories")
-              .withIndex("by_user", (q) => q.eq("userId", newUserId as any))
+              .withIndex("by_user", (q) => q.eq("userId", newUserId))
               .filter((q) => q.eq(q.field("name"), category.name))
               .first();
 
-            let newCategoryId: string;
+            let newCategoryId: Id<"categories">;
 
             if (existingCategory) {
               newCategoryId = existingCategory._id;
@@ -127,7 +128,7 @@ export const importData = mutation({
             } else {
               // Create new category
               newCategoryId = await ctx.db.insert("categories", {
-                userId: newUserId as any,
+                userId: newUserId,
                 name: category.name,
                 color: category.color,
                 isSavings: category.isSavings,
@@ -150,13 +151,13 @@ export const importData = mutation({
             const existingBudgetMonth = await ctx.db
               .query("budgetMonths")
               .withIndex("by_user_year_month", (q) =>
-                q.eq("userId", newUserId as any)
+                q.eq("userId", newUserId)
                   .eq("year", budgetMonth.year)
                   .eq("month", budgetMonth.month)
               )
               .first();
 
-            let newBudgetMonthId: string;
+            let newBudgetMonthId: Id<"budgetMonths">;
 
             if (existingBudgetMonth) {
               newBudgetMonthId = existingBudgetMonth._id;
@@ -169,7 +170,7 @@ export const importData = mutation({
             } else {
               // Create new budget month
               newBudgetMonthId = await ctx.db.insert("budgetMonths", {
-                userId: newUserId as any,
+                userId: newUserId,
                 year: budgetMonth.year,
                 month: budgetMonth.month,
                 income: budgetMonth.income,
@@ -196,8 +197,8 @@ export const importData = mutation({
                 const existingAllocation = await ctx.db
                   .query("allocations")
                   .withIndex("by_budgetMonth_category", (q) =>
-                    q.eq("budgetMonthId", newBudgetMonthId as any)
-                     .eq("categoryId", newCategoryId as any)
+                    q.eq("budgetMonthId", newBudgetMonthId)
+                     .eq("categoryId", newCategoryId)
                   )
                   .first();
 
@@ -209,8 +210,8 @@ export const importData = mutation({
                 } else {
                   // Create new allocation
                   await ctx.db.insert("allocations", {
-                    budgetMonthId: newBudgetMonthId as any,
-                    categoryId: newCategoryId as any,
+                    budgetMonthId: newBudgetMonthId,
+                    categoryId: newCategoryId,
                     amount: allocation.amount,
                   });
                 }
