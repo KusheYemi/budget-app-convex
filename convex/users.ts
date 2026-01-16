@@ -57,19 +57,7 @@ export const getCurrentUser = query({
 
     const user = await ctx.db.get(userId);
     if (!user) return null;
-
-    const categories = await ctx.db
-      .query("categories")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .collect();
-
-    // Sort by sortOrder
-    categories.sort((a, b) => a.sortOrder - b.sortOrder);
-
-    return {
-      ...user,
-      categories,
-    };
+    return user;
   },
 });
 

@@ -15,15 +15,9 @@ interface Category {
   sortOrder: number;
 }
 
-interface AllocationWithCategory {
-  categoryId: string;
-  amount: number;
-  category: Category;
-}
-
 interface CategoryListProps {
   categories: Category[];
-  allocations: AllocationWithCategory[];
+  allocationAmounts: Map<string, number>;
   budgetMonthId: string;
   totalIncome: number;
   savingsRate: number;
@@ -35,7 +29,7 @@ interface CategoryListProps {
 
 export function CategoryList({
   categories,
-  allocations,
+  allocationAmounts,
   budgetMonthId,
   totalIncome,
   savingsRate,
@@ -48,8 +42,7 @@ export function CategoryList({
 
   // Get allocation amount for a category
   function getAllocationAmount(categoryId: string): number {
-    const allocation = allocations.find((a) => a.categoryId === categoryId);
-    return allocation ? Number(allocation.amount) : 0;
+    return allocationAmounts.get(categoryId) ?? 0;
   }
 
   // Calculate savings amount

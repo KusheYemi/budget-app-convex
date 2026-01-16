@@ -3,6 +3,11 @@ import { twMerge } from "tailwind-merge";
 import { format } from "date-fns";
 import { CURRENCIES, type CurrencyCode } from "./validators";
 
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -10,12 +15,7 @@ export function cn(...inputs: ClassValue[]) {
 // Currency formatting
 export function formatCurrency(amount: number, currencyCode: CurrencyCode = "SLE"): string {
   const currency = CURRENCIES[currencyCode];
-  const formattedNumber = new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-
-  return `${currency.symbol}${formattedNumber}`;
+  return `${currency.symbol}${currencyFormatter.format(amount)}`;
 }
 
 // Percentage formatting
