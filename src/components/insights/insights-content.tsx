@@ -5,8 +5,7 @@ import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { IncomeSavingsLineChart } from "@/components/charts/income-savings-line-chart";
-import { AllocationBarChart } from "@/components/charts/allocation-bar-chart";
+import { LazyIncomeSavingsLineChart, LazyAllocationBarChart } from "@/components/charts/lazy";
 import {
   formatCurrency,
   formatPercentage,
@@ -128,16 +127,16 @@ export function InsightsContent({
           </Card>
         </div>
 
-        {/* Charts Row */}
+        {/* Charts Row - lazy loaded for better performance */}
         <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
           {/* Income vs Savings Trend */}
-          <IncomeSavingsLineChart
+          <LazyIncomeSavingsLineChart
             data={data.monthlyTrends}
             currency={currency}
           />
 
           {/* Top Categories */}
-          <AllocationBarChart
+          <LazyAllocationBarChart
             data={data.topCategories.map((c) => ({
               name: c.name,
               value: c.total,

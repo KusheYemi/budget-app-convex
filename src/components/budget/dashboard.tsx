@@ -11,8 +11,7 @@ import { EditIncomeDialog } from "./edit-income-dialog";
 import { SavingsRateDialog } from "./savings-rate-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AllocationPieChart } from "@/components/charts/allocation-pie-chart";
-import { AllocationBarChart } from "@/components/charts/allocation-bar-chart";
+import { LazyAllocationPieChart, LazyAllocationBarChart } from "@/components/charts/lazy";
 import { toast } from "sonner";
 import {
   getCurrentMonth,
@@ -359,10 +358,10 @@ export function Dashboard({
               </CardContent>
             </Card>
 
-            {/* Charts - using memoized data */}
-            <AllocationPieChart data={chartData} currency={currency} />
+            {/* Charts - lazy loaded for better performance */}
+            <LazyAllocationPieChart data={chartData} currency={currency} />
 
-            <AllocationBarChart data={chartData} currency={currency} />
+            <LazyAllocationBarChart data={chartData} currency={currency} />
           </div>
         </div>
       </main>
