@@ -1,9 +1,37 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { auth } from "./auth";
-import { Doc, Id } from "./_generated/dataModel";
+import { Doc } from "./_generated/dataModel";
+import { QueryCtx } from "./_generated/server";
 
 const MIN_SAVINGS_RATE = 0.20;
+
+// Helper to batch fetch categories and join with allocations
+async function getAllocationsWithCategories(
+  ctx: QueryCtx,
+  allocations: Doc<"allocations">[]
+) {
+  // Collect unique category IDs
+  const categoryIds = [...new Set(allocations.map((a) => a.categoryId))];
+
+  // Batch fetch all categories at once
+  const categories = await Promise.all(
+    categoryIds.map((id) => ctx.db.get(id))
+  );
+
+  // Create a Map for O(1) lookups
+  const categoryMap = new Map(
+    categories
+      .filter((c): c is Doc<"categories"> => c !== null)
+      .map((c) => [c._id, c])
+  );
+
+  // Join allocations with categories
+  return allocations.map((allocation) => ({
+    ...allocation,
+    category: categoryMap.get(allocation.categoryId) ?? null,
+  }));
+}
 
 // Helper to get current month
 function getCurrentMonth() {
@@ -43,16 +71,8 @@ export const getBudgetMonth = query({
       .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", budgetMonth._id))
       .collect();
 
-    // Fetch categories for each allocation
-    const allocationsWithCategories = await Promise.all(
-      allocations.map(async (allocation) => {
-        const category = await ctx.db.get(allocation.categoryId);
-        return {
-          ...allocation,
-          category,
-        };
-      })
-    );
+    // Batch fetch categories (avoids N+1 queries)
+    const allocationsWithCategories = await getAllocationsWithCategories(ctx, allocations);
 
     // Sort by category sortOrder
     allocationsWithCategories.sort((a, b) => {
@@ -118,12 +138,8 @@ export const getOrCreateBudgetMonth = mutation({
       .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", budgetMonth!._id))
       .collect();
 
-    const allocationsWithCategories = await Promise.all(
-      allocations.map(async (allocation) => {
-        const category = await ctx.db.get(allocation.categoryId);
-        return { ...allocation, category };
-      })
-    );
+    // Batch fetch categories (avoids N+1 queries)
+    const allocationsWithCategories = await getAllocationsWithCategories(ctx, allocations);
 
     allocationsWithCategories.sort((a, b) => {
       const aOrder = a.category?.sortOrder ?? 0;
@@ -217,24 +233,39 @@ export const getAllBudgetMonths = query({
       return b.month - a.month;
     });
 
-    // Get allocations for each
-    const result = await Promise.all(
-      budgetMonths.map(async (bm) => {
-        const allocations = await ctx.db
+    // Fetch all allocations for all budget months in parallel
+    const allAllocationsArrays = await Promise.all(
+      budgetMonths.map((bm) =>
+        ctx.db
           .query("allocations")
           .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", bm._id))
-          .collect();
-
-        const allocationsWithCategories = await Promise.all(
-          allocations.map(async (a) => {
-            const category = await ctx.db.get(a.categoryId);
-            return { ...a, category };
-          })
-        );
-
-        return { ...bm, allocations: allocationsWithCategories };
-      })
+          .collect()
+      )
     );
+
+    // Flatten and collect all unique category IDs
+    const allAllocations = allAllocationsArrays.flat();
+    const categoryIds = [...new Set(allAllocations.map((a) => a.categoryId))];
+
+    // Batch fetch all categories at once
+    const categories = await Promise.all(
+      categoryIds.map((id) => ctx.db.get(id))
+    );
+    const categoryMap = new Map(
+      categories
+        .filter((c): c is Doc<"categories"> => c !== null)
+        .map((c) => [c._id, c])
+    );
+
+    // Build result with joined data
+    const result = budgetMonths.map((bm, index) => {
+      const allocations = allAllocationsArrays[index];
+      const allocationsWithCategories = allocations.map((a) => ({
+        ...a,
+        category: categoryMap.get(a.categoryId) ?? null,
+      }));
+      return { ...bm, allocations: allocationsWithCategories };
+    });
 
     return result;
   },

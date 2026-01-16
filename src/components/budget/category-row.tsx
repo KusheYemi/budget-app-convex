@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,7 @@ interface CategoryRowProps {
   onDelete?: (categoryId: string) => void;
 }
 
-export function CategoryRow({
+export const CategoryRow = memo(function CategoryRow({
   id,
   budgetMonthId,
   name,
@@ -216,4 +216,4 @@ export function CategoryRow({
       </div>
     </div>
   );
-}
+});

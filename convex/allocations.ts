@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { auth } from "./auth";
+import { Doc } from "./_generated/dataModel";
 
 // Helper to check if a month is current
 function isCurrentMonth(year: number, month: number): boolean {
@@ -28,13 +29,21 @@ export const getAllocations = query({
       .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", args.budgetMonthId))
       .collect();
 
-    // Get categories and sort
-    const allocationsWithCategories = await Promise.all(
-      allocations.map(async (allocation) => {
-        const category = await ctx.db.get(allocation.categoryId);
-        return { ...allocation, category };
-      })
+    // Batch fetch all categories at once (avoids N+1 queries)
+    const categoryIds = [...new Set(allocations.map((a) => a.categoryId))];
+    const categories = await Promise.all(
+      categoryIds.map((id) => ctx.db.get(id))
     );
+    const categoryMap = new Map(
+      categories
+        .filter((c): c is Doc<"categories"> => c !== null)
+        .map((c) => [c._id, c])
+    );
+
+    const allocationsWithCategories = allocations.map((allocation) => ({
+      ...allocation,
+      category: categoryMap.get(allocation.categoryId) ?? null,
+    }));
 
     allocationsWithCategories.sort((a, b) => {
       const aOrder = a.category?.sortOrder ?? 0;

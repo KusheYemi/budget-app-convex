@@ -1,5 +1,6 @@
 import { query } from "./_generated/server";
 import { auth } from "./auth";
+import { Doc } from "./_generated/dataModel";
 
 const MIN_SAVINGS_RATE = 0.20;
 
@@ -51,23 +52,40 @@ export const getInsightsData = query({
       return a.month - b.month;
     });
 
-    // Calculate monthly trends
+    // Batch fetch all allocations for all budget months in parallel
+    const allAllocationsArrays = await Promise.all(
+      budgetMonths.map((bm) =>
+        ctx.db
+          .query("allocations")
+          .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", bm._id))
+          .collect()
+      )
+    );
+
+    // Collect all unique category IDs and batch fetch
+    const allAllocations = allAllocationsArrays.flat();
+    const categoryIds = [...new Set(allAllocations.map((a) => a.categoryId))];
+    const categories = await Promise.all(
+      categoryIds.map((id) => ctx.db.get(id))
+    );
+    const categoryMap = new Map(
+      categories
+        .filter((c): c is Doc<"categories"> => c !== null)
+        .map((c) => [c._id, c])
+    );
+
+    // Calculate monthly trends with pre-fetched data
     const monthlyTrends: MonthlyData[] = [];
     const categoryTotals = new Map<string, { name: string; color: string; total: number }>();
 
-    for (const bm of budgetMonths) {
+    budgetMonths.forEach((bm, index) => {
       const income = bm.income;
       const savingsAmount = income * bm.savingsRate;
-
-      // Get allocations
-      const allocations = await ctx.db
-        .query("allocations")
-        .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", bm._id))
-        .collect();
+      const allocations = allAllocationsArrays[index];
 
       let nonSavingsTotal = 0;
       for (const allocation of allocations) {
-        const category = await ctx.db.get(allocation.categoryId);
+        const category = categoryMap.get(allocation.categoryId);
         if (category && !category.isSavings) {
           nonSavingsTotal += allocation.amount;
 
@@ -96,7 +114,7 @@ export const getInsightsData = query({
         totalAllocated,
         adjustmentReason: bm.adjustmentReason ?? null,
       });
-    }
+    });
 
     // Calculate averages
     const totalMonths = monthlyTrends.length;
@@ -149,26 +167,43 @@ export const getBudgetHistory = query({
       return b.month - a.month;
     });
 
-    const result = [];
-    for (const bm of budgetMonths) {
+    // Batch fetch all allocations for all budget months in parallel
+    const allAllocationsArrays = await Promise.all(
+      budgetMonths.map((bm) =>
+        ctx.db
+          .query("allocations")
+          .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", bm._id))
+          .collect()
+      )
+    );
+
+    // Collect all unique category IDs and batch fetch
+    const allAllocations = allAllocationsArrays.flat();
+    const categoryIds = [...new Set(allAllocations.map((a) => a.categoryId))];
+    const categories = await Promise.all(
+      categoryIds.map((id) => ctx.db.get(id))
+    );
+    const categoryMap = new Map(
+      categories
+        .filter((c): c is Doc<"categories"> => c !== null)
+        .map((c) => [c._id, c])
+    );
+
+    // Build result with pre-fetched data
+    const result = budgetMonths.map((bm, index) => {
       const income = bm.income;
       const savingsAmount = income * bm.savingsRate;
-
-      // Get allocations
-      const allocations = await ctx.db
-        .query("allocations")
-        .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", bm._id))
-        .collect();
+      const allocations = allAllocationsArrays[index];
 
       let nonSavingsTotal = 0;
       for (const allocation of allocations) {
-        const category = await ctx.db.get(allocation.categoryId);
+        const category = categoryMap.get(allocation.categoryId);
         if (category && !category.isSavings) {
           nonSavingsTotal += allocation.amount;
         }
       }
 
-      result.push({
+      return {
         year: bm.year,
         month: bm.month,
         income,
@@ -176,8 +211,8 @@ export const getBudgetHistory = query({
         savingsAmount,
         totalAllocated: savingsAmount + nonSavingsTotal,
         adjustmentReason: bm.adjustmentReason ?? null,
-      });
-    }
+      };
+    });
 
     return result;
   },

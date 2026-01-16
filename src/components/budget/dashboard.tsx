@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Loader2 } from "lucide-react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -25,14 +25,14 @@ import type { CurrencyCode } from "@/lib/validators";
 interface DashboardProps {
   initialYear?: number;
   initialMonth?: number;
-  initialData?: {
-    profile: unknown;
-    budgetMonth: unknown;
-    categories: unknown[];
-  };
+  ensureCurrentMonth?: boolean;
 }
 
-export function Dashboard({ initialYear, initialMonth, initialData }: DashboardProps) {
+export function Dashboard({
+  initialYear,
+  initialMonth,
+  ensureCurrentMonth,
+}: DashboardProps) {
   const current = getCurrentMonth();
   const year = initialYear ?? current.year;
   const month = initialMonth ?? current.month;
@@ -44,11 +44,15 @@ export function Dashboard({ initialYear, initialMonth, initialData }: DashboardP
   const categories = useQuery(api.categories.getCategories);
 
   // Convex mutations
+  const getOrCreateBudgetMonth = useMutation(api.budgets.getOrCreateBudgetMonth);
   const copyAllocations = useMutation(api.allocations.copyAllocationsFromPreviousMonthAuto);
 
   const [showIncomeDialog, setShowIncomeDialog] = useState(false);
   const [showSavingsDialog, setShowSavingsDialog] = useState(false);
   const [isCopying, setIsCopying] = useState(false);
+  const [isCreatingBudgetMonth, setIsCreatingBudgetMonth] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [hasAttemptedCreate, setHasAttemptedCreate] = useState(false);
 
   // Optimistic allocations for instant UI updates
   const [optimisticAllocations, setOptimisticAllocations] = useState<
@@ -72,6 +76,54 @@ export function Dashboard({ initialYear, initialMonth, initialData }: DashboardP
       );
     }
   }, [budgetMonth?.allocations]);
+
+  const shouldEnsureBudgetMonth = Boolean(
+    ensureCurrentMonth && !isReadOnly && user
+  );
+
+  useEffect(() => {
+    if (
+      !shouldEnsureBudgetMonth ||
+      budgetMonth !== null ||
+      isCreatingBudgetMonth ||
+      createError ||
+      hasAttemptedCreate
+    ) {
+      return;
+    }
+
+    let cancelled = false;
+    setIsCreatingBudgetMonth(true);
+    setHasAttemptedCreate(true);
+    setCreateError(null);
+
+    getOrCreateBudgetMonth({ year, month })
+      .catch((err) => {
+        if (cancelled) return;
+        const message =
+          err instanceof Error ? err.message : "Unable to create budget month.";
+        setCreateError(message);
+        toast.error("Failed to create budget month", { description: message });
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsCreatingBudgetMonth(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    shouldEnsureBudgetMonth,
+    budgetMonth,
+    isCreatingBudgetMonth,
+    createError,
+    hasAttemptedCreate,
+    getOrCreateBudgetMonth,
+    year,
+    month,
+  ]);
 
   // Optimistic update for allocation
   const handleOptimisticAllocationUpdate = useCallback((
@@ -124,8 +176,16 @@ export function Dashboard({ initialYear, initialMonth, initialData }: DashboardP
     setIsCopying(false);
   }
 
+  const isWaitingForBudgetMonth =
+    shouldEnsureBudgetMonth && budgetMonth === null && !createError;
+
   // Loading state
-  const loading = user === undefined || budgetMonth === undefined || categories === undefined;
+  const loading =
+    user === undefined ||
+    budgetMonth === undefined ||
+    categories === undefined ||
+    isCreatingBudgetMonth ||
+    isWaitingForBudgetMonth;
   const currency = (user?.currency as CurrencyCode) ?? "SLE";
   const email = user?.email ?? "";
 
@@ -165,39 +225,35 @@ export function Dashboard({ initialYear, initialMonth, initialData }: DashboardP
       .filter((a) => !a.category.isSavings)
       .reduce((sum, a) => sum + a.amount, 0);
 
-  // Transform categories for CategoryList
-  const categoriesForList = categories.map((c) => ({
-    id: c._id,
-    userId: "", // Not needed for display
-    name: c.name,
-    color: c.color,
-    isSavings: c.isSavings,
-    isDefault: c.isDefault,
-    sortOrder: c.sortOrder,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  }));
+  // Memoized transform for categories (avoids recreating on every render)
+  const categoriesForList = useMemo(() =>
+    categories.map((c) => ({
+      id: c._id,
+      name: c.name,
+      color: c.color,
+      isSavings: c.isSavings,
+      sortOrder: c.sortOrder,
+    })),
+    [categories]
+  );
 
-  // Transform allocations for CategoryList
-  const allocationsForList = optimisticAllocations.map((a) => ({
-    id: `alloc-${a.categoryId}`,
-    budgetMonthId: budgetMonth._id,
-    categoryId: a.categoryId,
-    amount: a.amount as never,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    category: {
-      id: a.category.id,
-      userId: "",
-      name: a.category.name,
-      color: a.category.color,
-      isSavings: a.category.isSavings,
-      isDefault: false,
-      sortOrder: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  }));
+  // O(1) lookup map for chart data (avoids O(n²) .find() calls)
+  const allocationAmountMap = useMemo(() =>
+    new Map(optimisticAllocations.map((a) => [a.categoryId, a.amount])),
+    [optimisticAllocations]
+  );
+
+  // Memoized chart data
+  const chartData = useMemo(() => [
+    { name: "Savings", value: savingsAmount, color: "#6366f1" },
+    ...categories
+      .filter((c) => !c.isSavings)
+      .map((c) => ({
+        name: c.name,
+        value: allocationAmountMap.get(c._id) ?? 0,
+        color: c.color,
+      })),
+  ], [categories, savingsAmount, allocationAmountMap]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -255,7 +311,7 @@ export function Dashboard({ initialYear, initialMonth, initialData }: DashboardP
           {/* Categories */}
           <CategoryList
             categories={categoriesForList}
-            allocations={allocationsForList}
+            allocationAmounts={allocationAmountMap}
             budgetMonthId={budgetMonth._id}
             totalIncome={income}
             savingsRate={savingsRate}
@@ -297,46 +353,10 @@ export function Dashboard({ initialYear, initialMonth, initialData }: DashboardP
               </CardContent>
             </Card>
 
-            {/* Charts */}
-            <AllocationPieChart
-              data={[
-                {
-                  name: "Savings",
-                  value: savingsAmount,
-                  color: "#6366f1",
-                },
-                ...categories
-                  .filter((c) => !c.isSavings)
-                  .map((c) => ({
-                    name: c.name,
-                    value: optimisticAllocations.find(
-                      (a) => a.categoryId === c._id
-                    )?.amount ?? 0,
-                    color: c.color,
-                  })),
-              ]}
-              currency={currency}
-            />
+            {/* Charts - using memoized data */}
+            <AllocationPieChart data={chartData} currency={currency} />
 
-            <AllocationBarChart
-              data={[
-                {
-                  name: "Savings",
-                  value: savingsAmount,
-                  color: "#6366f1",
-                },
-                ...categories
-                  .filter((c) => !c.isSavings)
-                  .map((c) => ({
-                    name: c.name,
-                    value: optimisticAllocations.find(
-                      (a) => a.categoryId === c._id
-                    )?.amount ?? 0,
-                    color: c.color,
-                  })),
-              ]}
-              currency={currency}
-            />
+            <AllocationBarChart data={chartData} currency={currency} />
           </div>
         </div>
       </main>
