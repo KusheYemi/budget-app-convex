@@ -189,6 +189,48 @@ export function Dashboard({
   const currency = (user?.currency as CurrencyCode) ?? "SLE";
   const email = user?.email ?? "";
 
+  // Compute derived values (safe for undefined)
+  const income = budgetMonth?.income ?? 0;
+  const savingsRate = budgetMonth?.savingsRate ?? 0;
+  const savingsAmount = income * savingsRate;
+
+  // Memoized transform for categories (must be before early returns)
+  const categoriesForList = useMemo(() =>
+    (categories ?? []).map((c) => ({
+      id: c._id,
+      name: c.name,
+      color: c.color,
+      isSavings: c.isSavings,
+      sortOrder: c.sortOrder,
+    })),
+    [categories]
+  );
+
+  // O(1) lookup map for chart data (avoids O(n²) .find() calls)
+  const allocationAmountMap = useMemo(() =>
+    new Map(optimisticAllocations.map((a) => [a.categoryId, a.amount])),
+    [optimisticAllocations]
+  );
+
+  // Memoized chart data
+  const chartData = useMemo(() => [
+    { name: "Savings", value: savingsAmount, color: "#6366f1" },
+    ...(categories ?? [])
+      .filter((c) => !c.isSavings)
+      .map((c) => ({
+        name: c.name,
+        value: allocationAmountMap.get(c._id) ?? 0,
+        color: c.color,
+      })),
+  ], [categories, savingsAmount, allocationAmountMap]);
+
+  // Calculate total allocated
+  const totalAllocated =
+    savingsAmount +
+    optimisticAllocations
+      .filter((a) => !a.category.isSavings)
+      .reduce((sum, a) => sum + a.amount, 0);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -215,45 +257,6 @@ export function Dashboard({
       </div>
     );
   }
-
-  const income = budgetMonth.income;
-  const savingsRate = budgetMonth.savingsRate;
-  const savingsAmount = income * savingsRate;
-  const totalAllocated =
-    savingsAmount +
-    optimisticAllocations
-      .filter((a) => !a.category.isSavings)
-      .reduce((sum, a) => sum + a.amount, 0);
-
-  // Memoized transform for categories (avoids recreating on every render)
-  const categoriesForList = useMemo(() =>
-    categories.map((c) => ({
-      id: c._id,
-      name: c.name,
-      color: c.color,
-      isSavings: c.isSavings,
-      sortOrder: c.sortOrder,
-    })),
-    [categories]
-  );
-
-  // O(1) lookup map for chart data (avoids O(n²) .find() calls)
-  const allocationAmountMap = useMemo(() =>
-    new Map(optimisticAllocations.map((a) => [a.categoryId, a.amount])),
-    [optimisticAllocations]
-  );
-
-  // Memoized chart data
-  const chartData = useMemo(() => [
-    { name: "Savings", value: savingsAmount, color: "#6366f1" },
-    ...categories
-      .filter((c) => !c.isSavings)
-      .map((c) => ({
-        name: c.name,
-        value: allocationAmountMap.get(c._id) ?? 0,
-        color: c.color,
-      })),
-  ], [categories, savingsAmount, allocationAmountMap]);
 
   return (
     <div className="min-h-screen bg-background">
