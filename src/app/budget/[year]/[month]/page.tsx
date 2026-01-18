@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useConvexAuth } from "convex/react";
 import { Dashboard } from "@/components/budget/dashboard";
 import { BudgetLoading } from "@/components/loading/budget-loading";
+import { isEditableMonth } from "@/lib/utils";
 
 function parseParam(value: string | string[] | undefined) {
   if (typeof value !== "string") {
@@ -51,5 +52,7 @@ export default function HistoricalBudgetPage() {
     return null;
   }
 
-  return <Dashboard initialYear={year} initialMonth={month} />;
+  // Auto-create budget month for editable months (current and future)
+  const shouldEnsure = isEditableMonth(year, month);
+  return <Dashboard initialYear={year} initialMonth={month} ensureCurrentMonth={shouldEnsure} />;
 }

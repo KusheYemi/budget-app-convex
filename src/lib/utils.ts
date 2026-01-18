@@ -72,3 +72,25 @@ export const DEFAULT_CATEGORIES = [
 // Minimum savings rate threshold
 export const MIN_SAVINGS_RATE = 0.20;
 export const MIN_SAVINGS_RATE_PERCENT = 20;
+
+// Maximum future months allowed for planning
+export const MAX_FUTURE_MONTHS = 12;
+
+// Check if a month is in the future
+export function isFutureMonth(year: number, month: number): boolean {
+  const current = getCurrentMonth();
+  if (year > current.year) return true;
+  if (year === current.year && month > current.month) return true;
+  return false;
+}
+
+// Check if a month is editable (current month or future within limit)
+export function isEditableMonth(year: number, month: number): boolean {
+  if (isPastMonth(year, month)) return false;
+  if (isCurrentMonth(year, month)) return true;
+
+  // Future months within limit are editable
+  const current = getCurrentMonth();
+  const monthsAhead = (year - current.year) * 12 + (month - current.month);
+  return monthsAhead <= MAX_FUTURE_MONTHS;
+}

@@ -3,10 +3,19 @@ import { query, mutation } from "./_generated/server";
 import { auth } from "./auth";
 import { Doc } from "./_generated/dataModel";
 
-// Helper to check if a month is current
-function isCurrentMonth(year: number, month: number): boolean {
+// Helper to check if a month is editable (current or future within limit)
+function isEditableMonth(year: number, month: number): boolean {
   const now = new Date();
-  return year === now.getFullYear() && month === now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+
+  // Past months are not editable
+  if (year < currentYear) return false;
+  if (year === currentYear && month < currentMonth) return false;
+
+  // Check if within 12 month future limit
+  const monthsAhead = (year - currentYear) * 12 + (month - currentMonth);
+  return monthsAhead <= 12;
 }
 
 // Get allocations for a budget month
@@ -210,25 +219,29 @@ export const copyAllocationsFromPreviousMonthAuto = mutation({
       throw new Error("Budget month not found");
     }
 
-    if (!isCurrentMonth(targetBudgetMonth.year, targetBudgetMonth.month)) {
-      throw new Error("Cannot copy into a historical month");
+    if (!isEditableMonth(targetBudgetMonth.year, targetBudgetMonth.month)) {
+      throw new Error("Cannot copy into a past month");
     }
 
-    // Calculate previous month
-    let prevYear = targetBudgetMonth.year;
-    let prevMonth = targetBudgetMonth.month - 1;
-    if (prevMonth < 1) {
-      prevMonth = 12;
-      prevYear -= 1;
-    }
-
-    // Find previous budget month
-    const previousBudgetMonth = await ctx.db
+    // Find the most recent budget month before the target (not necessarily the immediately previous month)
+    const allBudgetMonths = await ctx.db
       .query("budgetMonths")
-      .withIndex("by_user_year_month", (q) =>
-        q.eq("userId", userId).eq("year", prevYear).eq("month", prevMonth)
-      )
-      .first();
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+
+    // Filter to months before the target, then sort to get most recent
+    const previousMonths = allBudgetMonths
+      .filter((bm) => {
+        if (bm.year < targetBudgetMonth.year) return true;
+        if (bm.year === targetBudgetMonth.year && bm.month < targetBudgetMonth.month) return true;
+        return false;
+      })
+      .sort((a, b) => {
+        if (a.year !== b.year) return b.year - a.year;
+        return b.month - a.month;
+      });
+
+    const previousBudgetMonth = previousMonths[0];
 
     if (!previousBudgetMonth) {
       throw new Error("No previous month found to copy from");

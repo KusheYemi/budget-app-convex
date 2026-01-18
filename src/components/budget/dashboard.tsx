@@ -15,7 +15,7 @@ import { LazyAllocationPieChart, LazyAllocationBarChart } from "@/components/cha
 import { toast } from "sonner";
 import {
   getCurrentMonth,
-  isCurrentMonth,
+  isEditableMonth,
   formatCurrency,
   formatPercentage,
 } from "@/lib/utils";
@@ -35,7 +35,7 @@ export function Dashboard({
   const current = getCurrentMonth();
   const year = initialYear ?? current.year;
   const month = initialMonth ?? current.month;
-  const isReadOnly = !isCurrentMonth(year, month);
+  const isReadOnly = !isEditableMonth(year, month);
 
   // Convex queries
   const user = useQuery(api.users.getCurrentUser);

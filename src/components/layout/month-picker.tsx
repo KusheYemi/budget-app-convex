@@ -9,7 +9,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatMonth, getCurrentMonth, isCurrentMonth } from "@/lib/utils";
+import {
+  formatMonth,
+  getCurrentMonth,
+  isCurrentMonth,
+  isEditableMonth,
+  isPastMonth,
+  MAX_FUTURE_MONTHS,
+} from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 interface MonthPickerProps {
@@ -44,11 +51,8 @@ export function MonthPicker({ year, month }: MonthPickerProps) {
       newMonth = 1;
       newYear += 1;
     }
-    // Don't go beyond current month
-    if (
-      newYear > current.year ||
-      (newYear === current.year && newMonth > current.month)
-    ) {
+    // Don't go beyond MAX_FUTURE_MONTHS
+    if (!isEditableMonth(newYear, newMonth)) {
       return;
     }
     if (isCurrentMonth(newYear, newMonth)) {
@@ -67,21 +71,50 @@ export function MonthPicker({ year, month }: MonthPickerProps) {
     }
   }
 
-  const canGoNext =
-    year < current.year || (year === current.year && month < current.month);
+  // Check if next month is within editable range
+  let nextMonth = month + 1;
+  let nextYear = year;
+  if (nextMonth > 12) {
+    nextMonth = 1;
+    nextYear += 1;
+  }
+  const canGoNext = isEditableMonth(nextYear, nextMonth);
 
-  // Generate last 12 months for dropdown
+  // Generate months: future (up to MAX_FUTURE_MONTHS) + current + past 12
   const monthOptions: { year: number; month: number }[] = [];
   let tempYear = current.year;
   let tempMonth = current.month;
-  for (let i = 0; i < 12; i++) {
+
+  // Add future months
+  for (let i = 0; i < MAX_FUTURE_MONTHS; i++) {
+    tempMonth += 1;
+    if (tempMonth > 12) {
+      tempMonth = 1;
+      tempYear += 1;
+    }
     monthOptions.push({ year: tempYear, month: tempMonth });
+  }
+
+  // Add current month
+  monthOptions.push({ year: current.year, month: current.month });
+
+  // Add past 12 months
+  tempYear = current.year;
+  tempMonth = current.month;
+  for (let i = 0; i < 12; i++) {
     tempMonth -= 1;
     if (tempMonth < 1) {
       tempMonth = 12;
       tempYear -= 1;
     }
+    monthOptions.push({ year: tempYear, month: tempMonth });
   }
+
+  // Sort: future first (descending by date), then current, then past
+  monthOptions.sort((a, b) => {
+    if (a.year !== b.year) return b.year - a.year;
+    return b.month - a.month;
+  });
 
   return (
     <div className="flex items-center justify-center gap-1 sm:gap-2">
@@ -151,9 +184,14 @@ export function MonthPicker({ year, month }: MonthPickerProps) {
         <span className="sr-only">Next month</span>
       </Button>
 
-      {!isCurrent && (
+      {isPastMonth(year, month) && (
         <Badge variant="secondary" className="ml-1 sm:ml-2 text-xs">
           Read-only
+        </Badge>
+      )}
+      {isEditableMonth(year, month) && !isCurrent && (
+        <Badge variant="outline" className="ml-1 sm:ml-2 text-xs border-blue-400 text-blue-600">
+          Planning
         </Badge>
       )}
     </div>
