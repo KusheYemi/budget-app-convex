@@ -26,6 +26,7 @@ export const createCategory = mutation({
   args: {
     name: v.string(),
     color: v.optional(v.string()),
+    budgetMonthId: v.optional(v.id("budgetMonths")),
   },
   handler: async (ctx, args) => {
     const userId = await auth.getUserId(ctx);
@@ -56,6 +57,14 @@ export const createCategory = mutation({
       throw new Error("A category with this name already exists");
     }
 
+    // Verify budget month belongs to user if provided
+    if (args.budgetMonthId) {
+      const budgetMonth = await ctx.db.get(args.budgetMonthId);
+      if (!budgetMonth || budgetMonth.userId !== userId) {
+        throw new Error("Budget month not found");
+      }
+    }
+
     // Get highest sort order
     const allCategories = await ctx.db
       .query("categories")
@@ -75,6 +84,15 @@ export const createCategory = mutation({
       isDefault: false,
       sortOrder: maxSortOrder + 1,
     });
+
+    // Create initial allocation for the specified budget month
+    if (args.budgetMonthId) {
+      await ctx.db.insert("allocations", {
+        budgetMonthId: args.budgetMonthId,
+        categoryId,
+        amount: 0,
+      });
+    }
 
     const category = await ctx.db.get(categoryId);
     return { success: true, category };

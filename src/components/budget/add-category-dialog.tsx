@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,10 +32,11 @@ const PRESET_COLORS = [
 interface AddCategoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  budgetMonthId: string;
   onSuccess?: () => void;
 }
 
-export function AddCategoryDialog({ open, onOpenChange, onSuccess }: AddCategoryDialogProps) {
+export function AddCategoryDialog({ open, onOpenChange, budgetMonthId, onSuccess }: AddCategoryDialogProps) {
   const createCategory = useMutation(api.categories.createCategory);
   const [name, setName] = useState("");
   const [color, setColor] = useState(PRESET_COLORS[0]);
@@ -52,7 +54,11 @@ export function AddCategoryDialog({ open, onOpenChange, onSuccess }: AddCategory
 
     setLoading(true);
     try {
-      await createCategory({ name: name.trim(), color });
+      await createCategory({
+        name: name.trim(),
+        color,
+        budgetMonthId: budgetMonthId as Id<"budgetMonths">,
+      });
       setName("");
       setColor(PRESET_COLORS[0]);
       onOpenChange(false);

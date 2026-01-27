@@ -150,6 +150,49 @@ export const deleteAllocation = mutation({
   },
 });
 
+// Remove a category from a specific budget month (deletes allocation only, keeps category)
+export const removeFromMonth = mutation({
+  args: {
+    budgetMonthId: v.id("budgetMonths"),
+    categoryId: v.id("categories"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await auth.getUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    // Verify budget month belongs to user
+    const budgetMonth = await ctx.db.get(args.budgetMonthId);
+    if (!budgetMonth || budgetMonth.userId !== userId) {
+      throw new Error("Budget month not found");
+    }
+
+    // Verify category belongs to user
+    const category = await ctx.db.get(args.categoryId);
+    if (!category || category.userId !== userId) {
+      throw new Error("Category not found");
+    }
+
+    // Don't allow removing Savings category
+    if (category.isSavings) {
+      throw new Error("Cannot remove the Savings category");
+    }
+
+    // Find and delete the allocation for this month
+    const allocation = await ctx.db
+      .query("allocations")
+      .withIndex("by_budgetMonth_category", (q) =>
+        q.eq("budgetMonthId", args.budgetMonthId).eq("categoryId", args.categoryId)
+      )
+      .first();
+
+    if (allocation) {
+      await ctx.db.delete(allocation._id);
+    }
+
+    return { success: true };
+  },
+});
+
 // Copy allocations from previous month
 export const copyAllocationsFromPreviousMonth = mutation({
   args: {

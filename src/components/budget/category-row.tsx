@@ -12,6 +12,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   formatCurrency,
   formatPercentage,
   calculatePercentage,
@@ -51,11 +61,12 @@ export const CategoryRow = memo(function CategoryRow({
   onDelete,
 }: CategoryRowProps) {
   const updateAllocation = useMutation(api.allocations.updateAllocation);
-  const deleteCategoryMutation = useMutation(api.categories.deleteCategory);
+  const removeFromMonth = useMutation(api.allocations.removeFromMonth);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(amount.toString());
   const [isLoading, setIsLoading] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
     setEditValue(amount.toString());
@@ -96,19 +107,18 @@ export const CategoryRow = memo(function CategoryRow({
   async function handleDelete() {
     if (isSavings) return;
 
-    const confirmed = confirm(
-      `Delete category "${name}"? This cannot be undone.`
-    );
-    if (!confirmed) return;
-
+    setShowDeleteDialog(false);
     setIsLoading(true);
     try {
-      await deleteCategoryMutation({ categoryId: id as Id<"categories"> });
+      await removeFromMonth({
+        budgetMonthId: budgetMonthId as Id<"budgetMonths">,
+        categoryId: id as Id<"categories">,
+      });
       onDelete?.(id);
       onRefresh?.();
-      toast.success("Category deleted");
+      toast.success("Category removed from this month");
     } catch (err) {
-      toast.error("Failed to delete category", {
+      toast.error("Failed to remove category", {
         description: err instanceof Error ? err.message : "Please try again.",
       });
     }
@@ -125,95 +135,119 @@ export const CategoryRow = memo(function CategoryRow({
   }
 
   return (
-    <div
-      className={cn(
-        "flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border transition-colors",
-        isSavings && "bg-savings/5 border-savings/20"
-      )}
-    >
-      {/* Color indicator */}
+    <>
       <div
-        className="w-3 h-3 rounded-full flex-shrink-0"
-        style={{ backgroundColor: color }}
-      />
-
-      {/* Category name */}
-      <div className="flex-1 min-w-0">
-        <p className={cn("font-medium truncate", isSavings && "text-savings")}>
-          {name}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          {formatPercentage(percentage, 1)} of income
-        </p>
-      </div>
-
-      {/* Amount */}
-      <div className="flex items-center gap-1 sm:gap-2">
-        {isEditing && !isReadOnly && !isSavings ? (
-          <Input
-            type="number"
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onBlur={handleSave}
-            onKeyDown={handleKeyDown}
-            className="w-24 sm:w-28 h-10 sm:h-9 text-right text-sm"
-            min="0"
-            step="0.01"
-            autoFocus
-            disabled={isLoading}
-          />
-        ) : (
-          <button
-            onClick={() => !isReadOnly && !isSavings && setIsEditing(true)}
-            className={cn(
-              "text-right font-mono tabular-nums text-sm sm:text-base px-1 sm:px-2 py-1 rounded",
-              !isReadOnly && !isSavings && "hover:bg-accent cursor-pointer",
-              (isReadOnly || isSavings) && "cursor-default"
-            )}
-            disabled={isReadOnly || isSavings}
-          >
-            {formatCurrency(amount, currency)}
-          </button>
+        className={cn(
+          "flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border transition-colors",
+          isSavings && "bg-savings/5 border-savings/20"
         )}
+      >
+        {/* Color indicator */}
+        <div
+          className="w-3 h-3 rounded-full flex-shrink-0"
+          style={{ backgroundColor: color }}
+        />
 
-        {/* Actions menu */}
-        {!isReadOnly && !isSavings && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-10 w-10 sm:h-8 sm:w-8">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+        {/* Category name */}
+        <div className="flex-1 min-w-0">
+          <p className={cn("font-medium truncate", isSavings && "text-savings")}>
+            {name}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {formatPercentage(percentage, 1)} of income
+          </p>
+        </div>
+
+        {/* Amount */}
+        <div className="flex items-center gap-1 sm:gap-2">
+          {isEditing && !isReadOnly && !isSavings ? (
+            <Input
+              type="number"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              onBlur={handleSave}
+              onKeyDown={handleKeyDown}
+              className="w-24 sm:w-28 h-10 sm:h-9 text-right text-sm"
+              min="0"
+              step="0.01"
+              autoFocus
+              disabled={isLoading}
+            />
+          ) : (
+            <button
+              onClick={() => !isReadOnly && !isSavings && setIsEditing(true)}
+              className={cn(
+                "text-right font-mono tabular-nums text-sm sm:text-base px-1 sm:px-2 py-1 rounded",
+                !isReadOnly && !isSavings && "hover:bg-accent cursor-pointer",
+                (isReadOnly || isSavings) && "cursor-default"
+              )}
+              disabled={isReadOnly || isSavings}
+            >
+              {formatCurrency(amount, currency)}
+            </button>
+          )}
+
+          {/* Actions menu */}
+          {!isReadOnly && !isSavings && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-10 w-10 sm:h-8 sm:w-8">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="1" />
+                    <circle cx="12" cy="5" r="1" />
+                    <circle cx="12" cy="19" r="1" />
+                  </svg>
+                  <span className="sr-only">Actions</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                  Edit amount
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setShowDeleteDialog(true)}
+                  className="text-destructive"
+                  disabled={isLoading}
                 >
-                  <circle cx="12" cy="12" r="1" />
-                  <circle cx="12" cy="5" r="1" />
-                  <circle cx="12" cy="19" r="1" />
-                </svg>
-                <span className="sr-only">Actions</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                Edit amount
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleDelete}
-                className="text-destructive"
-                disabled={isLoading}
-              >
-                Delete category
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+                  Remove from month
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove category from this month?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove &quot;{name}&quot; from this month&apos;s budget. The category
+              will still be available for other months.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-white hover:bg-destructive/90"
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 });

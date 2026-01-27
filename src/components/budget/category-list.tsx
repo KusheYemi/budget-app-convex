@@ -48,8 +48,13 @@ export function CategoryList({
   // Calculate savings amount
   const savingsAmount = totalIncome * savingsRate;
 
+  // Filter to only show categories that have allocations for this month (or are Savings)
+  const categoriesWithAllocations = categories.filter(
+    (c) => c.isSavings || allocationAmounts.has(c.id)
+  );
+
   // Sort categories: Savings first, then by sortOrder
-  const sortedCategories = [...categories].sort((a, b) => {
+  const sortedCategories = [...categoriesWithAllocations].sort((a, b) => {
     if (a.isSavings) return -1;
     if (b.isSavings) return 1;
     return a.sortOrder - b.sortOrder;
@@ -112,6 +117,7 @@ export function CategoryList({
       <AddCategoryDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
+        budgetMonthId={budgetMonthId}
         onSuccess={onRefresh}
       />
     </Card>
