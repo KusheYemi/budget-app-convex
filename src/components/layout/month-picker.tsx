@@ -15,7 +15,6 @@ import {
   isCurrentMonth,
   isEditableMonth,
   isPastMonth,
-  MAX_FUTURE_MONTHS,
 } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
@@ -80,13 +79,17 @@ export function MonthPicker({ year, month }: MonthPickerProps) {
   }
   const canGoNext = isEditableMonth(nextYear, nextMonth);
 
-  // Generate months: future (up to MAX_FUTURE_MONTHS) + current + past 12
+  // Generate months: 3 future + current + 3 past (compact dropdown)
+  // Users can use arrow buttons or history section for other months
+  const DROPDOWN_PAST_MONTHS = 3;
+  const DROPDOWN_FUTURE_MONTHS = 3;
+
   const monthOptions: { year: number; month: number }[] = [];
   let tempYear = current.year;
   let tempMonth = current.month;
 
-  // Add future months
-  for (let i = 0; i < MAX_FUTURE_MONTHS; i++) {
+  // Add future months (limited for dropdown)
+  for (let i = 0; i < DROPDOWN_FUTURE_MONTHS; i++) {
     tempMonth += 1;
     if (tempMonth > 12) {
       tempMonth = 1;
@@ -98,10 +101,10 @@ export function MonthPicker({ year, month }: MonthPickerProps) {
   // Add current month
   monthOptions.push({ year: current.year, month: current.month });
 
-  // Add past 12 months
+  // Add past 3 months
   tempYear = current.year;
   tempMonth = current.month;
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < DROPDOWN_PAST_MONTHS; i++) {
     tempMonth -= 1;
     if (tempMonth < 1) {
       tempMonth = 12;
