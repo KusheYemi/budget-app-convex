@@ -30,6 +30,8 @@ import type { CurrencyCode } from "@/lib/validators";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import type { Id } from "../../../convex/_generated/dataModel";
+import { motion } from "framer-motion";
+import { MoreVertical, Pencil, Trash2, Sparkles } from "lucide-react";
 
 interface CategoryRowProps {
   id: string;
@@ -81,11 +83,9 @@ export const CategoryRow = memo(function CategoryRow({
       return;
     }
 
-    // Optimistic update
     onUpdate?.(id, newAmount);
     setIsEditing(false);
 
-    // Background save
     setIsLoading(true);
     try {
       await updateAllocation({
@@ -95,7 +95,6 @@ export const CategoryRow = memo(function CategoryRow({
       });
       onRefresh?.();
     } catch (err) {
-      // Revert on error
       onUpdate?.(id, amount);
       toast.error("Failed to update allocation", {
         description: err instanceof Error ? err.message : "Please try again.",
@@ -138,28 +137,61 @@ export const CategoryRow = memo(function CategoryRow({
     <>
       <div
         className={cn(
-          "flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border transition-colors",
-          isSavings && "bg-savings/5 border-savings/20"
+          "group flex items-center gap-3 sm:gap-4 p-4 sm:p-5 transition-all duration-200",
+          isSavings && "bg-savings/5",
+          !isReadOnly && !isSavings && "hover:bg-muted/30"
         )}
       >
-        {/* Color indicator */}
-        <div
-          className="w-3 h-3 rounded-full flex-shrink-0"
-          style={{ backgroundColor: color }}
-        />
-
-        {/* Category name */}
-        <div className="flex-1 min-w-0">
-          <p className={cn("font-medium truncate", isSavings && "text-savings")}>
-            {name}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {formatPercentage(percentage, 1)} of income
-          </p>
+        {/* Category color indicator with glow */}
+        <div className="relative flex-shrink-0">
+          <div
+            className="w-4 h-4 rounded-full shadow-sm"
+            style={{ backgroundColor: color }}
+          />
+          <div
+            className="absolute inset-0 rounded-full blur-md opacity-50"
+            style={{ backgroundColor: color }}
+          />
         </div>
 
-        {/* Amount */}
-        <div className="flex items-center gap-1 sm:gap-2">
+        {/* Category info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p
+              className={cn(
+                "font-medium truncate",
+                isSavings && "text-savings"
+              )}
+            >
+              {name}
+            </p>
+            {isSavings && (
+              <span className="flex items-center gap-1 text-xs bg-savings/10 text-savings px-2 py-0.5 rounded-full">
+                <Sparkles className="w-3 h-3" />
+                Auto
+              </span>
+            )}
+          </div>
+
+          {/* Progress bar for this category */}
+          <div className="mt-2 flex items-center gap-3">
+            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden max-w-32">
+              <motion.div
+                className="h-full rounded-full"
+                style={{ backgroundColor: color }}
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(percentage, 100)}%` }}
+                transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+              />
+            </div>
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {formatPercentage(percentage, 0)}
+            </span>
+          </div>
+        </div>
+
+        {/* Amount display/edit */}
+        <div className="flex items-center gap-2">
           {isEditing && !isReadOnly && !isSavings ? (
             <Input
               type="number"
@@ -167,7 +199,7 @@ export const CategoryRow = memo(function CategoryRow({
               onChange={(e) => setEditValue(e.target.value)}
               onBlur={handleSave}
               onKeyDown={handleKeyDown}
-              className="w-24 sm:w-28 h-10 sm:h-9 text-right text-sm"
+              className="w-28 h-10 text-right text-base font-mono rounded-xl"
               min="0"
               step="0.01"
               autoFocus
@@ -177,9 +209,12 @@ export const CategoryRow = memo(function CategoryRow({
             <button
               onClick={() => !isReadOnly && !isSavings && setIsEditing(true)}
               className={cn(
-                "text-right font-mono tabular-nums text-sm sm:text-base px-1 sm:px-2 py-1 rounded",
-                !isReadOnly && !isSavings && "hover:bg-accent cursor-pointer",
-                (isReadOnly || isSavings) && "cursor-default"
+                "text-right font-mono tabular-nums text-base sm:text-lg font-semibold px-3 py-2 rounded-xl transition-all",
+                !isReadOnly &&
+                  !isSavings &&
+                  "hover:bg-primary/10 hover:text-primary cursor-pointer",
+                (isReadOnly || isSavings) && "cursor-default",
+                isSavings && "text-savings"
               )}
               disabled={isReadOnly || isSavings}
             >
@@ -191,34 +226,29 @@ export const CategoryRow = memo(function CategoryRow({
           {!isReadOnly && !isSavings && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-10 w-10 sm:h-8 sm:w-8">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="12" cy="12" r="1" />
-                    <circle cx="12" cy="5" r="1" />
-                    <circle cx="12" cy="19" r="1" />
-                  </svg>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-xl opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                >
+                  <MoreVertical className="w-4 h-4" />
                   <span className="sr-only">Actions</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setIsEditing(true)}>
+              <DropdownMenuContent align="end" className="rounded-xl">
+                <DropdownMenuItem
+                  onClick={() => setIsEditing(true)}
+                  className="gap-2 rounded-lg"
+                >
+                  <Pencil className="w-4 h-4" />
                   Edit amount
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => setShowDeleteDialog(true)}
-                  className="text-destructive"
+                  className="gap-2 rounded-lg text-destructive focus:text-destructive"
                   disabled={isLoading}
                 >
+                  <Trash2 className="w-4 h-4" />
                   Remove from month
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -229,19 +259,21 @@ export const CategoryRow = memo(function CategoryRow({
 
       {/* Delete confirmation dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove category from this month?</AlertDialogTitle>
+            <AlertDialogTitle className="font-serif">
+              Remove category from this month?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This will remove &quot;{name}&quot; from this month&apos;s budget. The category
-              will still be available for other months.
+              This will remove &quot;{name}&quot; from this month&apos;s budget.
+              The category will still be available for other months.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-destructive text-white hover:bg-destructive/90"
+              className="rounded-xl bg-destructive text-white hover:bg-destructive/90"
             >
               Remove
             </AlertDialogAction>

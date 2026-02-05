@@ -17,23 +17,18 @@ import {
   TrendingUp,
   ShieldCheck,
   Globe,
-  CheckCircle2,
   Layers,
   Sun,
   Moon,
-  Sparkles,
   Calendar,
-  Lock,
   Zap,
   ChevronRight,
-  Play,
   Check,
+  Sparkles,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState, useRef } from "react";
-import { Badge } from "@/components/ui/badge";
 
-// Currency data for the interactive demo
 const currencies = [
   { code: "USD", symbol: "$", name: "US Dollar", flag: "🇺🇸" },
   { code: "GBP", symbol: "£", name: "British Pound", flag: "🇬🇧" },
@@ -42,14 +37,13 @@ const currencies = [
   { code: "SLE", symbol: "Le", name: "Sierra Leonean Leone", flag: "🇸🇱" },
 ];
 
-// Category colors for showcase
 const categoryColors = [
-  { name: "Housing", color: "#6366f1", percentage: 30 },
-  { name: "Food", color: "#22c55e", percentage: 15 },
-  { name: "Transport", color: "#f59e0b", percentage: 10 },
-  { name: "Entertainment", color: "#ec4899", percentage: 10 },
-  { name: "Utilities", color: "#06b6d4", percentage: 8 },
-  { name: "Shopping", color: "#8b5cf6", percentage: 7 },
+  { name: "Housing", color: "#5a9a7b", percentage: 30 },
+  { name: "Food", color: "#c76d4e", percentage: 15 },
+  { name: "Transport", color: "#d4a84b", percentage: 10 },
+  { name: "Entertainment", color: "#8b7eb8", percentage: 10 },
+  { name: "Utilities", color: "#6b9dbd", percentage: 8 },
+  { name: "Shopping", color: "#c9958a", percentage: 7 },
 ];
 
 export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
@@ -59,7 +53,6 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
   const heroRef = useRef<HTMLDivElement>(null);
   const isHeroInView = useInView(heroRef, { once: true });
 
-  // Interactive demo states
   const [activeCurrency, setActiveCurrency] = useState(0);
   const [savingsRate, setSavingsRate] = useState(20);
   const income = 5000;
@@ -80,7 +73,6 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
     setMounted(true);
   }, []);
 
-  // Animate income counter
   useEffect(() => {
     const duration = 2000;
     const steps = 60;
@@ -98,7 +90,6 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
     return () => clearInterval(timer);
   }, [income]);
 
-  // Auto-rotate currency
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveCurrency((prev) => (prev + 1) % currencies.length);
@@ -115,44 +106,49 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
 
   return (
     <div
-      className="min-h-screen bg-background text-foreground overflow-x-hidden"
+      className="min-h-screen bg-background text-foreground overflow-x-hidden grain"
       ref={containerRef}
     >
-      {/* Animated Background Grid */}
+      {/* Warm gradient backgrounds */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border))_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)] opacity-30" />
+        {/* Subtle grid pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.015]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
+            backgroundSize: "48px 48px",
+          }}
+        />
+        {/* Primary gradient blob */}
         <motion.div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-primary/30 rounded-full blur-[120px]"
+          className="absolute top-0 left-1/4 w-[800px] h-[600px] rounded-full blur-[150px]"
+          style={{
+            background:
+              "radial-gradient(circle, oklch(0.62 0.18 28 / 0.15), transparent 70%)",
+          }}
           animate={{
             scale: [1, 1.1, 1],
-            opacity: [0.2, 0.3, 0.2],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-blue-500/20 rounded-full blur-[100px]"
-          animate={{
-            x: [0, 50, 0],
-            y: [0, -30, 0],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-0 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[100px]"
-          animate={{
             x: [0, 30, 0],
-            scale: [1, 1.2, 1],
           }}
           transition={{
             duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        {/* Secondary gradient blob */}
+        <motion.div
+          className="absolute bottom-0 right-0 w-[600px] h-[600px] rounded-full blur-[120px]"
+          style={{
+            background:
+              "radial-gradient(circle, oklch(0.55 0.14 165 / 0.1), transparent 70%)",
+          }}
+          animate={{
+            y: [0, -30, 0],
+            scale: [1, 1.15, 1],
+          }}
+          transition={{
+            duration: 15,
             repeat: Infinity,
             ease: "easeInOut",
           }}
@@ -163,28 +159,35 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
       <motion.nav
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="fixed top-0 w-full z-50 bg-background/60 backdrop-blur-xl border-b border-border/40"
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="fixed top-0 w-full z-50 bg-background/70 backdrop-blur-xl border-b border-border/30"
       >
         <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 font-bold text-xl group">
+          <Link
+            href="/"
+            className="flex items-center gap-3 group"
+          >
             <motion.div
-              className="w-9 h-9 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/25"
+              className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center text-primary-foreground shadow-lg"
               whileHover={{ scale: 1.05, rotate: -5 }}
               whileTap={{ scale: 0.95 }}
             >
               <Wallet className="w-5 h-5" />
             </motion.div>
-            <span className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Ledgerise
+            <span className="flex items-baseline gap-0.5">
+              <span className="text-xl font-serif tracking-tight">Ledger</span>
+              <span className="text-xl font-serif text-primary italic">ise</span>
             </span>
           </Link>
+
           <div className="flex items-center gap-3">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
+                onClick={() =>
+                  setTheme(currentTheme === "dark" ? "light" : "dark")
+                }
                 className="rounded-full w-10 h-10"
               >
                 <AnimatePresence mode="wait">
@@ -214,23 +217,26 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
             </motion.div>
             {isLoggedIn ? (
               <Link href="/dashboard">
-                <Button className="rounded-full px-6">
+                <Button className="rounded-xl px-6 gap-2">
                   Dashboard
-                  <ChevronRight className="w-4 h-4 ml-1" />
+                  <ChevronRight className="w-4 h-4" />
                 </Button>
               </Link>
             ) : (
               <>
                 <Link href="/login" className="hidden sm:block">
-                  <Button variant="ghost" className="rounded-full px-5">
+                  <Button variant="ghost" className="rounded-xl px-5">
                     Login
                   </Button>
                 </Link>
                 <Link href="/signup">
-                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                    <Button className="rounded-full px-6 shadow-lg shadow-primary/25">
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button className="rounded-xl px-6 shadow-lg shadow-primary/20 gap-2">
                       Get Started
-                      <Sparkles className="w-4 h-4 ml-2" />
+                      <Sparkles className="w-4 h-4" />
                     </Button>
                   </motion.div>
                 </Link>
@@ -241,12 +247,15 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
       </motion.nav>
 
       {/* Hero Section */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center pt-16">
+      <section
+        ref={heroRef}
+        className="relative min-h-screen flex items-center pt-16"
+      >
         <motion.div
           style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
           className="container mx-auto px-4 sm:px-6 py-16 sm:py-20 lg:py-32"
         >
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left: Text Content */}
             <div className="text-center lg:text-left">
               <motion.div
@@ -254,25 +263,21 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                 animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.1 }}
               >
-                <Badge className="mb-6 px-4 py-2 text-sm rounded-full border-primary/30 bg-primary/10 text-primary inline-flex items-center gap-2">
+                <span className="inline-flex items-center gap-2 mb-6 px-4 py-2 text-sm rounded-full border border-primary/30 bg-primary/5 text-primary">
                   <Sparkles className="w-3.5 h-3.5" />
                   Smart Budgeting Reimagined
-                </Badge>
+                </span>
               </motion.div>
 
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
                 animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1]"
+                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-serif tracking-tight mb-6 leading-[1.1]"
               >
-                <span className="bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
-                  Master Your Money
-                </span>
+                <span className="text-foreground">Master Your Money</span>
                 <br />
-                <span className="bg-gradient-to-r from-primary via-primary to-blue-500 bg-clip-text text-transparent">
-                  with Smart Defaults
-                </span>
+                <span className="text-primary italic">with Smart Defaults</span>
               </motion.h1>
 
               <motion.p
@@ -282,9 +287,11 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                 className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed"
               >
                 Stop micromanaging every penny. Our{" "}
-                <span className="text-primary font-medium">smart 20% savings rule</span>,
-                custom categories, and beautiful insights help you build wealth
-                effortlessly.
+                <span className="text-primary font-medium">
+                  smart 20% savings rule
+                </span>
+                , custom categories, and beautiful insights help you build
+                wealth effortlessly.
               </motion.p>
 
               <motion.div
@@ -296,11 +303,10 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                 <Link href={isLoggedIn ? "/dashboard" : "/signup"}>
                   <Button
                     size="lg"
-                    className="h-14 px-8 text-lg rounded-full group shadow-xl shadow-primary/25 w-full sm:w-auto"
+                    className="h-14 px-8 text-lg rounded-xl group shadow-xl shadow-primary/20 w-full sm:w-auto gap-2"
                   >
                     {isLoggedIn ? "Go to Dashboard" : "Start for Free"}
                     <motion.span
-                      className="ml-2"
                       animate={{ x: [0, 4, 0] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
                     >
@@ -308,32 +314,35 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                     </motion.span>
                   </Button>
                 </Link>
-                <Link href="#demo">
+                <Link href="#features">
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-14 px-8 text-lg rounded-full group w-full sm:w-auto"
+                    className="h-14 px-8 text-lg rounded-xl w-full sm:w-auto border-dashed"
                   >
-                    <Play className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-                    See How It Works
+                    See Features
                   </Button>
                 </Link>
               </motion.div>
 
-              {/* Trust badges */}
+              {/* Trust indicators */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.5 }}
-                className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center gap-3 sm:gap-6 justify-center lg:justify-start text-sm text-muted-foreground"
+                className="mt-10 flex flex-wrap items-center gap-6 justify-center lg:justify-start text-sm text-muted-foreground"
               >
                 <div className="flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-green-500" />
-                  <span>Bank-level security</span>
+                  <div className="w-2 h-2 rounded-full bg-success" />
+                  <span>Free forever</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-yellow-500" />
-                  <span>Free forever</span>
+                  <div className="w-2 h-2 rounded-full bg-primary" />
+                  <span>No credit card</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-savings" />
+                  <span>Secure by default</span>
                 </div>
               </motion.div>
             </div>
@@ -345,18 +354,19 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="relative"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-3xl blur-3xl opacity-50" />
+              {/* Decorative blur */}
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-savings/10 rounded-3xl blur-3xl opacity-60" />
 
               {/* Main Demo Card */}
-              <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl">
-                {/* Currency Switcher Preview */}
+              <div className="relative bg-card/80 backdrop-blur-xl border border-border/50 rounded-3xl p-5 sm:p-7 shadow-2xl">
+                {/* Currency Switcher */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <motion.div
                       key={activeCurrency}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      className="text-2xl"
+                      className="text-3xl"
                     >
                       {currentCurrency.flag}
                     </motion.div>
@@ -365,7 +375,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                         key={`code-${activeCurrency}`}
                         initial={{ y: 10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        className="font-bold"
+                        className="font-semibold"
                       >
                         {currentCurrency.code}
                       </motion.div>
@@ -374,14 +384,14 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1.5">
                     {currencies.map((_, i) => (
-                      <motion.div
+                      <motion.button
                         key={i}
                         className={`w-2 h-2 rounded-full cursor-pointer transition-colors ${
                           i === activeCurrency ? "bg-primary" : "bg-muted"
                         }`}
-                        whileHover={{ scale: 1.2 }}
+                        whileHover={{ scale: 1.3 }}
                         onClick={() => setActiveCurrency(i)}
                       />
                     ))}
@@ -389,17 +399,19 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                 </div>
 
                 {/* Income Display */}
-                <div className="bg-secondary/50 rounded-2xl p-5 mb-4">
+                <div className="bg-muted/50 rounded-2xl p-5 mb-5">
                   <div className="text-sm text-muted-foreground mb-1">
                     Monthly Income
                   </div>
                   <motion.div
-                    className="text-4xl font-bold"
+                    className="text-4xl sm:text-5xl font-mono font-bold tabular-nums"
                     key={activeCurrency}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                   >
-                    {currentCurrency.symbol}
+                    <span className="text-muted-foreground text-2xl sm:text-3xl">
+                      {currentCurrency.symbol}
+                    </span>
                     {animatedIncome.toLocaleString()}
                   </motion.div>
                 </div>
@@ -408,16 +420,15 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                 <div className="mb-6">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-sm font-medium">Savings Rate</span>
-                    <Badge
-                      variant={savingsRate >= 20 ? "default" : "secondary"}
-                      className={`${
+                    <span
+                      className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                         savingsRate >= 20
-                          ? "bg-green-500/10 text-green-600 border-green-500/20"
-                          : "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
+                          ? "bg-success/10 text-success"
+                          : "bg-warning/10 text-warning"
                       }`}
                     >
                       {savingsRate >= 20 ? "On Track" : "Below Target"}
-                    </Badge>
+                    </span>
                   </div>
                   <div className="relative">
                     <label htmlFor="savings-rate" className="sr-only">
@@ -430,12 +441,14 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                       max="50"
                       value={savingsRate}
                       onChange={(e) => setSavingsRate(Number(e.target.value))}
-                      className="w-full h-3 bg-secondary rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-background"
+                      className="w-full h-3 bg-muted rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-background"
                     />
                   </div>
                   <div className="flex justify-between mt-2 text-xs text-muted-foreground">
                     <span>0%</span>
-                    <span className="text-primary font-medium">{savingsRate}%</span>
+                    <span className="text-primary font-semibold text-sm">
+                      {savingsRate}%
+                    </span>
                     <span>50%</span>
                   </div>
                 </div>
@@ -443,29 +456,25 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                 {/* Budget Breakdown */}
                 <div className="grid grid-cols-2 gap-3">
                   <motion.div
-                    className="bg-green-500/10 border border-green-500/20 rounded-xl p-4"
+                    className="bg-savings/10 border border-savings/20 rounded-2xl p-4"
                     animate={{
                       scale: savingsRate >= 20 ? [1, 1.02, 1] : 1,
                     }}
                     transition={{ duration: 0.3 }}
                   >
-                    <div className="text-sm text-green-600 mb-1">Savings</div>
-                    <div className="text-xl font-bold text-green-600">
+                    <div className="text-sm text-savings mb-1">Savings</div>
+                    <div className="text-2xl font-mono font-bold text-savings tabular-nums">
                       {currentCurrency.symbol}
                       {Math.round(income * (savingsRate / 100)).toLocaleString()}
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {savingsRate}% of income
-                    </div>
                   </motion.div>
-                  <div className="bg-primary/10 border border-primary/20 rounded-xl p-4">
+                  <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4">
                     <div className="text-sm text-primary mb-1">To Spend</div>
-                    <div className="text-xl font-bold text-primary">
+                    <div className="text-2xl font-mono font-bold text-primary tabular-nums">
                       {currentCurrency.symbol}
-                      {Math.round(income * ((100 - savingsRate) / 100)).toLocaleString()}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {100 - savingsRate}% of income
+                      {Math.round(
+                        income * ((100 - savingsRate) / 100)
+                      ).toLocaleString()}
                     </div>
                   </div>
                 </div>
@@ -476,11 +485,11 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                     <Layers className="w-4 h-4 text-muted-foreground" />
                     Budget Categories
                   </div>
-                  <div className="flex gap-1.5">
+                  <div className="flex gap-1">
                     {categoryColors.map((cat, i) => (
                       <motion.div
                         key={cat.name}
-                        className="h-8 rounded-md relative group cursor-pointer"
+                        className="h-10 rounded-lg relative group cursor-pointer"
                         style={{
                           backgroundColor: cat.color,
                           flex: cat.percentage,
@@ -488,9 +497,9 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                         initial={{ scaleY: 0 }}
                         animate={{ scaleY: 1 }}
                         transition={{ delay: 0.6 + i * 0.1 }}
-                        whileHover={{ scaleY: 1.1 }}
+                        whileHover={{ scaleY: 1.15, y: -2 }}
                       >
-                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-xs px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-card text-foreground text-xs px-2.5 py-1.5 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border">
                           {cat.name}
                         </div>
                       </motion.div>
@@ -499,20 +508,22 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                 </div>
               </div>
 
-              {/* Floating elements - hidden on mobile to prevent overflow */}
+              {/* Floating decorations */}
               <motion.div
-                className="hidden sm:block absolute -right-4 top-1/4 bg-card border rounded-xl p-3 shadow-lg"
+                className="hidden sm:flex absolute -right-4 top-1/4 bg-card border rounded-xl p-3 shadow-lg items-center gap-2"
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 3, repeat: Infinity }}
               >
-                <CheckCircle2 className="w-5 h-5 text-green-500" />
+                <Check className="w-4 h-4 text-success" />
+                <span className="text-sm font-medium">Auto-save</span>
               </motion.div>
               <motion.div
-                className="hidden sm:block absolute -left-4 bottom-1/4 bg-card border rounded-xl p-3 shadow-lg"
+                className="hidden sm:flex absolute -left-4 bottom-1/4 bg-card border rounded-xl p-3 shadow-lg items-center gap-2"
                 animate={{ y: [0, 10, 0] }}
                 transition={{ duration: 4, repeat: Infinity }}
               >
-                <TrendingUp className="w-5 h-5 text-primary" />
+                <TrendingUp className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium">+20%</span>
               </motion.div>
             </motion.div>
           </div>
@@ -535,19 +546,19 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 border-y border-border/50 bg-secondary/20">
+      <section className="py-16 border-y border-border/50 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <StatCard value="10K+" label="Active Users" delay={0} />
             <StatCard value="$2M+" label="Tracked Monthly" delay={0.1} />
             <StatCard value="20%" label="Avg. Savings Rate" delay={0.2} />
-            <StatCard value="4.9★" label="User Rating" delay={0.3} />
+            <StatCard value="4.9" label="User Rating" delay={0.3} />
           </div>
         </div>
       </section>
 
-      {/* Features Bento Grid */}
-      <section id="demo" className="py-16 sm:py-24">
+      {/* Features Section */}
+      <section id="features" className="py-20 sm:py-28">
         <div className="container mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -555,209 +566,71 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <Badge className="mb-4 px-4 py-1.5 rounded-full bg-primary/10 text-primary border-primary/20">
+            <span className="inline-flex items-center gap-2 mb-4 px-4 py-1.5 text-sm rounded-full bg-primary/5 text-primary border border-primary/20">
               Features
-            </Badge>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+            </span>
+            <h2 className="text-3xl md:text-5xl font-serif mb-4">
               Everything you need to{" "}
-              <span className="text-primary">succeed</span>
+              <span className="text-primary italic">succeed</span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Powerful features designed to help you understand your spending and
-              grow your savings—without the complexity.
+              Powerful features designed to help you understand your spending
+              and grow your savings—without the complexity.
             </p>
           </motion.div>
 
-          {/* Bento Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-            {/* Large Feature: Smart Savings */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="md:col-span-2 lg:col-span-2 bg-gradient-to-br from-green-500/10 to-emerald-500/5 border border-green-500/20 rounded-3xl p-8 relative overflow-hidden group"
-            >
-              <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
-              <div className="relative">
-                <div className="w-14 h-14 rounded-2xl bg-green-500/20 flex items-center justify-center mb-6">
-                  <ShieldCheck className="w-7 h-7 text-green-500" />
-                </div>
-                <h3 className="text-2xl font-bold mb-3">Smart 20% Savings Rule</h3>
-                <p className="text-muted-foreground mb-6 max-w-lg">
-                  Automatically sets aside 20% of your income for savings. If you
-                  save less, we&apos;ll ask why—keeping you accountable without being
-                  restrictive.
-                </p>
-                <div className="bg-card/50 backdrop-blur rounded-2xl p-4 inline-block">
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1">
-                      <div className="h-3 bg-secondary rounded-full overflow-hidden">
-                        <motion.div
-                          className="h-full bg-green-500"
-                          initial={{ width: 0 }}
-                          whileInView={{ width: "80%" }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 1, delay: 0.5 }}
-                        />
-                      </div>
-                    </div>
-                    <span className="font-bold text-green-500">80%</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-2">
-                    $800 of $1,000 goal reached this month
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Multi-Currency */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="bg-gradient-to-br from-indigo-500/10 to-purple-500/5 border border-indigo-500/20 rounded-3xl p-8 relative overflow-hidden group"
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
-              <div className="relative">
-                <div className="w-14 h-14 rounded-2xl bg-indigo-500/20 flex items-center justify-center mb-6">
-                  <Globe className="w-7 h-7 text-indigo-500" />
-                </div>
-                <h3 className="text-xl font-bold mb-3">Multi-Currency</h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Support for SLE, USD, GBP, EUR, and NGN.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {currencies.map((c) => (
-                    <span
-                      key={c.code}
-                      className="text-lg"
-                      title={c.name}
-                    >
-                      {c.flag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Custom Categories */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="bg-gradient-to-br from-pink-500/10 to-rose-500/5 border border-pink-500/20 rounded-3xl p-8 relative overflow-hidden group"
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
-              <div className="relative">
-                <div className="w-14 h-14 rounded-2xl bg-pink-500/20 flex items-center justify-center mb-6">
-                  <Layers className="w-7 h-7 text-pink-500" />
-                </div>
-                <h3 className="text-xl font-bold mb-3">Custom Categories</h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Create categories with custom colors.
-                </p>
-                <div className="flex gap-2">
-                  {categoryColors.slice(0, 5).map((c, i) => (
-                    <motion.div
-                      key={c.name}
-                      className="w-8 h-8 rounded-full shadow-lg"
-                      style={{ backgroundColor: c.color }}
-                      initial={{ scale: 0 }}
-                      whileInView={{ scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.5 + i * 0.1 }}
-                      whileHover={{ scale: 1.2, y: -4 }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Real-time */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-              className="bg-gradient-to-br from-orange-500/10 to-amber-500/5 border border-orange-500/20 rounded-3xl p-8 relative overflow-hidden group"
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
-              <div className="relative">
-                <div className="w-14 h-14 rounded-2xl bg-orange-500/20 flex items-center justify-center mb-6">
-                  <Zap className="w-7 h-7 text-orange-500" />
-                </div>
-                <h3 className="text-xl font-bold mb-3">Real-time Updates</h3>
-                <p className="text-muted-foreground text-sm">
-                  See exactly how much you have left in each category as you
-                  track expenses.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Visual Insights */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.5 }}
-              className="md:col-span-2 bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/20 rounded-3xl p-8 relative overflow-hidden group"
-            >
-              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
-              <div className="relative flex flex-col md:flex-row gap-8 items-center">
-                <div className="flex-1">
-                  <div className="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center mb-6">
-                    <PieChart className="w-7 h-7 text-blue-500" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-3">Visual Insights</h3>
-                  <p className="text-muted-foreground">
-                    Beautiful charts and graphs help you visualize spending
-                    patterns and track your savings growth over time.
-                  </p>
-                </div>
-                <div className="flex-1 flex items-end gap-2 h-32">
-                  {[40, 65, 45, 80, 55, 90, 70].map((h, i) => (
-                    <motion.div
-                      key={i}
-                      className="flex-1 bg-blue-500/30 rounded-t-md hover:bg-blue-500/50 transition-colors"
-                      initial={{ height: 0 }}
-                      whileInView={{ height: `${h}%` }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.3 + i * 0.1, duration: 0.5 }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Historical Tracking */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.6 }}
-              className="bg-gradient-to-br from-violet-500/10 to-purple-500/5 border border-violet-500/20 rounded-3xl p-8 relative overflow-hidden group"
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
-              <div className="relative">
-                <div className="w-14 h-14 rounded-2xl bg-violet-500/20 flex items-center justify-center mb-6">
-                  <Calendar className="w-7 h-7 text-violet-500" />
-                </div>
-                <h3 className="text-xl font-bold mb-3">Historical Tracking</h3>
-                <p className="text-muted-foreground text-sm">
-                  View past months as read-only records. Track your progress and
-                  learn from spending patterns.
-                </p>
-              </div>
-            </motion.div>
+          {/* Feature Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <FeatureCard
+              icon={ShieldCheck}
+              title="Smart 20% Rule"
+              description="Automatically sets aside 20% for savings. If you save less, we'll ask why—keeping you accountable."
+              color="savings"
+              delay={0.1}
+              large
+            />
+            <FeatureCard
+              icon={Globe}
+              title="Multi-Currency"
+              description="Support for SLE, USD, GBP, EUR, and NGN currencies."
+              color="primary"
+              delay={0.2}
+            />
+            <FeatureCard
+              icon={Layers}
+              title="Custom Categories"
+              description="Create categories with custom colors to match your lifestyle."
+              color="primary"
+              delay={0.3}
+            />
+            <FeatureCard
+              icon={Zap}
+              title="Real-time Updates"
+              description="See exactly how much you have left as you track expenses."
+              color="warning"
+              delay={0.4}
+            />
+            <FeatureCard
+              icon={PieChart}
+              title="Visual Insights"
+              description="Beautiful charts help you visualize spending patterns over time."
+              color="primary"
+              delay={0.5}
+              large
+            />
+            <FeatureCard
+              icon={Calendar}
+              title="Historical Tracking"
+              description="View past months as read-only records. Track your progress."
+              color="primary"
+              delay={0.6}
+            />
           </div>
         </div>
       </section>
 
       {/* How it Works */}
-      <section id="how-it-works" className="py-16 sm:py-24 bg-secondary/20">
+      <section className="py-20 sm:py-28 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -765,11 +638,11 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <Badge className="mb-4 px-4 py-1.5 rounded-full bg-primary/10 text-primary border-primary/20">
+            <span className="inline-flex items-center gap-2 mb-4 px-4 py-1.5 text-sm rounded-full bg-primary/5 text-primary border border-primary/20">
               How It Works
-            </Badge>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              Simple, effective <span className="text-primary">budgeting</span>
+            </span>
+            <h2 className="text-3xl md:text-5xl font-serif mb-4">
+              Simple, effective <span className="text-primary italic">budgeting</span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
               Get started in minutes. No complex setup, no learning curve.
@@ -809,16 +682,16 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                 className="relative"
               >
                 {i < 2 && (
-                  <div className="hidden md:block absolute top-16 left-full w-full h-px bg-gradient-to-r from-border to-transparent z-0" />
+                  <div className="hidden md:block absolute top-20 left-full w-full h-px bg-gradient-to-r from-border to-transparent z-0" />
                 )}
-                <div className="bg-card border rounded-3xl p-8 relative z-10 h-full hover:shadow-xl hover:shadow-primary/5 transition-shadow">
-                  <div className="text-6xl font-bold text-primary/10 mb-4">
+                <div className="bg-card border rounded-3xl p-8 relative z-10 h-full transition-shadow hover:shadow-xl">
+                  <div className="text-6xl font-serif text-primary/10 mb-4">
                     {item.step}
                   </div>
                   <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
                     <item.icon className="w-7 h-7 text-primary" />
                   </div>
-                  <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                  <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
                   <p className="text-muted-foreground">{item.description}</p>
                 </div>
               </motion.div>
@@ -828,40 +701,34 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6">
+      <section className="py-20 sm:py-28 px-4 sm:px-6">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="relative rounded-[2.5rem] overflow-hidden"
+            className="relative rounded-3xl overflow-hidden"
           >
             {/* Gradient Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-blue-600" />
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
-
-            {/* Animated circles */}
-            <motion.div
-              className="absolute -top-20 -right-20 w-96 h-96 bg-white/10 rounded-full blur-3xl"
-              animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }}
-              transition={{ duration: 10, repeat: Infinity }}
-            />
-            <motion.div
-              className="absolute -bottom-20 -left-20 w-96 h-96 bg-white/10 rounded-full blur-3xl"
-              animate={{ scale: [1.2, 1, 1.2], rotate: [90, 0, 90] }}
-              transition={{ duration: 10, repeat: Infinity }}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/80" />
+            <div
+              className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+                backgroundSize: "32px 32px",
+              }}
             />
 
-            <div className="relative z-10 py-20 md:py-28 px-8 text-center">
+            <div className="relative z-10 py-16 md:py-24 px-8 text-center">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+                <h2 className="text-3xl md:text-5xl lg:text-6xl font-serif text-primary-foreground mb-6">
                   Ready to take control?
                 </h2>
-                <p className="text-white/80 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
+                <p className="text-primary-foreground/80 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
                   Join thousands of users building wealth with the smart 20%
                   savings rule. Start your journey today.
                 </p>
@@ -870,14 +737,14 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                     <Button
                       size="lg"
                       variant="secondary"
-                      className="h-14 px-10 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all group"
+                      className="h-14 px-10 text-lg rounded-xl shadow-xl hover:shadow-2xl transition-all group gap-2"
                     >
                       Start Budgeting Now
-                      <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                 </div>
-                <div className="mt-8 flex items-center justify-center gap-6 text-white/60 text-sm">
+                <div className="mt-8 flex items-center justify-center gap-6 text-primary-foreground/60 text-sm">
                   <span className="flex items-center gap-2">
                     <Check className="w-4 h-4" /> Free forever
                   </span>
@@ -895,11 +762,14 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
       <footer className="py-12 sm:py-16 border-t bg-background">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="flex items-center gap-2.5 font-bold text-xl">
-              <div className="w-9 h-9 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center text-primary-foreground">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center text-primary-foreground">
                 <Wallet className="w-5 h-5" />
               </div>
-              <span>Ledgerise</span>
+              <span className="flex items-baseline gap-0.5">
+                <span className="text-xl font-serif">Ledger</span>
+                <span className="text-xl font-serif text-primary italic">ise</span>
+              </span>
             </div>
             <div className="flex items-center gap-8 text-sm text-muted-foreground">
               <Link href="#" className="hover:text-foreground transition-colors">
@@ -913,7 +783,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
               </Link>
             </div>
             <div className="text-sm text-muted-foreground">
-              © 2025 Ledgerise. All rights reserved.
+              © 2026 Ledgerise. All rights reserved.
             </div>
           </div>
         </div>
@@ -940,10 +810,61 @@ function StatCard({
       transition={{ delay }}
       className="text-center"
     >
-      <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
+      <div className="text-3xl md:text-4xl font-mono font-bold text-primary mb-2 tabular-nums">
         {value}
       </div>
       <div className="text-sm text-muted-foreground">{label}</div>
+    </motion.div>
+  );
+}
+
+// Feature Card Component
+function FeatureCard({
+  icon: Icon,
+  title,
+  description,
+  color,
+  delay,
+  large,
+}: {
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  color: string;
+  delay: number;
+  large?: boolean;
+}) {
+  const colorClasses = {
+    primary: "from-primary/10 to-primary/5 border-primary/20",
+    savings: "from-savings/10 to-savings/5 border-savings/20",
+    warning: "from-warning/10 to-warning/5 border-warning/20",
+  };
+
+  const iconColorClasses = {
+    primary: "bg-primary/20 text-primary",
+    savings: "bg-savings/20 text-savings",
+    warning: "bg-warning/20 text-warning",
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay }}
+      className={`${large ? "md:col-span-2 lg:col-span-2" : ""}`}
+    >
+      <div
+        className={`h-full bg-gradient-to-br ${colorClasses[color as keyof typeof colorClasses]} border rounded-3xl p-8 relative overflow-hidden group transition-all hover:shadow-lg`}
+      >
+        <div
+          className={`w-14 h-14 rounded-2xl ${iconColorClasses[color as keyof typeof iconColorClasses]} flex items-center justify-center mb-6`}
+        >
+          <Icon className="w-7 h-7" />
+        </div>
+        <h3 className="text-xl font-semibold mb-3">{title}</h3>
+        <p className="text-muted-foreground">{description}</p>
+      </div>
     </motion.div>
   );
 }

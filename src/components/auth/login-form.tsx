@@ -62,7 +62,9 @@ export function LoginForm() {
         transition={{ duration: 0.4 }}
         className="text-center lg:text-left"
       >
-        <h2 className="text-3xl font-bold tracking-tight mb-2">Welcome back</h2>
+        <h2 className="text-3xl sm:text-4xl font-serif tracking-tight mb-2">
+          Welcome <span className="text-primary italic">back</span>
+        </h2>
         <p className="text-muted-foreground">
           Sign in to continue managing your finances
         </p>

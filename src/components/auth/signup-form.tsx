@@ -134,8 +134,8 @@ export function SignUpForm() {
         transition={{ duration: 0.4 }}
         className="text-center lg:text-left"
       >
-        <h2 className="text-3xl font-bold tracking-tight mb-2">
-          Create your account
+        <h2 className="text-3xl sm:text-4xl font-serif tracking-tight mb-2">
+          Create your <span className="text-primary italic">account</span>
         </h2>
         <p className="text-muted-foreground">
           Start your journey to financial clarity
