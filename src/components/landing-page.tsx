@@ -593,7 +593,6 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
               description="Automatically sets aside 20% for savings. If you save less, we'll ask why—keeping you accountable."
               color="savings"
               delay={0.1}
-              large
             />
             <FeatureCard
               icon={Globe}
@@ -622,7 +621,6 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
               description="Beautiful charts help you visualize spending patterns over time."
               color="primary"
               delay={0.5}
-              large
             />
             <FeatureCard
               icon={Calendar}
