@@ -2,7 +2,8 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Wallet, TrendingUp, PieChart, Shield, Sparkles } from "lucide-react";
+import { TrendingUp, PieChart, Shield, Sparkles } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const features = [
@@ -169,11 +170,16 @@ export default function AuthLayout({
           >
             <Link href="/" className="flex items-center gap-3 group">
               <motion.div
-                className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg border border-white/20"
                 whileHover={{ scale: 1.05, rotate: -5 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Wallet className="w-6 h-6" />
+                <Image
+                  src="/new_ledgerise_logo_1.png"
+                  alt="Ledgerise Logo"
+                  width={48}
+                  height={48}
+                  className="rounded-2xl shadow-lg"
+                />
               </motion.div>
               <span className="text-2xl font-bold">Ledgerise</span>
             </Link>

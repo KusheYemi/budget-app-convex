@@ -9,6 +9,7 @@ import {
   AnimatePresence,
 } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
@@ -168,11 +169,16 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
             className="flex items-center gap-3 group"
           >
             <motion.div
-              className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center text-primary-foreground shadow-lg"
               whileHover={{ scale: 1.05, rotate: -5 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Wallet className="w-5 h-5" />
+              <Image
+                src="/new_ledgerise_logo_1.png"
+                alt="Ledgerise Logo"
+                width={40}
+                height={40}
+                className="rounded-xl shadow-lg"
+              />
             </motion.div>
             <span className="flex items-baseline gap-0.5">
               <span className="text-xl font-serif tracking-tight">Ledger</span>
@@ -763,9 +769,13 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center text-primary-foreground">
-                <Wallet className="w-5 h-5" />
-              </div>
+              <Image
+                src="/new_ledgerise_logo_1.png"
+                alt="Ledgerise Logo"
+                width={40}
+                height={40}
+                className="rounded-xl"
+              />
               <span className="flex items-baseline gap-0.5">
                 <span className="text-xl font-serif">Ledger</span>
                 <span className="text-xl font-serif text-primary italic">ise</span>

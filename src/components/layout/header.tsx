@@ -69,7 +69,7 @@ export function Header({ email, year, month }: HeaderProps) {
           >
             <div className="absolute inset-0 bg-primary/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity" />
             <Image
-              src="/budget-app.jpg"
+              src="/new_ledgerise_logo_1.png"
               alt="Ledgerise Logo"
               width={36}
               height={36}
