@@ -229,7 +229,7 @@ export const CategoryRow = memo(function CategoryRow({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 rounded-xl opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                  className="h-9 w-9 rounded-xl sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 transition-opacity"
                 >
                   <MoreVertical className="w-4 h-4" />
                   <span className="sr-only">Actions</span>

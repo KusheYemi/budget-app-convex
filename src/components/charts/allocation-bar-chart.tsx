@@ -128,7 +128,7 @@ export function AllocationBarChart({
                 type="number"
                 domain={[0, maxValue * 1.1]}
                 tickFormatter={(value) => formatCurrency(value, currency)}
-                tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }}
                 axisLine={false}
                 tickLine={false}
               />
@@ -136,7 +136,7 @@ export function AllocationBarChart({
                 type="category"
                 dataKey="name"
                 width={80}
-                tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }}
+                tick={{ fontSize: 11, fill: "var(--color-foreground)" }}
                 tickFormatter={(value) =>
                   value.length > 10 ? `${value.slice(0, 9)}...` : value
                 }
