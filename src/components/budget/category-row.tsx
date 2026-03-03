@@ -137,7 +137,7 @@ export const CategoryRow = memo(function CategoryRow({
     <>
       <div
         className={cn(
-          "group flex items-center gap-3 sm:gap-4 p-4 sm:p-5 transition-all duration-200",
+          "group flex items-center gap-2 xs:gap-3 sm:gap-4 p-3 xs:p-4 sm:p-5 transition-all duration-200",
           isSavings && "bg-savings/5",
           !isReadOnly && !isSavings && "hover:bg-muted/30"
         )}
@@ -199,7 +199,7 @@ export const CategoryRow = memo(function CategoryRow({
               onChange={(e) => setEditValue(e.target.value)}
               onBlur={handleSave}
               onKeyDown={handleKeyDown}
-              className="w-28 h-10 text-right text-base font-mono rounded-xl"
+              className="w-20 xs:w-28 h-10 text-right text-sm xs:text-base font-mono rounded-xl px-2"
               min="0"
               step="0.01"
               autoFocus

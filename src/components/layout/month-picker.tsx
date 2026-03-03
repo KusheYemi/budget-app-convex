@@ -144,7 +144,7 @@ export function MonthPicker({ year, month }: MonthPickerProps) {
       </Button>
 
       <Select value={`${year}-${month}`} onValueChange={goToMonth}>
-        <SelectTrigger className="w-[140px] sm:w-[180px] h-8 sm:h-9 text-sm">
+        <SelectTrigger className="w-[120px] xs:w-[140px] sm:w-[180px] h-8 sm:h-9 text-xs sm:text-sm">
           <SelectValue>{formatMonth(year, month)}</SelectValue>
         </SelectTrigger>
         <SelectContent>

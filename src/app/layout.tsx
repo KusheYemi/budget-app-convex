@@ -37,7 +37,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         suppressHydrationWarning
-        className={`${dmSans.variable} ${instrumentSerif.variable} ${geistMono.variable} font-sans antialiased overflow-x-hidden`}
+        className={`${dmSans.variable} ${instrumentSerif.variable} ${geistMono.variable} font-sans antialiased overflow-x-hidden pb-16 md:pb-0`}
       >
         <Providers>
           {children}

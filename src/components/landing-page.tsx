@@ -163,10 +163,10 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="fixed top-0 w-full z-50 bg-background/70 backdrop-blur-xl border-b border-border/30"
       >
-        <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div className="container mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-1 xs:gap-4">
           <Link
             href="/"
-            className="flex items-center gap-3 group"
+            className="flex items-center gap-2 xs:gap-3 group"
           >
             <motion.div
               whileHover={{ scale: 1.05, rotate: -5 }}
@@ -186,7 +186,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
             </span>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 xs:gap-3">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 variant="ghost"
@@ -194,7 +194,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                 onClick={() =>
                   setTheme(currentTheme === "dark" ? "light" : "dark")
                 }
-                className="rounded-full w-10 h-10"
+                className="rounded-full w-8 h-8 xs:w-10 xs:h-10"
               >
                 <AnimatePresence mode="wait">
                   {currentTheme === "dark" ? (
@@ -205,7 +205,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                       exit={{ rotate: 90, opacity: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <Sun className="w-5 h-5" />
+                      <Sun className="w-4 h-4 xs:w-5 xs:h-5" />
                     </motion.div>
                   ) : (
                     <motion.div
@@ -215,7 +215,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                       exit={{ rotate: -90, opacity: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <Moon className="w-5 h-5" />
+                      <Moon className="w-4 h-4 xs:w-5 xs:h-5" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -223,15 +223,15 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
             </motion.div>
             {isLoggedIn ? (
               <Link href="/dashboard">
-                <Button className="rounded-xl px-6 gap-2">
+                <Button className="rounded-xl px-4 xs:px-6 gap-2 text-xs xs:text-sm h-8 xs:h-10">
                   Dashboard
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="hidden xs:block w-4 h-4" />
                 </Button>
               </Link>
             ) : (
               <>
                 <Link href="/login" className="hidden sm:block">
-                  <Button variant="ghost" className="rounded-xl px-5">
+                  <Button variant="ghost" className="rounded-xl px-5 text-sm">
                     Login
                   </Button>
                 </Link>
@@ -240,9 +240,9 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <Button className="rounded-xl px-6 shadow-lg shadow-primary/20 gap-2">
+                    <Button className="rounded-xl px-4 xs:px-6 shadow-lg shadow-primary/20 gap-1 xs:gap-2 text-xs xs:text-sm h-8 xs:h-10">
                       Get Started
-                      <Sparkles className="w-4 h-4" />
+                      <Sparkles className="w-3 h-3 xs:w-4 xs:h-4" />
                     </Button>
                   </motion.div>
                 </Link>
@@ -258,8 +258,8 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
         className="relative min-h-screen flex items-center pt-16"
       >
         <motion.div
-          style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
-          className="container mx-auto px-4 sm:px-6 py-16 sm:py-20 lg:py-32"
+           style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
+           className="container mx-auto px-4 sm:px-6 py-10 xs:py-16 sm:py-20 lg:py-32"
         >
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left: Text Content */}
@@ -279,7 +279,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                 initial={{ opacity: 0, y: 30 }}
                 animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-serif tracking-tight mb-6 leading-[1.1]"
+                className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-serif tracking-tight mb-4 xs:mb-6 leading-[1.1]"
               >
                 <span className="text-foreground">Master Your Money</span>
                 <br />

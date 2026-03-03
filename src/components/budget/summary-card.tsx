@@ -72,7 +72,7 @@ export function SummaryCard({
 
       <div className="relative p-4 sm:p-6">
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 xs:gap-3 sm:gap-4">
           {stats.map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -90,7 +90,7 @@ export function SummaryCard({
               </p>
               <p
                 className={cn(
-                  "text-2xl sm:text-3xl font-semibold tracking-tight font-mono tabular-nums",
+                  "text-xl xs:text-2xl sm:text-3xl font-semibold tracking-tight font-mono tabular-nums",
                   stat.color
                 )}
               >

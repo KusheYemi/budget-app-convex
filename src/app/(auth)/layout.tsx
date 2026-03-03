@@ -114,50 +114,52 @@ export default function AuthLayout({
           />
 
           {/* Floating coins/elements */}
-          <motion.div
-            className="absolute top-[20%] right-[20%] w-12 h-12 bg-yellow-400/80 rounded-full shadow-lg flex items-center justify-center text-yellow-900 font-bold text-xl"
-            animate={{
-              y: [0, -20, 0],
-              rotate: [0, 10, 0],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            $
-          </motion.div>
-          <motion.div
-            className="absolute bottom-[30%] left-[15%] w-10 h-10 bg-green-400/80 rounded-full shadow-lg flex items-center justify-center text-green-900 font-bold"
-            animate={{
-              y: [0, 15, 0],
-              rotate: [0, -15, 0],
-            }}
-            transition={{
-              duration: 5,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 1,
-            }}
-          >
-            €
-          </motion.div>
-          <motion.div
-            className="absolute top-[60%] right-[10%] w-8 h-8 bg-blue-300/80 rounded-full shadow-lg flex items-center justify-center text-blue-900 font-bold text-sm"
-            animate={{
-              y: [0, -12, 0],
-              x: [0, 8, 0],
-            }}
-            transition={{
-              duration: 6,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 2,
-            }}
-          >
-            £
-          </motion.div>
+          <div className="hidden sm:block">
+            <motion.div
+              className="absolute top-[20%] right-[20%] w-12 h-12 bg-yellow-400/80 rounded-full shadow-lg flex items-center justify-center text-yellow-900 font-bold text-xl"
+              animate={{
+                y: [0, -20, 0],
+                rotate: [0, 10, 0],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
+              $
+            </motion.div>
+            <motion.div
+              className="absolute bottom-[30%] left-[15%] w-10 h-10 bg-green-400/80 rounded-full shadow-lg flex items-center justify-center text-green-900 font-bold"
+              animate={{
+                y: [0, 15, 0],
+                rotate: [0, -15, 0],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 1,
+              }}
+            >
+              €
+            </motion.div>
+            <motion.div
+              className="absolute top-[60%] right-[10%] w-8 h-8 bg-blue-300/80 rounded-full shadow-lg flex items-center justify-center text-blue-900 font-bold text-sm"
+              animate={{
+                y: [0, -12, 0],
+                x: [0, 8, 0],
+              }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 2,
+              }}
+            >
+              £
+            </motion.div>
+          </div>
         </div>
 
         {/* Content */}

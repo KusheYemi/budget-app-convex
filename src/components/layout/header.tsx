@@ -119,24 +119,23 @@ export function Header({ email, year, month }: HeaderProps) {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Month Picker — Enhanced */}
+        {/* Month Picker — Visible on both mobile and desktop inside header */}
         {(pathname === "/dashboard" || pathname.startsWith("/budget")) && (
-          <div className="hidden md:block">
+          <div className="flex-1 flex justify-center md:flex-none">
             <MonthPicker year={year} month={month} />
           </div>
         )}
 
-        {/* Actions */}
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <UserMenu email={email} />
         </div>
       </div>
 
-      {/* Mobile Navigation — Tab bar style */}
-      <div className="md:hidden border-t border-border/50 bg-background/80 backdrop-blur-xl">
+      {/* Mobile Navigation — Tab bar style, fixed at bottom */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/50 bg-background/95 backdrop-blur-xl pb-safe">
         {/* Mobile Nav Tabs */}
-        <div className="flex">
+        <div className="flex h-16 items-center">
           {navLinks.map((link) => {
             const isActive =
               pathname === link.href ||
@@ -147,7 +146,7 @@ export function Header({ email, year, month }: HeaderProps) {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "relative flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors",
+                  "relative flex-1 flex flex-col items-center justify-center gap-1 h-full text-xs font-medium transition-colors",
                   isActive
                     ? "text-primary"
                     : "text-muted-foreground"
@@ -156,23 +155,16 @@ export function Header({ email, year, month }: HeaderProps) {
                 {isActive && (
                   <motion.div
                     layoutId="mobile-nav-indicator"
-                    className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-primary rounded-full"
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-full"
                     transition={{ type: "spring", bounce: 0.3, duration: 0.5 }}
                   />
                 )}
                 <NavIcon type={link.icon} />
-                {link.label}
+                <span className="mt-0.5">{link.label}</span>
               </Link>
             );
           })}
         </div>
-
-        {/* Mobile Month Picker */}
-        {(pathname === "/dashboard" || pathname.startsWith("/budget")) && (
-          <div className="px-4 py-2 border-t border-border/30">
-            <MonthPicker year={year} month={month} />
-          </div>
-        )}
       </div>
     </header>
   );
