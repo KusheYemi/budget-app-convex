@@ -16,6 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CURRENCIES, type CurrencyCode } from "@/lib/validators";
+import { DEFAULT_CATEGORY_NAMES } from "@/lib/utils";
+import { FormError } from "@/components/ui/form-error";
 
 export function OnboardingModal() {
   const router = useRouter();
@@ -72,7 +74,7 @@ export function OnboardingModal() {
               <div className="space-y-2">
                 <p className="text-sm font-medium">Default categories:</p>
                 <div className="flex flex-wrap gap-2">
-                  {["Savings", "Transport & Food", "Utilities", "Partner & Child Support", "Subscriptions", "Fun", "Remittance"].map(
+                  {DEFAULT_CATEGORY_NAMES.map(
                     (cat) => (
                       <span
                         key={cat}
@@ -92,11 +94,7 @@ export function OnboardingModal() {
 
           {step === 2 && (
             <div className="space-y-6">
-              {error && (
-                <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
-                  {error}
-                </div>
-              )}
+              <FormError error={error} />
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="currency">Preferred Currency</Label>

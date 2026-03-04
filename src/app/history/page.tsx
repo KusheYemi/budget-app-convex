@@ -1,24 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useConvexAuth, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { HistoryContent } from "@/components/history/history-content";
-import type { CurrencyCode } from "@/lib/validators";
 import { HistoryLoading } from "@/components/loading/history-loading";
+import { useRequireAuth } from "@/hooks/use-require-auth";
+import { getUserCurrency } from "@/lib/utils";
 
 export default function HistoryPage() {
   const router = useRouter();
-  const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
+  const { isAuthenticated, isLoading: authLoading } = useRequireAuth();
   const user = useQuery(api.users.getCurrentUser);
   const history = useQuery(api.insights.getBudgetHistory);
-
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push("/login");
-    }
-  }, [authLoading, isAuthenticated, router]);
 
   if (authLoading || user === undefined || history === undefined) {
     return <HistoryLoading />;
@@ -36,7 +30,7 @@ export default function HistoryPage() {
   return (
     <HistoryContent
       months={history}
-      currency={(user.currency as CurrencyCode) ?? "SLE"}
+      currency={getUserCurrency(user)}
       email={user.email ?? ""}
     />
   );

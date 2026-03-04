@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Mail, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthActions } from "@convex-dev/auth/react";
@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
+import { AuthCard } from "@/components/auth/auth-card";
+import { AnimatedFormError } from "@/components/auth/animated-form-error";
 
 export function ResetRequestForm() {
   const { signIn } = useAuthActions();
@@ -58,12 +60,7 @@ export function ResetRequestForm() {
         </p>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-        className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 lg:p-8 shadow-xl"
-      >
+      <AuthCard delay={0.1}>
         {sent ? (
           <div className="space-y-4 text-center">
             <p className="text-sm text-muted-foreground">
@@ -78,19 +75,7 @@ export function ResetRequestForm() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
-            <AnimatePresence mode="wait">
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="p-4 text-sm text-destructive bg-destructive/10 rounded-xl border border-destructive/20 flex items-center gap-3"
-                >
-                  <div className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
-                  {error}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <AnimatedFormError error={error} />
 
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
@@ -139,7 +124,7 @@ export function ResetRequestForm() {
             </Link>
           </form>
         )}
-      </motion.div>
+      </AuthCard>
     </div>
   );
 }

@@ -21,7 +21,6 @@ import { Badge } from "@/components/ui/badge";
 interface MonthPickerProps {
   year: number;
   month: number;
-  availableMonths?: { year: number; month: number }[];
 }
 
 export function MonthPicker({ year, month }: MonthPickerProps) {

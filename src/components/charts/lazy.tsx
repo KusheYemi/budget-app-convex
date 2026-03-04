@@ -9,7 +9,7 @@ function PieChartSkeleton() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Spending Distribution</CardTitle>
+        <CardTitle className="text-lg">Distribution</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-44 sm:h-48 flex items-center justify-center">
@@ -29,7 +29,7 @@ function BarChartSkeleton() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Category Breakdown</CardTitle>
+        <CardTitle className="text-lg">Breakdown</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-48 sm:h-64 flex items-end justify-around gap-2 pt-4">

@@ -1,46 +1,8 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { auth } from "./auth";
-import { Doc } from "./_generated/dataModel";
-import { QueryCtx } from "./_generated/server";
-
-const MIN_SAVINGS_RATE = 0.20;
-
-// Helper to batch fetch categories and join with allocations
-async function getAllocationsWithCategories(
-  ctx: QueryCtx,
-  allocations: Doc<"allocations">[]
-) {
-  // Collect unique category IDs
-  const categoryIds = [...new Set(allocations.map((a) => a.categoryId))];
-
-  // Batch fetch all categories at once
-  const categories = await Promise.all(
-    categoryIds.map((id) => ctx.db.get(id))
-  );
-
-  // Create a Map for O(1) lookups
-  const categoryMap = new Map(
-    categories
-      .filter((c): c is Doc<"categories"> => c !== null)
-      .map((c) => [c._id, c])
-  );
-
-  // Join allocations with categories
-  return allocations.map((allocation) => ({
-    ...allocation,
-    category: categoryMap.get(allocation.categoryId) ?? null,
-  }));
-}
-
-// Helper to get current month
-function getCurrentMonth() {
-  const now = new Date();
-  return {
-    year: now.getFullYear(),
-    month: now.getMonth() + 1,
-  };
-}
+import { MIN_SAVINGS_RATE, DEFAULT_SAVINGS_RATE } from "./constants";
+import { getCurrentMonth, getAllocationsWithCategories, byMonthDesc } from "./utils";
 
 // Get budget month with allocations
 export const getBudgetMonth = query({
@@ -113,11 +75,7 @@ export const getOrCreateBudgetMonth = mutation({
         .withIndex("by_user", (q) => q.eq("userId", userId))
         .collect();
 
-      // Sort to find most recent
-      allBudgets.sort((a, b) => {
-        if (a.year !== b.year) return b.year - a.year;
-        return b.month - a.month;
-      });
+      allBudgets.sort(byMonthDesc);
 
       const lastBudget = allBudgets[0];
 
@@ -126,7 +84,7 @@ export const getOrCreateBudgetMonth = mutation({
         year: args.year,
         month: args.month,
         income: lastBudget?.income ?? 0,
-        savingsRate: 0.20,
+        savingsRate: DEFAULT_SAVINGS_RATE,
       });
 
       budgetMonth = await ctx.db.get(budgetId);
@@ -215,58 +173,3 @@ export const updateSavingsRate = mutation({
   },
 });
 
-// Get all budget months
-export const getAllBudgetMonths = query({
-  args: {},
-  handler: async (ctx) => {
-    const userId = await auth.getUserId(ctx);
-    if (!userId) return [];
-
-    const budgetMonths = await ctx.db
-      .query("budgetMonths")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .collect();
-
-    // Sort by year and month descending
-    budgetMonths.sort((a, b) => {
-      if (a.year !== b.year) return b.year - a.year;
-      return b.month - a.month;
-    });
-
-    // Fetch all allocations for all budget months in parallel
-    const allAllocationsArrays = await Promise.all(
-      budgetMonths.map((bm) =>
-        ctx.db
-          .query("allocations")
-          .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", bm._id))
-          .collect()
-      )
-    );
-
-    // Flatten and collect all unique category IDs
-    const allAllocations = allAllocationsArrays.flat();
-    const categoryIds = [...new Set(allAllocations.map((a) => a.categoryId))];
-
-    // Batch fetch all categories at once
-    const categories = await Promise.all(
-      categoryIds.map((id) => ctx.db.get(id))
-    );
-    const categoryMap = new Map(
-      categories
-        .filter((c): c is Doc<"categories"> => c !== null)
-        .map((c) => [c._id, c])
-    );
-
-    // Build result with joined data
-    const result = budgetMonths.map((bm, index) => {
-      const allocations = allAllocationsArrays[index];
-      const allocationsWithCategories = allocations.map((a) => ({
-        ...a,
-        category: categoryMap.get(a.categoryId) ?? null,
-      }));
-      return { ...bm, allocations: allocationsWithCategories };
-    });
-
-    return result;
-  },
-});

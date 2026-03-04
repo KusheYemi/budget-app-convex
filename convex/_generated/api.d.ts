@@ -13,11 +13,12 @@ import type * as allocations from "../allocations.js";
 import type * as auth from "../auth.js";
 import type * as budgets from "../budgets.js";
 import type * as categories from "../categories.js";
+import type * as constants from "../constants.js";
 import type * as emails from "../emails.js";
 import type * as http from "../http.js";
-import type * as import_ from "../import.js";
 import type * as insights from "../insights.js";
 import type * as users from "../users.js";
+import type * as utils from "../utils.js";
 
 import type {
   ApiFromModules,
@@ -31,11 +32,12 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   budgets: typeof budgets;
   categories: typeof categories;
+  constants: typeof constants;
   emails: typeof emails;
   http: typeof http;
-  import: typeof import_;
   insights: typeof insights;
   users: typeof users;
+  utils: typeof utils;
 }>;
 
 /**

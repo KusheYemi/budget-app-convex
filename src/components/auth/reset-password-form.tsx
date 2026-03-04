@@ -2,14 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Eye, EyeOff, Lock, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { Loader2, Lock, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
+import { AuthCard } from "@/components/auth/auth-card";
+import { AnimatedFormError } from "@/components/auth/animated-form-error";
+import { PasswordToggleButton } from "@/components/ui/password-toggle-button";
 
 export function ResetPasswordForm({
   email: initialEmail,
@@ -87,25 +90,9 @@ export function ResetPasswordForm({
         </p>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-        className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 lg:p-8 shadow-xl"
-      >
+      <AuthCard delay={0.1}>
         <form onSubmit={handleSubmit} className="space-y-5">
-          <AnimatePresence mode="wait">
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="p-4 text-sm text-destructive bg-destructive/10 rounded-xl border border-destructive/20 flex items-center gap-3"
-              >
-                {error}
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <AnimatedFormError error={error} />
 
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">
@@ -145,23 +132,11 @@ export function ResetPasswordForm({
                 disabled={loading}
                 className="pl-11 pr-12 h-12 bg-background/50 border-border/50 rounded-xl transition-all focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
-                onClick={() => setShowPassword(!showPassword)}
+              <PasswordToggleButton
+                show={showPassword}
+                onToggle={() => setShowPassword(!showPassword)}
                 disabled={loading}
-              >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <Eye className="h-4 w-4 text-muted-foreground" />
-                )}
-                <span className="sr-only">
-                  {showPassword ? "Hide password" : "Show password"}
-                </span>
-              </Button>
+              />
             </div>
           </div>
 
@@ -183,23 +158,11 @@ export function ResetPasswordForm({
                 disabled={loading}
                 className="pl-11 pr-12 h-12 bg-background/50 border-border/50 rounded-xl transition-all focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              <PasswordToggleButton
+                show={showConfirmPassword}
+                onToggle={() => setShowConfirmPassword(!showConfirmPassword)}
                 disabled={loading}
-              >
-                {showConfirmPassword ? (
-                  <EyeOff className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <Eye className="h-4 w-4 text-muted-foreground" />
-                )}
-                <span className="sr-only">
-                  {showConfirmPassword ? "Hide password" : "Show password"}
-                </span>
-              </Button>
+              />
             </div>
           </div>
 
@@ -221,7 +184,7 @@ export function ResetPasswordForm({
             )}
           </Button>
         </form>
-      </motion.div>
+      </AuthCard>
     </div>
   );
 }

@@ -58,17 +58,6 @@ export function isPastMonth(year: number, month: number): boolean {
   return false;
 }
 
-// Default categories for new users
-export const DEFAULT_CATEGORIES = [
-  { name: "Savings", color: "#6366f1", isSavings: true, sortOrder: 0 },
-  { name: "Transport & Food", color: "#f59e0b", isSavings: false, sortOrder: 1 },
-  { name: "Utilities", color: "#10b981", isSavings: false, sortOrder: 2 },
-  { name: "Partner & Child Support", color: "#ec4899", isSavings: false, sortOrder: 3 },
-  { name: "Subscriptions", color: "#8b5cf6", isSavings: false, sortOrder: 4 },
-  { name: "Fun", color: "#06b6d4", isSavings: false, sortOrder: 5 },
-  { name: "Remittance", color: "#f97316", isSavings: false, sortOrder: 6 },
-] as const;
-
 // Minimum savings rate threshold
 export const MIN_SAVINGS_RATE = 0.20;
 export const MIN_SAVINGS_RATE_PERCENT = 20;
@@ -76,13 +65,22 @@ export const MIN_SAVINGS_RATE_PERCENT = 20;
 // Maximum future months allowed for planning
 export const MAX_FUTURE_MONTHS = 12;
 
-// Check if a month is in the future
-export function isFutureMonth(year: number, month: number): boolean {
-  const current = getCurrentMonth();
-  if (year > current.year) return true;
-  if (year === current.year && month > current.month) return true;
-  return false;
+// Get user's preferred currency with a default fallback
+export function getUserCurrency(user: { currency?: string | null }): CurrencyCode {
+  return (user.currency as CurrencyCode) ?? "SLE";
 }
+
+// Names of the default categories created during onboarding.
+// Must stay in sync with DEFAULT_CATEGORIES in convex/constants.ts.
+export const DEFAULT_CATEGORY_NAMES = [
+  "Savings",
+  "Transport & Food",
+  "Utilities",
+  "Partner & Child Support",
+  "Subscriptions",
+  "Fun",
+  "Remittance",
+] as const;
 
 // Check if a month is editable (current month or future within limit)
 export function isEditableMonth(year: number, month: number): boolean {

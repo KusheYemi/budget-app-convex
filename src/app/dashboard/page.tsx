@@ -1,24 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useConvexAuth, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { OnboardingModal } from "@/components/auth/onboarding-modal";
 import { Dashboard } from "@/components/budget/dashboard";
 import { DashboardLoading } from "@/components/loading/dashboard-loading";
+import { useRequireAuth } from "@/hooks/use-require-auth";
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
+  const { isAuthenticated, isLoading: authLoading } = useRequireAuth();
 
   const onboardingStatus = useQuery(api.users.checkOnboardingStatus);
-
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push("/login");
-    }
-  }, [authLoading, isAuthenticated, router]);
 
   // Loading state
   if (authLoading || onboardingStatus === undefined) {

@@ -21,6 +21,7 @@ import {
   isEditableMonth,
   formatCurrency,
   formatPercentage,
+  MIN_SAVINGS_RATE,
 } from "@/lib/utils";
 import type { CurrencyCode } from "@/lib/validators";
 import {
@@ -77,7 +78,6 @@ export function Dashboard({
   // This effect intentionally syncs React state with Convex query results
   useEffect(() => {
     if (budgetMonth?.allocations) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOptimisticAllocations(
         budgetMonth.allocations.map(
           (a: {
@@ -127,7 +127,6 @@ export function Dashboard({
     }
 
     let cancelled = false;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- async effect tracking state
     setIsCreatingBudgetMonth(true);
     setHasAttemptedCreate(true);
     setCreateError(null);
@@ -208,8 +207,9 @@ export function Dashboard({
       toast.error("Copy failed", {
         description: err instanceof Error ? err.message : "Unknown error",
       });
+    } finally {
+      setIsCopying(false);
     }
-    setIsCopying(false);
   }
 
   const isWaitingForBudgetMonth =
@@ -404,7 +404,6 @@ export function Dashboard({
               currency={currency}
               isReadOnly={isReadOnly}
               onAllocationUpdate={handleOptimisticAllocationUpdate}
-              onRefresh={() => {}}
             />
           </motion.div>
 
@@ -464,7 +463,7 @@ export function Dashboard({
                   )}
                 </AnimatePresence>
 
-                {savingsRate >= 0.2 && (
+                {savingsRate >= MIN_SAVINGS_RATE && (
                   <div className="flex items-center gap-2 p-3 rounded-xl bg-success/10 border border-success/20">
                     <Sparkles className="w-4 h-4 text-success" />
                     <span className="text-sm text-success font-medium">
@@ -489,7 +488,6 @@ export function Dashboard({
         budgetMonthId={budgetMonth._id}
         currentIncome={income}
         currency={currency}
-        onSuccess={() => {}}
       />
 
       <SavingsRateDialog
@@ -500,7 +498,6 @@ export function Dashboard({
         currentReason={budgetMonth.adjustmentReason}
         income={income}
         currency={currency}
-        onSuccess={() => {}}
       />
     </div>
   );

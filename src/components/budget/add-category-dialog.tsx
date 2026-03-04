@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { FormError } from "@/components/ui/form-error";
 
 const PRESET_COLORS = [
   "#6366f1", // Indigo
@@ -87,11 +88,7 @@ export function AddCategoryDialog({ open, onOpenChange, budgetMonthId, onSuccess
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
-              {error}
-            </div>
-          )}
+          <FormError error={error} />
 
           <div className="space-y-2">
             <Label htmlFor="name">Category Name</Label>

@@ -6,22 +6,16 @@ import { formatCurrency, formatPercentage } from "@/lib/utils";
 import type { CurrencyCode } from "@/lib/validators";
 import { motion } from "framer-motion";
 import { PieChart as PieChartIcon } from "lucide-react";
-
-interface CategoryData {
-  name: string;
-  value: number;
-  color: string;
-  [key: string]: string | number;
-}
+import type { ChartCategoryData } from "./types";
 
 interface AllocationPieChartProps {
-  data: CategoryData[];
+  data: ChartCategoryData[];
   currency: CurrencyCode;
 }
 
 interface CustomTooltipProps {
   active?: boolean;
-  payload?: Array<{ name: string; value: number; payload: CategoryData }>;
+  payload?: Array<{ name: string; value: number; payload: ChartCategoryData }>;
   currency: CurrencyCode;
   total: number;
 }

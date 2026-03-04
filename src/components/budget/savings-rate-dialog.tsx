@@ -15,9 +15,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { formatCurrency, formatPercentage, MIN_SAVINGS_RATE_PERCENT } from "@/lib/utils";
+import { formatCurrency, formatPercentage, MIN_SAVINGS_RATE_PERCENT, cn } from "@/lib/utils";
+import { FormError } from "@/components/ui/form-error";
 import type { CurrencyCode } from "@/lib/validators";
-import { cn } from "@/lib/utils";
 import type { Id } from "../../../convex/_generated/dataModel";
 
 interface SavingsRateDialogProps {
@@ -92,11 +92,7 @@ export function SavingsRateDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
-            <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
-              {error}
-            </div>
-          )}
+          <FormError error={error} />
 
           {/* Rate Display */}
           <div className="text-center py-4">

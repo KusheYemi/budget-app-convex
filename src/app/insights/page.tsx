@@ -1,24 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useConvexAuth, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { InsightsContent } from "@/components/insights/insights-content";
-import type { CurrencyCode } from "@/lib/validators";
 import { InsightsLoading } from "@/components/loading/insights-loading";
+import { useRequireAuth } from "@/hooks/use-require-auth";
+import { getUserCurrency } from "@/lib/utils";
 
 export default function InsightsPage() {
   const router = useRouter();
-  const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
+  const { isAuthenticated, isLoading: authLoading } = useRequireAuth();
   const user = useQuery(api.users.getCurrentUser);
   const insightsData = useQuery(api.insights.getInsightsData);
-
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push("/login");
-    }
-  }, [authLoading, isAuthenticated, router]);
 
   if (authLoading || user === undefined || insightsData === undefined) {
     return <InsightsLoading />;
@@ -36,7 +30,7 @@ export default function InsightsPage() {
   return (
     <InsightsContent
       data={insightsData}
-      currency={(user.currency as CurrencyCode) ?? "SLE"}
+      currency={getUserCurrency(user)}
       email={user.email ?? ""}
     />
   );

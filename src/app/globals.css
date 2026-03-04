@@ -2,7 +2,10 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
-@custom-variant xs (@media (min-width: 480px));
+
+@theme {
+  --breakpoint-xs: 480px;
+}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    LEDGERISE — "Warm Brutalist Fintech" Design System

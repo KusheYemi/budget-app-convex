@@ -6,8 +6,8 @@ import {
   formatCurrency,
   formatPercentage,
   calculatePercentage,
+  cn,
 } from "@/lib/utils";
-import { cn } from "@/lib/utils";
 import type { CurrencyCode } from "@/lib/validators";
 
 interface SummaryCardProps {

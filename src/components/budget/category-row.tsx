@@ -25,9 +25,9 @@ import {
   formatCurrency,
   formatPercentage,
   calculatePercentage,
+  cn,
 } from "@/lib/utils";
 import type { CurrencyCode } from "@/lib/validators";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { motion } from "framer-motion";
@@ -44,8 +44,6 @@ interface CategoryRowProps {
   isSavings: boolean;
   isReadOnly: boolean;
   onUpdate?: (categoryId: string, amount: number) => void;
-  onRefresh?: () => void;
-  onDelete?: (categoryId: string) => void;
 }
 
 export const CategoryRow = memo(function CategoryRow({
@@ -59,8 +57,6 @@ export const CategoryRow = memo(function CategoryRow({
   isSavings,
   isReadOnly,
   onUpdate,
-  onRefresh,
-  onDelete,
 }: CategoryRowProps) {
   const updateAllocation = useMutation(api.allocations.updateAllocation);
   const removeFromMonth = useMutation(api.allocations.removeFromMonth);
@@ -93,7 +89,6 @@ export const CategoryRow = memo(function CategoryRow({
         categoryId: id as Id<"categories">,
         amount: newAmount,
       });
-      onRefresh?.();
     } catch (err) {
       onUpdate?.(id, amount);
       toast.error("Failed to update allocation", {
@@ -113,8 +108,6 @@ export const CategoryRow = memo(function CategoryRow({
         budgetMonthId: budgetMonthId as Id<"budgetMonths">,
         categoryId: id as Id<"categories">,
       });
-      onDelete?.(id);
-      onRefresh?.();
       toast.success("Category removed from this month");
     } catch (err) {
       toast.error("Failed to remove category", {

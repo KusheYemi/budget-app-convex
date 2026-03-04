@@ -14,21 +14,16 @@ import { formatCurrency } from "@/lib/utils";
 import type { CurrencyCode } from "@/lib/validators";
 import { motion } from "framer-motion";
 import { BarChart3 } from "lucide-react";
-
-interface CategoryData {
-  name: string;
-  value: number;
-  color: string;
-}
+import type { ChartCategoryData } from "./types";
 
 interface AllocationBarChartProps {
-  data: CategoryData[];
+  data: ChartCategoryData[];
   currency: CurrencyCode;
 }
 
 interface CustomTooltipProps {
   active?: boolean;
-  payload?: Array<{ value: number; payload: CategoryData }>;
+  payload?: Array<{ value: number; payload: ChartCategoryData }>;
   label?: string;
   currency: CurrencyCode;
 }

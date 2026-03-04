@@ -1,8 +1,8 @@
 import { query } from "./_generated/server";
 import { auth } from "./auth";
 import { Doc } from "./_generated/dataModel";
-
-const MIN_SAVINGS_RATE = 0.20;
+import { MIN_SAVINGS_RATE } from "./constants";
+import { byMonthAsc, byMonthDesc } from "./utils";
 
 export interface MonthlyData {
   year: number;
@@ -46,11 +46,7 @@ export const getInsightsData = query({
       };
     }
 
-    // Sort by year and month ascending
-    budgetMonths.sort((a, b) => {
-      if (a.year !== b.year) return a.year - b.year;
-      return a.month - b.month;
-    });
+    budgetMonths.sort(byMonthAsc);
 
     // Batch fetch all allocations for all budget months in parallel
     const allAllocationsArrays = await Promise.all(
@@ -161,11 +157,7 @@ export const getBudgetHistory = query({
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
 
-    // Sort by year and month descending
-    budgetMonths.sort((a, b) => {
-      if (a.year !== b.year) return b.year - a.year;
-      return b.month - a.month;
-    });
+    budgetMonths.sort(byMonthDesc);
 
     // Batch fetch all allocations for all budget months in parallel
     const allAllocationsArrays = await Promise.all(

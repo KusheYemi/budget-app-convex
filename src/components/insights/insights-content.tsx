@@ -11,6 +11,7 @@ import {
   formatPercentage,
   formatMonth,
   getCurrentMonth,
+  MIN_SAVINGS_RATE,
   MIN_SAVINGS_RATE_PERCENT,
 } from "@/lib/utils";
 import type { CurrencyCode } from "@/lib/validators";
@@ -211,7 +212,7 @@ export function InsightsContent({
                     </p>
                     <span
                       className={`text-sm font-medium ${
-                        m.savingsRate < 0.2 ? "text-warning" : "text-savings"
+                        m.savingsRate < MIN_SAVINGS_RATE ? "text-warning" : "text-savings"
                       }`}
                     >
                       {formatPercentage(m.savingsRate * 100, 0)} saved

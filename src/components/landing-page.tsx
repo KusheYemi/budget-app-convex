@@ -47,6 +47,8 @@ const categoryColors = [
   { name: "Shopping", color: "#c9958a", percentage: 7 },
 ];
 
+const income = 5000;
+
 export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
   const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -56,7 +58,6 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
 
   const [activeCurrency, setActiveCurrency] = useState(0);
   const [savingsRate, setSavingsRate] = useState(20);
-  const income = 5000;
   const [animatedIncome, setAnimatedIncome] = useState(0);
 
   const { scrollYProgress } = useScroll({
@@ -89,7 +90,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
       }
     }, duration / steps);
     return () => clearInterval(timer);
-  }, [income]);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -833,14 +834,12 @@ function FeatureCard({
   description,
   color,
   delay,
-  large,
 }: {
   icon: React.ElementType;
   title: string;
   description: string;
   color: string;
   delay: number;
-  large?: boolean;
 }) {
   const colorClasses = {
     primary: "from-primary/10 to-primary/5 border-primary/20",
@@ -860,7 +859,6 @@ function FeatureCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay }}
-      className={`${large ? "md:col-span-2 lg:col-span-2" : ""}`}
     >
       <div
         className={`h-full bg-gradient-to-br ${colorClasses[color as keyof typeof colorClasses]} border rounded-3xl p-8 relative overflow-hidden group transition-all hover:shadow-lg`}

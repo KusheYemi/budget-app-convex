@@ -1,52 +1,7 @@
 import { v } from "convex/values";
-import { query, mutation, internalQuery } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { auth } from "./auth";
-
-export const isEmailInUse = internalQuery({
-  args: {
-    email: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const normalizedEmail = args.email.trim().toLowerCase();
-    if (!normalizedEmail) {
-      return false;
-    }
-
-    const userByEmail = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", normalizedEmail))
-      .first();
-    if (userByEmail) {
-      return true;
-    }
-
-    const accountByEmail = await ctx.db
-      .query("authAccounts")
-      .withIndex("providerAndAccountId", (q) =>
-        q.eq("provider", "password").eq("providerAccountId", normalizedEmail),
-      )
-      .first();
-    if (accountByEmail) {
-      return true;
-    }
-
-    const [users, accounts] = await Promise.all([
-      ctx.db.query("users").collect(),
-      ctx.db.query("authAccounts").collect(),
-    ]);
-    return (
-      users.some(
-        (user) =>
-          (user.email ?? "").trim().toLowerCase() === normalizedEmail,
-      ) ||
-      accounts.some(
-        (account) =>
-          account.provider === "password" &&
-          account.providerAccountId.toLowerCase() === normalizedEmail,
-      )
-    );
-  },
-});
+import { DEFAULT_SAVINGS_RATE, VALID_CURRENCIES, DEFAULT_CATEGORIES } from "./constants";
 
 // Get current user's profile with categories
 export const getCurrentUser = query({
@@ -55,9 +10,7 @@ export const getCurrentUser = query({
     const userId = await auth.getUserId(ctx);
     if (!userId) return null;
 
-    const user = await ctx.db.get(userId);
-    if (!user) return null;
-    return user;
+    return await ctx.db.get(userId);
   },
 });
 
@@ -104,18 +57,7 @@ export const completeOnboarding = mutation({
     // Update user currency
     await ctx.db.patch(userId, { currency: args.currency });
 
-    // Create default categories
-    const defaultCategories = [
-      { name: "Savings", color: "#6366f1", isSavings: true, sortOrder: 0 },
-      { name: "Transport & Food", color: "#f59e0b", isSavings: false, sortOrder: 1 },
-      { name: "Utilities", color: "#10b981", isSavings: false, sortOrder: 2 },
-      { name: "Partner & Child Support", color: "#ec4899", isSavings: false, sortOrder: 3 },
-      { name: "Subscriptions", color: "#8b5cf6", isSavings: false, sortOrder: 4 },
-      { name: "Fun", color: "#06b6d4", isSavings: false, sortOrder: 5 },
-      { name: "Remittance", color: "#f97316", isSavings: false, sortOrder: 6 },
-    ];
-
-    for (const cat of defaultCategories) {
+    for (const cat of DEFAULT_CATEGORIES) {
       // Check if category already exists
       const existing = await ctx.db
         .query("categories")
@@ -148,7 +90,7 @@ export const completeOnboarding = mutation({
         year,
         month,
         income: args.income,
-        savingsRate: 0.20,
+        savingsRate: DEFAULT_SAVINGS_RATE,
       });
     } else {
       await ctx.db.patch(existingBudget._id, { income: args.income });
@@ -167,8 +109,7 @@ export const updateCurrency = mutation({
     const userId = await auth.getUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
-    const validCurrencies = ["SLE", "USD", "GBP", "EUR", "NGN"];
-    if (!validCurrencies.includes(args.currency)) {
+    if (!VALID_CURRENCIES.includes(args.currency as typeof VALID_CURRENCIES[number])) {
       throw new Error("Invalid currency");
     }
 

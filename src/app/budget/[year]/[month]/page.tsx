@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { useConvexAuth } from "convex/react";
 import { Dashboard } from "@/components/budget/dashboard";
 import { BudgetLoading } from "@/components/loading/budget-loading";
 import { isEditableMonth } from "@/lib/utils";
+import { useRequireAuth } from "@/hooks/use-require-auth";
 
 function parseParam(value: string | string[] | undefined) {
   if (typeof value !== "string") {
@@ -14,29 +14,20 @@ function parseParam(value: string | string[] | undefined) {
   return Number.parseInt(value, 10);
 }
 
-export default function HistoricalBudgetPage() {
+export default function BudgetMonthPage() {
   const router = useRouter();
   const params = useParams();
-  const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
+  const { isAuthenticated, isLoading: authLoading } = useRequireAuth({ method: "replace" });
 
   const year = parseParam(params.year);
   const month = parseParam(params.month);
-  const isValid = useMemo(
-    () =>
-      Number.isFinite(year) &&
-      Number.isFinite(month) &&
-      month >= 1 &&
-      month <= 12 &&
-      year >= 2020 &&
-      year <= 2100,
-    [year, month]
-  );
-
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.replace("/login");
-    }
-  }, [authLoading, isAuthenticated, router]);
+  const isValid =
+    Number.isFinite(year) &&
+    Number.isFinite(month) &&
+    month >= 1 &&
+    month <= 12 &&
+    year >= 2020 &&
+    year <= 2100;
 
   useEffect(() => {
     if (!authLoading && isAuthenticated && !isValid) {

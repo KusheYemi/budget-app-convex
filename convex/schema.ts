@@ -20,7 +20,7 @@ export default defineSchema({
     userId: v.id("users"),
     year: v.number(),
     month: v.number(), // 1-12
-    income: v.number(), // Stored in cents (e.g., $100.50 = 10050)
+    income: v.number(),
     savingsRate: v.float64(), // 0.0 to 1.0
     adjustmentReason: v.optional(v.string()), // Required when savingsRate < 0.20
   })
@@ -42,7 +42,7 @@ export default defineSchema({
   allocations: defineTable({
     budgetMonthId: v.id("budgetMonths"),
     categoryId: v.id("categories"),
-    amount: v.number(), // Stored in cents
+    amount: v.number(),
   })
     .index("by_budgetMonth", ["budgetMonthId"])
     .index("by_category", ["categoryId"])

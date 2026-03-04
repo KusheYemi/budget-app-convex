@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { CURRENCIES, type CurrencyCode } from "@/lib/validators";
 import type { Id } from "../../../convex/_generated/dataModel";
+import { FormError } from "@/components/ui/form-error";
 
 interface EditIncomeDialogProps {
   open: boolean;
@@ -80,11 +81,7 @@ export function EditIncomeDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
-              {error}
-            </div>
-          )}
+          <FormError error={error} />
 
           <div className="space-y-2">
             <Label htmlFor="income">Monthly Income</Label>

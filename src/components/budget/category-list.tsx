@@ -26,7 +26,6 @@ interface CategoryListProps {
   currency: CurrencyCode;
   isReadOnly: boolean;
   onAllocationUpdate?: (categoryId: string, amount: number) => void;
-  onRefresh?: () => void;
 }
 
 export function CategoryList({
@@ -38,7 +37,6 @@ export function CategoryList({
   currency,
   isReadOnly,
   onAllocationUpdate,
-  onRefresh,
 }: CategoryListProps) {
   const [showAddDialog, setShowAddDialog] = useState(false);
 
@@ -113,7 +111,6 @@ export function CategoryList({
                     isSavings={category.isSavings}
                     isReadOnly={isReadOnly}
                     onUpdate={onAllocationUpdate}
-                    onRefresh={onRefresh}
                   />
                 </motion.div>
               ))}
@@ -142,7 +139,6 @@ export function CategoryList({
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         budgetMonthId={budgetMonthId}
-        onSuccess={onRefresh}
       />
     </Card>
   );

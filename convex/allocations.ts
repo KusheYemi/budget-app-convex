@@ -1,13 +1,12 @@
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import { mutation } from "./_generated/server";
 import { auth } from "./auth";
-import { Doc } from "./_generated/dataModel";
+import { MAX_FUTURE_MONTHS } from "./constants";
+import { getCurrentMonth } from "./utils";
 
 // Helper to check if a month is editable (current or future within limit)
 function isEditableMonth(year: number, month: number): boolean {
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth() + 1;
+  const { year: currentYear, month: currentMonth } = getCurrentMonth();
 
   // Past months are not editable
   if (year < currentYear) return false;
@@ -15,54 +14,8 @@ function isEditableMonth(year: number, month: number): boolean {
 
   // Check if within 12 month future limit
   const monthsAhead = (year - currentYear) * 12 + (month - currentMonth);
-  return monthsAhead <= 12;
+  return monthsAhead <= MAX_FUTURE_MONTHS;
 }
-
-// Get allocations for a budget month
-export const getAllocations = query({
-  args: {
-    budgetMonthId: v.id("budgetMonths"),
-  },
-  handler: async (ctx, args) => {
-    const userId = await auth.getUserId(ctx);
-    if (!userId) return [];
-
-    // Verify budget month belongs to user
-    const budgetMonth = await ctx.db.get(args.budgetMonthId);
-    if (!budgetMonth || budgetMonth.userId !== userId) {
-      return [];
-    }
-
-    const allocations = await ctx.db
-      .query("allocations")
-      .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", args.budgetMonthId))
-      .collect();
-
-    // Batch fetch all categories at once (avoids N+1 queries)
-    const categoryIds = [...new Set(allocations.map((a) => a.categoryId))];
-    const categories = await Promise.all(
-      categoryIds.map((id) => ctx.db.get(id))
-    );
-    const categoryMap = new Map(
-      categories
-        .filter((c): c is Doc<"categories"> => c !== null)
-        .map((c) => [c._id, c])
-    );
-
-    const allocationsWithCategories = allocations.map((allocation) => ({
-      ...allocation,
-      category: categoryMap.get(allocation.categoryId) ?? null,
-    }));
-
-    allocationsWithCategories.sort((a, b) => {
-      const aOrder = a.category?.sortOrder ?? 0;
-      const bOrder = b.category?.sortOrder ?? 0;
-      return aOrder - bOrder;
-    });
-
-    return allocationsWithCategories;
-  },
-});
 
 // Update or create an allocation
 export const updateAllocation = mutation({
@@ -187,61 +140,6 @@ export const removeFromMonth = mutation({
 
     if (allocation) {
       await ctx.db.delete(allocation._id);
-    }
-
-    return { success: true };
-  },
-});
-
-// Copy allocations from previous month
-export const copyAllocationsFromPreviousMonth = mutation({
-  args: {
-    toBudgetMonthId: v.id("budgetMonths"),
-    fromBudgetMonthId: v.id("budgetMonths"),
-  },
-  handler: async (ctx, args) => {
-    const userId = await auth.getUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
-
-    // Verify target budget month
-    const targetBudgetMonth = await ctx.db.get(args.toBudgetMonthId);
-    if (!targetBudgetMonth || targetBudgetMonth.userId !== userId) {
-      throw new Error("Budget month not found");
-    }
-
-    // Get source allocations (exclude savings)
-    const sourceAllocations = await ctx.db
-      .query("allocations")
-      .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", args.fromBudgetMonthId))
-      .collect();
-
-    // Filter out savings categories
-    const validAllocations = [];
-    for (const allocation of sourceAllocations) {
-      const category = await ctx.db.get(allocation.categoryId);
-      if (category && !category.isSavings && category.userId === userId) {
-        validAllocations.push(allocation);
-      }
-    }
-
-    // Upsert allocations
-    for (const allocation of validAllocations) {
-      const existing = await ctx.db
-        .query("allocations")
-        .withIndex("by_budgetMonth_category", (q) =>
-          q.eq("budgetMonthId", args.toBudgetMonthId).eq("categoryId", allocation.categoryId)
-        )
-        .first();
-
-      if (existing) {
-        await ctx.db.patch(existing._id, { amount: allocation.amount });
-      } else {
-        await ctx.db.insert("allocations", {
-          budgetMonthId: args.toBudgetMonthId,
-          categoryId: allocation.categoryId,
-          amount: allocation.amount,
-        });
-      }
     }
 
     return { success: true };

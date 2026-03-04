@@ -1,26 +1,17 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useConvexAuth, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { SettingsContent } from "@/components/settings/settings-content";
-import { getCurrentMonth } from "@/lib/utils";
-import type { CurrencyCode } from "@/lib/validators";
+import { getCurrentMonth, getUserCurrency } from "@/lib/utils";
 import { SettingsLoading } from "@/components/loading/settings-loading";
+import { useRequireAuth } from "@/hooks/use-require-auth";
 
 export default function SettingsPage() {
-  const router = useRouter();
-  const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
+  const { isAuthenticated, isLoading: authLoading } = useRequireAuth();
   const user = useQuery(api.users.getCurrentUser);
 
   const { year, month } = getCurrentMonth();
-
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push("/login");
-    }
-  }, [authLoading, isAuthenticated, router]);
 
   if (authLoading || user === undefined) {
     return <SettingsLoading />;
@@ -33,7 +24,7 @@ export default function SettingsPage() {
   return (
     <SettingsContent
       email={user.email ?? ""}
-      currency={(user.currency as CurrencyCode) ?? "SLE"}
+      currency={getUserCurrency(user)}
       year={year}
       month={month}
     />
