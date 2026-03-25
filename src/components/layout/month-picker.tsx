@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -83,40 +84,40 @@ export function MonthPicker({ year, month }: MonthPickerProps) {
   const DROPDOWN_PAST_MONTHS = 3;
   const DROPDOWN_FUTURE_MONTHS = 3;
 
-  const monthOptions: { year: number; month: number }[] = [];
-  let tempYear = current.year;
-  let tempMonth = current.month;
+  const monthOptions = useMemo(() => {
+    const options: { year: number; month: number }[] = [];
+    let tempYear = current.year;
+    let tempMonth = current.month;
 
-  // Add future months (limited for dropdown)
-  for (let i = 0; i < DROPDOWN_FUTURE_MONTHS; i++) {
-    tempMonth += 1;
-    if (tempMonth > 12) {
-      tempMonth = 1;
-      tempYear += 1;
+    for (let i = 0; i < DROPDOWN_FUTURE_MONTHS; i++) {
+      tempMonth += 1;
+      if (tempMonth > 12) {
+        tempMonth = 1;
+        tempYear += 1;
+      }
+      options.push({ year: tempYear, month: tempMonth });
     }
-    monthOptions.push({ year: tempYear, month: tempMonth });
-  }
 
-  // Add current month
-  monthOptions.push({ year: current.year, month: current.month });
+    options.push({ year: current.year, month: current.month });
 
-  // Add past 3 months
-  tempYear = current.year;
-  tempMonth = current.month;
-  for (let i = 0; i < DROPDOWN_PAST_MONTHS; i++) {
-    tempMonth -= 1;
-    if (tempMonth < 1) {
-      tempMonth = 12;
-      tempYear -= 1;
+    tempYear = current.year;
+    tempMonth = current.month;
+    for (let i = 0; i < DROPDOWN_PAST_MONTHS; i++) {
+      tempMonth -= 1;
+      if (tempMonth < 1) {
+        tempMonth = 12;
+        tempYear -= 1;
+      }
+      options.push({ year: tempYear, month: tempMonth });
     }
-    monthOptions.push({ year: tempYear, month: tempMonth });
-  }
 
-  // Sort: future first (descending by date), then current, then past
-  monthOptions.sort((a, b) => {
-    if (a.year !== b.year) return b.year - a.year;
-    return b.month - a.month;
-  });
+    options.sort((a, b) => {
+      if (a.year !== b.year) return b.year - a.year;
+      return b.month - a.month;
+    });
+
+    return options;
+  }, [current.year, current.month]);
 
   return (
     <div className="flex items-center justify-center gap-1 sm:gap-2">

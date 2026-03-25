@@ -94,8 +94,9 @@ export const CategoryRow = memo(function CategoryRow({
       toast.error("Failed to update allocation", {
         description: err instanceof Error ? err.message : "Please try again.",
       });
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }
 
   async function handleDelete() {
@@ -113,8 +114,9 @@ export const CategoryRow = memo(function CategoryRow({
       toast.error("Failed to remove category", {
         description: err instanceof Error ? err.message : "Please try again.",
       });
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {

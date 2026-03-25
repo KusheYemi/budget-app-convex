@@ -1,8 +1,12 @@
 import { query } from "./_generated/server";
 import { auth } from "./auth";
-import { Doc } from "./_generated/dataModel";
 import { MIN_SAVINGS_RATE } from "./constants";
-import { byMonthAsc, byMonthDesc } from "./utils";
+import {
+  byMonthAsc,
+  byMonthDesc,
+  fetchAllocationsWithCategoryMap,
+  sumNonSavingsAllocations,
+} from "./utils";
 
 export interface MonthlyData {
   year: number;
@@ -20,14 +24,12 @@ export interface CategoryTotal {
   total: number;
 }
 
-// Get insights data
 export const getInsightsData = query({
   args: {},
   handler: async (ctx) => {
     const userId = await auth.getUserId(ctx);
     if (!userId) return null;
 
-    // Get all budget months
     const budgetMonths = await ctx.db
       .query("budgetMonths")
       .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -48,29 +50,9 @@ export const getInsightsData = query({
 
     budgetMonths.sort(byMonthAsc);
 
-    // Batch fetch all allocations for all budget months in parallel
-    const allAllocationsArrays = await Promise.all(
-      budgetMonths.map((bm) =>
-        ctx.db
-          .query("allocations")
-          .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", bm._id))
-          .collect()
-      )
-    );
+    const { allAllocationsArrays, categoryMap } =
+      await fetchAllocationsWithCategoryMap(ctx, budgetMonths);
 
-    // Collect all unique category IDs and batch fetch
-    const allAllocations = allAllocationsArrays.flat();
-    const categoryIds = [...new Set(allAllocations.map((a) => a.categoryId))];
-    const categories = await Promise.all(
-      categoryIds.map((id) => ctx.db.get(id))
-    );
-    const categoryMap = new Map(
-      categories
-        .filter((c): c is Doc<"categories"> => c !== null)
-        .map((c) => [c._id, c])
-    );
-
-    // Calculate monthly trends with pre-fetched data
     const monthlyTrends: MonthlyData[] = [];
     const categoryTotals = new Map<string, { name: string; color: string; total: number }>();
 
@@ -79,13 +61,11 @@ export const getInsightsData = query({
       const savingsAmount = income * bm.savingsRate;
       const allocations = allAllocationsArrays[index];
 
-      let nonSavingsTotal = 0;
+      const nonSavingsTotal = sumNonSavingsAllocations(allocations, categoryMap);
+
       for (const allocation of allocations) {
         const category = categoryMap.get(allocation.categoryId);
         if (category && !category.isSavings) {
-          nonSavingsTotal += allocation.amount;
-
-          // Track category totals
           const existing = categoryTotals.get(category._id);
           if (existing) {
             existing.total += allocation.amount;
@@ -112,7 +92,6 @@ export const getInsightsData = query({
       });
     });
 
-    // Calculate averages
     const totalMonths = monthlyTrends.length;
     const averageIncome =
       monthlyTrends.reduce((sum, m) => sum + m.income, 0) / totalMonths;
@@ -122,12 +101,10 @@ export const getInsightsData = query({
       monthlyTrends.reduce((sum, m) => sum + m.savingsAmount, 0) / totalMonths;
     const totalSaved = monthlyTrends.reduce((sum, m) => sum + m.savingsAmount, 0);
 
-    // Get months with low savings
     const monthsWithLowSavings = monthlyTrends.filter(
       (m) => m.savingsRate < MIN_SAVINGS_RATE
     );
 
-    // Get top 5 categories by total
     const topCategories = Array.from(categoryTotals.values())
       .sort((a, b) => b.total - a.total)
       .slice(0, 5);
@@ -145,7 +122,6 @@ export const getInsightsData = query({
   },
 });
 
-// Get budget history (for history page)
 export const getBudgetHistory = query({
   args: {},
   handler: async (ctx) => {
@@ -159,41 +135,16 @@ export const getBudgetHistory = query({
 
     budgetMonths.sort(byMonthDesc);
 
-    // Batch fetch all allocations for all budget months in parallel
-    const allAllocationsArrays = await Promise.all(
-      budgetMonths.map((bm) =>
-        ctx.db
-          .query("allocations")
-          .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", bm._id))
-          .collect()
-      )
-    );
+    const { allAllocationsArrays, categoryMap } =
+      await fetchAllocationsWithCategoryMap(ctx, budgetMonths);
 
-    // Collect all unique category IDs and batch fetch
-    const allAllocations = allAllocationsArrays.flat();
-    const categoryIds = [...new Set(allAllocations.map((a) => a.categoryId))];
-    const categories = await Promise.all(
-      categoryIds.map((id) => ctx.db.get(id))
-    );
-    const categoryMap = new Map(
-      categories
-        .filter((c): c is Doc<"categories"> => c !== null)
-        .map((c) => [c._id, c])
-    );
-
-    // Build result with pre-fetched data
     const result = budgetMonths.map((bm, index) => {
       const income = bm.income;
       const savingsAmount = income * bm.savingsRate;
-      const allocations = allAllocationsArrays[index];
-
-      let nonSavingsTotal = 0;
-      for (const allocation of allocations) {
-        const category = categoryMap.get(allocation.categoryId);
-        if (category && !category.isSavings) {
-          nonSavingsTotal += allocation.amount;
-        }
-      }
+      const nonSavingsTotal = sumNonSavingsAllocations(
+        allAllocationsArrays[index],
+        categoryMap
+      );
 
       return {
         year: bm.year,

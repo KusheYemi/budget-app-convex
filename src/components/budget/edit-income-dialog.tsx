@@ -41,8 +41,6 @@ export function EditIncomeDialog({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Sync income state when dialog opens or currentIncome changes
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIncome(currentIncome.toString());
   }, [currentIncome, open]);
 
@@ -66,8 +64,9 @@ export function EditIncomeDialog({
       onOpenChange(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update income");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (

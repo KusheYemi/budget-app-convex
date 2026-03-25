@@ -24,17 +24,18 @@ export const checkOnboardingStatus = query({
     const user = await ctx.db.get(userId);
     if (!user) return { needsOnboarding: true, user: null };
 
-    const categories = await ctx.db
-      .query("categories")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .collect();
+    const [firstCategory, firstBudgetMonth] = await Promise.all([
+      ctx.db
+        .query("categories")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .first(),
+      ctx.db
+        .query("budgetMonths")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .first(),
+    ]);
 
-    const budgetMonths = await ctx.db
-      .query("budgetMonths")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .collect();
-
-    const needsOnboarding = categories.length === 0 || budgetMonths.length === 0;
+    const needsOnboarding = !firstCategory || !firstBudgetMonth;
 
     return { needsOnboarding, user };
   },

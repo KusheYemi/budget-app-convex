@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import {
@@ -29,40 +30,43 @@ export function SummaryCard({
   const usagePercentage =
     income > 0 ? Math.min(calculatePercentage(totalAllocated, income), 100) : 0;
 
-  const stats = [
-    {
-      label: "Monthly Income",
-      value: formatCurrency(income, currency),
-      subtext: "Total earnings",
-      color: "text-foreground",
-      bgColor: "bg-secondary/50",
-      accentColor: "border-l-foreground/20",
-    },
-    {
-      label: "Savings",
-      value: formatCurrency(savingsAmount, currency),
-      subtext: `${formatPercentage(savingsRate * 100, 0)} of income`,
-      color: "text-savings",
-      bgColor: "bg-savings/8",
-      accentColor: "border-l-savings",
-    },
-    {
-      label: "Allocated",
-      value: formatCurrency(totalAllocated, currency),
-      subtext: `${formatPercentage(calculatePercentage(totalAllocated, income), 0)} budgeted`,
-      color: "text-foreground",
-      bgColor: "bg-primary/8",
-      accentColor: "border-l-primary",
-    },
-    {
-      label: "Remaining",
-      value: `${isOverBudget ? "-" : ""}${formatCurrency(Math.abs(remaining), currency)}`,
-      subtext: isOverBudget ? "Over budget" : "Available",
-      color: isOverBudget ? "text-error" : "text-success",
-      bgColor: isOverBudget ? "bg-error/8" : "bg-success/8",
-      accentColor: isOverBudget ? "border-l-error" : "border-l-success",
-    },
-  ];
+  const stats = useMemo(
+    () => [
+      {
+        label: "Monthly Income",
+        value: formatCurrency(income, currency),
+        subtext: "Total earnings",
+        color: "text-foreground",
+        bgColor: "bg-secondary/50",
+        accentColor: "border-l-foreground/20",
+      },
+      {
+        label: "Savings",
+        value: formatCurrency(savingsAmount, currency),
+        subtext: `${formatPercentage(savingsRate * 100, 0)} of income`,
+        color: "text-savings",
+        bgColor: "bg-savings/8",
+        accentColor: "border-l-savings",
+      },
+      {
+        label: "Allocated",
+        value: formatCurrency(totalAllocated, currency),
+        subtext: `${formatPercentage(calculatePercentage(totalAllocated, income), 0)} budgeted`,
+        color: "text-foreground",
+        bgColor: "bg-primary/8",
+        accentColor: "border-l-primary",
+      },
+      {
+        label: "Remaining",
+        value: `${isOverBudget ? "-" : ""}${formatCurrency(Math.abs(remaining), currency)}`,
+        subtext: isOverBudget ? "Over budget" : "Available",
+        color: isOverBudget ? "text-error" : "text-success",
+        bgColor: isOverBudget ? "bg-error/8" : "bg-success/8",
+        accentColor: isOverBudget ? "border-l-error" : "border-l-success",
+      },
+    ],
+    [income, currency, savingsAmount, savingsRate, totalAllocated, remaining, isOverBudget]
+  );
 
   return (
     <Card className="relative overflow-hidden border-0 bg-card/50 backdrop-blur-sm">

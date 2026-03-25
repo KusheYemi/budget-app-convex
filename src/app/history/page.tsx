@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -14,6 +15,19 @@ export default function HistoryPage() {
   const user = useQuery(api.users.getCurrentUser);
   const history = useQuery(api.insights.getBudgetHistory);
 
+  const shouldRedirect =
+    !authLoading &&
+    isAuthenticated &&
+    user !== undefined &&
+    history !== undefined &&
+    (!history || history.length === 0);
+
+  useEffect(() => {
+    if (shouldRedirect) {
+      router.push("/dashboard");
+    }
+  }, [shouldRedirect, router]);
+
   if (authLoading || user === undefined || history === undefined) {
     return <HistoryLoading />;
   }
@@ -23,7 +37,6 @@ export default function HistoryPage() {
   }
 
   if (!history || history.length === 0) {
-    router.push("/dashboard");
     return null;
   }
 

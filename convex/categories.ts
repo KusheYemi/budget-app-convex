@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { auth } from "./auth";
+import { requireOwnedBudgetMonth } from "./utils";
 
 // Get all categories for current user
 export const getCategories = query({
@@ -57,12 +58,8 @@ export const createCategory = mutation({
       throw new Error("A category with this name already exists");
     }
 
-    // Verify budget month belongs to user if provided
     if (args.budgetMonthId) {
-      const budgetMonth = await ctx.db.get(args.budgetMonthId);
-      if (!budgetMonth || budgetMonth.userId !== userId) {
-        throw new Error("Budget month not found");
-      }
+      await requireOwnedBudgetMonth(ctx, args.budgetMonthId, userId);
     }
 
     // Get highest sort order

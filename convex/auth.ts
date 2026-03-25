@@ -7,10 +7,7 @@ import { Email } from "@convex-dev/auth/providers/Email";
 import { Password } from "@convex-dev/auth/providers/Password";
 import { api } from "./_generated/api";
 import type { DataModel } from "./_generated/dataModel";
-
-function normalizeEmail(value: string) {
-  return value.trim().toLowerCase();
-}
+import { normalizeEmail } from "./utils";
 
 const resendFromEmail = process.env.RESEND_FROM_EMAIL;
 const smtpPassword = process.env.RESEND_SMTP_PASSWORD ?? process.env.RESEND_API_KEY;
@@ -102,30 +99,10 @@ export const { auth, signIn, signOut, store } = convexAuth({
           .collect(),
       ]);
 
-      const indexConflict =
+      const hasConflict =
         usersByEmail.some((user) => user._id !== args.userId) ||
         accountsByEmail.some((account) => account.userId !== args.userId);
-      if (indexConflict) {
-        throw new Error("Email already in use");
-      }
-
-      const [users, accounts] = await Promise.all([
-        ctx.db.query("users").collect(),
-        ctx.db.query("authAccounts").collect(),
-      ]);
-      const normalizedConflict =
-        users.some(
-          (user) =>
-            user._id !== args.userId &&
-            normalizeEmail(user.email ?? "") === email,
-        ) ||
-        accounts.some(
-          (account) =>
-            account.userId !== args.userId &&
-            account.provider === "password" &&
-            normalizeEmail(account.providerAccountId) === email,
-        );
-      if (normalizedConflict) {
+      if (hasConflict) {
         throw new Error("Email already in use");
       }
     },

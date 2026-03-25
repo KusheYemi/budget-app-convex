@@ -271,7 +271,7 @@ export function InsightsContent({
                       <td className="py-3 px-2 text-right">
                         <span
                           className={
-                            m.savingsRate < 0.2
+                            m.savingsRate < MIN_SAVINGS_RATE
                               ? "text-warning"
                               : "text-savings"
                           }

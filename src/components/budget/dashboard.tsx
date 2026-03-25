@@ -21,9 +21,9 @@ import {
   isEditableMonth,
   formatCurrency,
   formatPercentage,
+  getUserCurrency,
   MIN_SAVINGS_RATE,
 } from "@/lib/utils";
-import type { CurrencyCode } from "@/lib/validators";
 import {
   Pencil,
   TrendingUp,
@@ -221,7 +221,7 @@ export function Dashboard({
     categories === undefined ||
     isCreatingBudgetMonth ||
     isWaitingForBudgetMonth;
-  const currency = (user?.currency as CurrencyCode) ?? "SLE";
+  const currency = getUserCurrency(user ?? {});
   const email = user?.email ?? "";
 
   const income = budgetMonth?.income ?? 0;
@@ -259,11 +259,14 @@ export function Dashboard({
     [categories, savingsAmount, allocationAmountMap]
   );
 
-  const totalAllocated =
-    savingsAmount +
-    optimisticAllocations
-      .filter((a) => !a.category.isSavings)
-      .reduce((sum, a) => sum + a.amount, 0);
+  const totalAllocated = useMemo(
+    () =>
+      savingsAmount +
+      optimisticAllocations
+        .filter((a) => !a.category.isSavings)
+        .reduce((sum, a) => sum + a.amount, 0),
+    [savingsAmount, optimisticAllocations]
+  );
 
   if (loading) {
     return (

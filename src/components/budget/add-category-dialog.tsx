@@ -94,8 +94,9 @@ export function AddCategoryDialog({ open, onOpenChange, budgetMonthId, categorie
       onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create category");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   function handleClose() {

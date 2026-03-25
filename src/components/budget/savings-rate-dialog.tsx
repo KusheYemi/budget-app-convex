@@ -48,8 +48,6 @@ export function SavingsRateDialog({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Sync rate and reason state when dialog opens or props change
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRate(currentRate * 100);
     setReason(currentReason || "");
   }, [currentRate, currentReason, open]);
@@ -77,8 +75,9 @@ export function SavingsRateDialog({
       onOpenChange(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update savings rate");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (

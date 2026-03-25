@@ -2,10 +2,7 @@ import { v } from "convex/values";
 import { internalMutation } from "./_generated/server";
 import type { GenericMutationCtx } from "convex/server";
 import type { DataModel, Doc, Id } from "./_generated/dataModel";
-
-function normalizeEmail(email: string) {
-  return email.trim().toLowerCase();
-}
+import { normalizeEmail } from "./utils";
 
 type UserSummary = {
   userId: Id<"users">;

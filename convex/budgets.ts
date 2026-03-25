@@ -2,9 +2,13 @@ import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { auth } from "./auth";
 import { MIN_SAVINGS_RATE, DEFAULT_SAVINGS_RATE } from "./constants";
-import { getCurrentMonth, getAllocationsWithCategories, byMonthDesc } from "./utils";
+import {
+  getCurrentMonth,
+  byMonthDesc,
+  getSortedAllocationsWithCategories,
+  requireOwnedBudgetMonth,
+} from "./utils";
 
-// Get budget month with allocations
 export const getBudgetMonth = query({
   args: {
     year: v.optional(v.number()),
@@ -27,30 +31,15 @@ export const getBudgetMonth = query({
 
     if (!budgetMonth) return null;
 
-    // Get allocations with categories
-    const allocations = await ctx.db
-      .query("allocations")
-      .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", budgetMonth._id))
-      .collect();
-
-    // Batch fetch categories (avoids N+1 queries)
-    const allocationsWithCategories = await getAllocationsWithCategories(ctx, allocations);
-
-    // Sort by category sortOrder
-    allocationsWithCategories.sort((a, b) => {
-      const aOrder = a.category?.sortOrder ?? 0;
-      const bOrder = b.category?.sortOrder ?? 0;
-      return aOrder - bOrder;
-    });
+    const allocations = await getSortedAllocationsWithCategories(ctx, budgetMonth._id);
 
     return {
       ...budgetMonth,
-      allocations: allocationsWithCategories,
+      allocations,
     };
   },
 });
 
-// Get or create budget month
 export const getOrCreateBudgetMonth = mutation({
   args: {
     year: v.number(),
@@ -60,7 +49,6 @@ export const getOrCreateBudgetMonth = mutation({
     const userId = await auth.getUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
-    // Check if exists
     let budgetMonth = await ctx.db
       .query("budgetMonths")
       .withIndex("by_user_year_month", (q) =>
@@ -69,7 +57,6 @@ export const getOrCreateBudgetMonth = mutation({
       .first();
 
     if (!budgetMonth) {
-      // Get most recent budget month to copy income from
       const allBudgets = await ctx.db
         .query("budgetMonths")
         .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -90,29 +77,15 @@ export const getOrCreateBudgetMonth = mutation({
       budgetMonth = await ctx.db.get(budgetId);
     }
 
-    // Get allocations
-    const allocations = await ctx.db
-      .query("allocations")
-      .withIndex("by_budgetMonth", (q) => q.eq("budgetMonthId", budgetMonth!._id))
-      .collect();
-
-    // Batch fetch categories (avoids N+1 queries)
-    const allocationsWithCategories = await getAllocationsWithCategories(ctx, allocations);
-
-    allocationsWithCategories.sort((a, b) => {
-      const aOrder = a.category?.sortOrder ?? 0;
-      const bOrder = b.category?.sortOrder ?? 0;
-      return aOrder - bOrder;
-    });
+    const allocations = await getSortedAllocationsWithCategories(ctx, budgetMonth!._id);
 
     return {
       ...budgetMonth,
-      allocations: allocationsWithCategories,
+      allocations,
     };
   },
 });
 
-// Update income
 export const updateIncome = mutation({
   args: {
     budgetMonthId: v.id("budgetMonths"),
@@ -126,17 +99,13 @@ export const updateIncome = mutation({
       throw new Error("Income cannot be negative");
     }
 
-    const budgetMonth = await ctx.db.get(args.budgetMonthId);
-    if (!budgetMonth || budgetMonth.userId !== userId) {
-      throw new Error("Budget month not found");
-    }
+    await requireOwnedBudgetMonth(ctx, args.budgetMonthId, userId);
 
     await ctx.db.patch(args.budgetMonthId, { income: args.income });
     return { success: true };
   },
 });
 
-// Update savings rate
 export const updateSavingsRate = mutation({
   args: {
     budgetMonthId: v.id("budgetMonths"),
@@ -159,10 +128,7 @@ export const updateSavingsRate = mutation({
       }
     }
 
-    const budgetMonth = await ctx.db.get(args.budgetMonthId);
-    if (!budgetMonth || budgetMonth.userId !== userId) {
-      throw new Error("Budget month not found");
-    }
+    await requireOwnedBudgetMonth(ctx, args.budgetMonthId, userId);
 
     await ctx.db.patch(args.budgetMonthId, {
       savingsRate: args.savingsRate,
@@ -172,4 +138,3 @@ export const updateSavingsRate = mutation({
     return { success: true };
   },
 });
-

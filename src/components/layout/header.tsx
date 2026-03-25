@@ -15,44 +15,44 @@ interface HeaderProps {
   month: number;
 }
 
+const NAV_LINKS = [
+  { href: "/dashboard", label: "Budget", icon: "grid" },
+  { href: "/insights", label: "Insights", icon: "chart" },
+  { href: "/history", label: "History", icon: "clock" },
+] as const;
+
+function NavIcon({ type }: { type: string }) {
+  switch (type) {
+    case "grid":
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+        </svg>
+      );
+    case "chart":
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 3v18h18" />
+          <path d="m19 9-5 5-4-4-3 3" />
+        </svg>
+      );
+    case "clock":
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
+
 export function Header({ email, year, month }: HeaderProps) {
   const pathname = usePathname();
-
-  const navLinks = [
-    { href: "/dashboard", label: "Budget", icon: "grid" },
-    { href: "/insights", label: "Insights", icon: "chart" },
-    { href: "/history", label: "History", icon: "clock" },
-  ];
-
-  const NavIcon = ({ type }: { type: string }) => {
-    switch (type) {
-      case "grid":
-        return (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="7" height="7" rx="1" />
-            <rect x="14" y="3" width="7" height="7" rx="1" />
-            <rect x="3" y="14" width="7" height="7" rx="1" />
-            <rect x="14" y="14" width="7" height="7" rx="1" />
-          </svg>
-        );
-      case "chart":
-        return (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 3v18h18" />
-            <path d="m19 9-5 5-4-4-3 3" />
-          </svg>
-        );
-      case "clock":
-        return (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-          </svg>
-        );
-      default:
-        return null;
-    }
-  };
 
   return (
     <header className="sticky top-0 z-50 w-full">
@@ -84,7 +84,7 @@ export function Header({ email, year, month }: HeaderProps) {
 
         {/* Desktop Navigation — Pill style */}
         <nav className="hidden md:flex items-center gap-1 ml-6 bg-muted/50 rounded-full p-1">
-          {navLinks.map((link) => {
+          {NAV_LINKS.map((link) => {
             const isActive =
               pathname === link.href ||
               (link.href === "/dashboard" && pathname.startsWith("/budget"));
@@ -136,7 +136,7 @@ export function Header({ email, year, month }: HeaderProps) {
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/50 bg-background/95 backdrop-blur-xl pb-safe">
         {/* Mobile Nav Tabs */}
         <div className="flex h-16 items-center">
-          {navLinks.map((link) => {
+          {NAV_LINKS.map((link) => {
             const isActive =
               pathname === link.href ||
               (link.href === "/dashboard" && pathname.startsWith("/budget"));
