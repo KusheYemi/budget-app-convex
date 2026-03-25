@@ -8,14 +8,7 @@ import { CategoryRow } from "./category-row";
 import { AddCategoryDialog } from "./add-category-dialog";
 import type { CurrencyCode } from "@/lib/validators";
 import { Plus, Layers } from "lucide-react";
-
-interface Category {
-  id: string;
-  name: string;
-  color: string;
-  isSavings: boolean;
-  sortOrder: number;
-}
+import type { Category } from "./types";
 
 interface CategoryListProps {
   categories: Category[];
@@ -139,6 +132,8 @@ export function CategoryList({
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         budgetMonthId={budgetMonthId}
+        categories={categories}
+        allocationAmounts={allocationAmounts}
       />
     </Card>
   );

@@ -146,6 +146,51 @@ export const removeFromMonth = mutation({
   },
 });
 
+// Add a category to a specific budget month (creates allocation with amount 0)
+export const addToMonth = mutation({
+  args: {
+    budgetMonthId: v.id("budgetMonths"),
+    categoryId: v.id("categories"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await auth.getUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const budgetMonth = await ctx.db.get(args.budgetMonthId);
+    if (!budgetMonth || budgetMonth.userId !== userId) {
+      throw new Error("Budget month not found");
+    }
+
+    const category = await ctx.db.get(args.categoryId);
+    if (!category || category.userId !== userId) {
+      throw new Error("Category not found");
+    }
+
+    if (category.isSavings) {
+      throw new Error("Savings category is always included automatically");
+    }
+
+    const existing = await ctx.db
+      .query("allocations")
+      .withIndex("by_budgetMonth_category", (q) =>
+        q.eq("budgetMonthId", args.budgetMonthId).eq("categoryId", args.categoryId)
+      )
+      .first();
+
+    if (existing) {
+      return { success: true };
+    }
+
+    await ctx.db.insert("allocations", {
+      budgetMonthId: args.budgetMonthId,
+      categoryId: args.categoryId,
+      amount: 0,
+    });
+
+    return { success: true };
+  },
+});
+
 // Copy allocations from previous month (auto-detect)
 export const copyAllocationsFromPreviousMonthAuto = mutation({
   args: {
