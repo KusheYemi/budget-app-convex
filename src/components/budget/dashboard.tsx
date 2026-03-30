@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Header } from "@/components/layout/header";
+import { DashboardLoading } from "@/components/loading/dashboard-loading";
 import { SummaryCard } from "./summary-card";
 import { CategoryList } from "./category-list";
 import { EditIncomeDialog } from "./edit-income-dialog";
@@ -33,6 +34,8 @@ import {
   AlertCircle,
   Sparkles,
 } from "lucide-react";
+
+const FALLBACK_CATEGORY_COLOR = "#888888";
 
 interface DashboardProps {
   initialYear?: number;
@@ -103,7 +106,7 @@ export function Dashboard({
                   isSavings: false,
                   id: a.categoryId,
                   name: "",
-                  color: "#6366f1",
+                  color: FALLBACK_CATEGORY_COLOR,
                 },
           })
         )
@@ -247,7 +250,7 @@ export function Dashboard({
 
   const chartData = useMemo(
     () => [
-      { name: "Savings", value: savingsAmount, color: "#5a9a7b" },
+      { name: "Savings", value: savingsAmount, color: "var(--color-savings)" },
       ...(categories ?? [])
         .filter((c) => !c.isSavings)
         .map((c) => ({
@@ -269,28 +272,7 @@ export function Dashboard({
   );
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header email={email} year={year} month={month} />
-        <main className="container py-12">
-          <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              className="p-4 rounded-2xl bg-primary/10"
-            >
-              <Loader2 className="h-8 w-8 text-primary" />
-            </motion.div>
-            <div className="text-center space-y-2">
-              <p className="text-lg font-medium">Loading your budget...</p>
-              <p className="text-sm text-muted-foreground">
-                Preparing your financial overview
-              </p>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
+    return <DashboardLoading />;
   }
 
   if (!budgetMonth) {
