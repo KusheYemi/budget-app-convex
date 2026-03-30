@@ -101,7 +101,7 @@ export function AddCategoryDialog({ open, onOpenChange, budgetMonthId, categorie
 
   function handleClose() {
     setName("");
-    setColor(PRESET_COLORS[0]);
+    setColor(PRESET_COLORS[0].value);
     setError(null);
     setReaddingId(null);
     onOpenChange(false);
