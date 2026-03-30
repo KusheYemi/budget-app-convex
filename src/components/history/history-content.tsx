@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -111,7 +112,7 @@ export function HistoryContent({
 
       <main className="container py-4 sm:py-6 space-y-4 sm:space-y-6">
         <div className="space-y-2">
-          <h1 className="text-xl sm:text-2xl font-bold">Budget History</h1>
+          <h1 className="text-2xl sm:text-3xl font-serif">Budget History</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             Search and filter all your months, including older records beyond
             the last 12 months.
@@ -120,18 +121,21 @@ export function HistoryContent({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center justify-between">
-              <span>Filters</span>
-              <Badge variant="secondary">
-                {sortedMonths.length} of {months.length}
-              </Badge>
+            <CardTitle>
+              <h2 className="text-lg font-semibold flex items-center justify-between">
+                <span>Filters</span>
+                <Badge variant="secondary">
+                  {sortedMonths.length} of {months.length}
+                </Badge>
+              </h2>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Search</p>
+                <Label htmlFor="history-search" className="text-xs text-muted-foreground">Search</Label>
                 <Input
+                  id="history-search"
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Month or year (e.g., March 2024)"
@@ -139,9 +143,9 @@ export function HistoryContent({
               </div>
 
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Year</p>
+                <Label htmlFor="history-year" className="text-xs text-muted-foreground">Year</Label>
                 <Select value={yearFilter} onValueChange={setYearFilter}>
-                  <SelectTrigger>
+                  <SelectTrigger id="history-year">
                     <SelectValue placeholder="All years" />
                   </SelectTrigger>
                   <SelectContent>
@@ -156,14 +160,14 @@ export function HistoryContent({
               </div>
 
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Status</p>
+                <Label htmlFor="history-status" className="text-xs text-muted-foreground">Status</Label>
                 <Select
                   value={statusFilter}
                   onValueChange={(value) =>
                     setStatusFilter(value as StatusFilter)
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger id="history-status">
                     <SelectValue placeholder="All statuses" />
                   </SelectTrigger>
                   <SelectContent>
@@ -179,14 +183,14 @@ export function HistoryContent({
               </div>
 
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Sort</p>
+                <Label htmlFor="history-sort" className="text-xs text-muted-foreground">Sort</Label>
                 <Select
                   value={sortOrder}
                   onValueChange={(value) =>
                     setSortOrder(value as SortOrder)
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger id="history-sort">
                     <SelectValue placeholder="Newest first" />
                   </SelectTrigger>
                   <SelectContent>
@@ -209,7 +213,7 @@ export function HistoryContent({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Months</CardTitle>
+            <CardTitle><h2 className="text-lg font-semibold">Months</h2></CardTitle>
           </CardHeader>
           <CardContent>
             {months.length === 0 && (
@@ -316,15 +320,15 @@ export function HistoryContent({
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b">
-                        <th className="text-left py-3 px-2">Month</th>
-                        <th className="text-right py-3 px-2">Income</th>
-                        <th className="text-right py-3 px-2">Savings Rate</th>
-                        <th className="text-right py-3 px-2">Savings</th>
-                        <th className="text-right py-3 px-2">
+                        <th scope="col" className="text-left py-3 px-2">Month</th>
+                        <th scope="col" className="text-right py-3 px-2">Income</th>
+                        <th scope="col" className="text-right py-3 px-2">Savings Rate</th>
+                        <th scope="col" className="text-right py-3 px-2">Savings</th>
+                        <th scope="col" className="text-right py-3 px-2">
                           Total Allocated
                         </th>
-                        <th className="text-right py-3 px-2">Status</th>
-                        <th className="text-right py-3 px-2">View</th>
+                        <th scope="col" className="text-right py-3 px-2">Status</th>
+                        <th scope="col" className="text-right py-3 px-2">View</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -350,7 +354,7 @@ export function HistoryContent({
                                 )}
                               </div>
                               {m.adjustmentReason && (
-                                <p className="text-xs text-muted-foreground mt-1 max-w-[240px] truncate">
+                                <p className="text-xs text-muted-foreground mt-1 max-w-[240px] truncate" title={m.adjustmentReason}>
                                   Note: {m.adjustmentReason}
                                 </p>
                               )}

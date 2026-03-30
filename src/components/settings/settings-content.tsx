@@ -90,7 +90,7 @@ export function SettingsContent({
 
       <main className="container py-4 sm:py-6 space-y-6">
         <div className="space-y-2">
-          <h1 className="text-xl sm:text-2xl font-bold">Settings</h1>
+          <h1 className="text-2xl sm:text-3xl font-serif">Settings</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             Manage your account preferences.
           </p>
@@ -141,7 +141,7 @@ export function SettingsContent({
           </CardHeader>
           <CardContent className="space-y-4">
             {passwordError && (
-              <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
+              <div role="alert" aria-live="polite" className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
                 {passwordError}
               </div>
             )}

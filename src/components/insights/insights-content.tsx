@@ -72,7 +72,7 @@ export function InsightsContent({
 
       <main className="container py-4 sm:py-6 space-y-4 sm:space-y-6">
         <div className="space-y-2">
-          <h1 className="text-xl sm:text-2xl font-bold">
+          <h1 className="text-2xl sm:text-3xl font-serif">
             Insights & Statistics
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
@@ -151,11 +151,13 @@ export function InsightsContent({
         {data.monthsWithLowSavings.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                Months with Savings Below {MIN_SAVINGS_RATE_PERCENT}%
-                <Badge variant="secondary">
-                  {data.monthsWithLowSavings.length}
-                </Badge>
+              <CardTitle>
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  Months with Savings Below {MIN_SAVINGS_RATE_PERCENT}%
+                  <Badge variant="secondary">
+                    {data.monthsWithLowSavings.length}
+                  </Badge>
+                </h2>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -189,13 +191,15 @@ export function InsightsContent({
         {/* Monthly History */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center justify-between">
-              <span>Monthly History</span>
-              {totalPages > 1 && (
-                <span className="text-sm font-normal text-muted-foreground">
-                  Page {currentPage + 1} of {totalPages}
-                </span>
-              )}
+            <CardTitle>
+              <h2 className="text-lg font-semibold flex items-center justify-between">
+                <span>Monthly History</span>
+                {totalPages > 1 && (
+                  <span className="text-sm font-normal text-muted-foreground">
+                    Page {currentPage + 1} of {totalPages}
+                  </span>
+                )}
+              </h2>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -249,11 +253,11 @@ export function InsightsContent({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-3 px-2">Month</th>
-                    <th className="text-right py-3 px-2">Income</th>
-                    <th className="text-right py-3 px-2">Savings Rate</th>
-                    <th className="text-right py-3 px-2">Savings</th>
-                    <th className="text-right py-3 px-2">Total Allocated</th>
+                    <th scope="col" className="text-left py-3 px-2">Month</th>
+                    <th scope="col" className="text-right py-3 px-2">Income</th>
+                    <th scope="col" className="text-right py-3 px-2">Savings Rate</th>
+                    <th scope="col" className="text-right py-3 px-2">Savings</th>
+                    <th scope="col" className="text-right py-3 px-2">Total Allocated</th>
                   </tr>
                 </thead>
                 <tbody>

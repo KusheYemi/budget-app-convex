@@ -26,6 +26,10 @@ export const metadata: Metadata = {
   title: "Ledgerise - Monthly Budgeting Made Simple",
   description:
     "Ledgerise helps you take control of your monthly finances with smart budgeting, savings tracking, and spending insights.",
+  icons: {
+    icon: "/new_ledgerise_logo_1.png",
+    apple: "/new_ledgerise_logo_1.png",
+  },
 };
 
 export default function RootLayout({

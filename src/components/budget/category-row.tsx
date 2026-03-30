@@ -157,6 +157,7 @@ export const CategoryRow = memo(function CategoryRow({
                 "font-medium truncate",
                 isSavings && "text-savings"
               )}
+              title={name}
             >
               {name}
             </p>
@@ -199,16 +200,16 @@ export const CategoryRow = memo(function CategoryRow({
               step="0.01"
               autoFocus
               disabled={isLoading}
+              aria-label={`Amount for ${name}`}
             />
           ) : (
             <button
               onClick={() => !isReadOnly && !isSavings && setIsEditing(true)}
               className={cn(
                 "text-right font-mono tabular-nums text-base sm:text-lg font-semibold px-3 py-2 rounded-xl transition-all",
-                !isReadOnly &&
-                  !isSavings &&
-                  "hover:bg-primary/10 hover:text-primary cursor-pointer",
-                (isReadOnly || isSavings) && "cursor-default",
+                !isReadOnly && !isSavings && "hover:bg-primary/10 hover:text-primary cursor-pointer",
+                isSavings && "cursor-default",
+                isReadOnly && !isSavings && "cursor-not-allowed opacity-60",
                 isSavings && "text-savings"
               )}
               disabled={isReadOnly || isSavings}

@@ -94,9 +94,10 @@ export function SummaryCard({
               </p>
               <p
                 className={cn(
-                  "text-xl xs:text-2xl sm:text-3xl font-semibold tracking-tight font-mono tabular-nums",
+                  "text-xl xs:text-2xl sm:text-3xl font-semibold tracking-tight font-mono tabular-nums truncate",
                   stat.color
                 )}
+                title={stat.value}
               >
                 {stat.value}
               </p>

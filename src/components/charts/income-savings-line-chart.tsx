@@ -94,7 +94,7 @@ export function IncomeSavingsLineChart({
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="name"
-                tick={{ fontSize: 9 }}
+                tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
                 angle={-45}
                 textAnchor="end"
                 height={50}
@@ -115,31 +115,31 @@ export function IncomeSavingsLineChart({
                   }
                   return value.toString();
                 }}
-                tick={{ fontSize: 9 }}
+                tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
                 width={40}
               />
               <Tooltip content={<CustomTooltip currency={currency} />} />
               <Legend
                 verticalAlign="top"
                 height={30}
-                wrapperStyle={{ fontSize: "12px" }}
+                wrapperStyle={{ fontSize: "13px" }}
               />
               <Line
                 type="monotone"
                 dataKey="income"
                 name="Income"
-                stroke="#2563eb"
+                stroke="var(--color-primary)"
                 strokeWidth={2}
-                dot={{ fill: "#2563eb", r: 3 }}
+                dot={{ fill: "var(--color-primary)", r: 3 }}
                 activeDot={{ r: 5 }}
               />
               <Line
                 type="monotone"
                 dataKey="savings"
                 name="Savings"
-                stroke="#6366f1"
+                stroke="var(--color-savings)"
                 strokeWidth={2}
-                dot={{ fill: "#6366f1", r: 3 }}
+                dot={{ fill: "var(--color-savings)", r: 3 }}
                 activeDot={{ r: 5 }}
               />
             </LineChart>

@@ -110,8 +110,11 @@ export function SavingsRateDialog({
 
           {/* Slider */}
           <div className="space-y-4">
-            <Label>Savings Rate</Label>
+            <Label htmlFor="savings-rate-slider">Savings Rate</Label>
             <Slider
+              id="savings-rate-slider"
+              aria-label="Savings rate percentage"
+              aria-valuetext={`${rate}%`}
               value={[rate]}
               onValueChange={([value]) => setRate(value)}
               max={50}

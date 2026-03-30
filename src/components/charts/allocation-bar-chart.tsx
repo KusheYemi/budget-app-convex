@@ -123,7 +123,7 @@ export function AllocationBarChart({
                 type="number"
                 domain={[0, maxValue * 1.1]}
                 tickFormatter={(value) => formatCurrency(value, currency)}
-                tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }}
+                tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }}
                 axisLine={false}
                 tickLine={false}
               />
@@ -131,7 +131,7 @@ export function AllocationBarChart({
                 type="category"
                 dataKey="name"
                 width={80}
-                tick={{ fontSize: 11, fill: "var(--color-foreground)" }}
+                tick={{ fontSize: 12, fill: "var(--color-foreground)" }}
                 tickFormatter={(value) =>
                   value.length > 10 ? `${value.slice(0, 9)}...` : value
                 }
@@ -140,7 +140,7 @@ export function AllocationBarChart({
               />
               <Tooltip
                 content={<CustomTooltip currency={currency} />}
-                cursor={{ fill: "hsl(var(--muted))", opacity: 0.3 }}
+                cursor={{ fill: "var(--color-muted)", opacity: 0.3 }}
               />
               <Bar
                 dataKey="value"
