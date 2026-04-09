@@ -1,0 +1,17 @@
+{
+  "name": "Ledgerise - Monthly Budgeting Made Simple",
+  "short_name": "Ledgerise",
+  "description": "Take control of your monthly finances with smart budgeting, savings tracking, and spending insights.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f4ee",
+  "theme_color": "#c05939",
+  "icons": [
+    {
+      "src": "/new_ledgerise_logo_1.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

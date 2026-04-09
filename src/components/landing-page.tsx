@@ -192,6 +192,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
               <Button
                 variant="ghost"
                 size="icon"
+                aria-label="Toggle theme"
                 onClick={() =>
                   setTheme(currentTheme === "dark" ? "light" : "dark")
                 }
@@ -220,6 +221,7 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                     </motion.div>
                   )}
                 </AnimatePresence>
+                <span className="sr-only">Toggle theme</span>
               </Button>
             </motion.div>
             {isLoggedIn ? (
@@ -395,6 +397,8 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                     {currencies.map((_, i) => (
                       <motion.button
                         key={i}
+                        aria-label={`Select ${currencies[i].name} currency`}
+                        aria-pressed={i === activeCurrency}
                         className={`w-2 h-2 rounded-full cursor-pointer transition-colors ${
                           i === activeCurrency ? "bg-primary" : "bg-muted"
                         }`}

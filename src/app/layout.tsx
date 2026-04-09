@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Sans, Instrument_Serif, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/providers";
@@ -22,10 +22,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#c05939" },
+    { media: "(prefers-color-scheme: dark)", color: "#c47a42" },
+  ],
+};
+
 export const metadata: Metadata = {
   title: "Ledgerise - Monthly Budgeting Made Simple",
   description:
     "Ledgerise helps you take control of your monthly finances with smart budgeting, savings tracking, and spending insights.",
+  manifest: "/manifest.json",
   icons: {
     icon: "/new_ledgerise_logo_1.png",
     apple: "/new_ledgerise_logo_1.png",
