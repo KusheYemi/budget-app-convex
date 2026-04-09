@@ -54,7 +54,7 @@ export function isPastMonth(year: number, month: number): boolean {
 export const MIN_SAVINGS_RATE = 0.20;
 export const MIN_SAVINGS_RATE_PERCENT = 20;
 
-export const MAX_FUTURE_MONTHS = 12;
+const MAX_FUTURE_MONTHS = 12;
 
 export function getUserCurrency(user: { currency?: string | null }): CurrencyCode {
   return (user.currency as CurrencyCode) ?? "SLE";
