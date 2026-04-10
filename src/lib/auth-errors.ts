@@ -7,7 +7,7 @@ const DEFAULT_MESSAGES = {
 const matches = (value: string, patterns: string[]) =>
   patterns.some((pattern) => value.includes(pattern));
 
-export type AuthErrorContext = keyof typeof DEFAULT_MESSAGES;
+type AuthErrorContext = keyof typeof DEFAULT_MESSAGES;
 
 export function getAuthErrorMessage(error: unknown, context: AuthErrorContext) {
   const message = error instanceof Error ? error.message : String(error ?? "");

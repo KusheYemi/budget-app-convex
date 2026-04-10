@@ -23,6 +23,9 @@ npm start
 # Lint code
 npm run lint
 
+# Find unused exports, files, and dependencies
+npx knip
+
 # Import data from Supabase export (one-time migration)
 npm run import-data
 ```
@@ -42,7 +45,7 @@ NEXT_PUBLIC_CONVEX_URL=https://your-project.convex.cloud
 - **Backend**: Convex (real-time backend-as-a-service)
 - **Auth**: Convex Auth with password provider
 - **Styling**: Tailwind CSS v4, shadcn/ui components
-- **State**: Zustand with Immer middleware for optimistic updates
+- **State**: React `useState` for local UI state; Convex queries provide real-time data
 
 ### Authentication & Data Flow
 
@@ -57,12 +60,6 @@ NEXT_PUBLIC_CONVEX_URL=https://your-project.convex.cloud
    - Use `useQuery(api.module.queryName)` for real-time data fetching
    - Use `useMutation(api.module.mutationName)` for data mutations
    - All queries/mutations automatically re-run on data changes
-
-3. **State Management**: Zustand store (`src/stores/budget-store.ts`) provides:
-   - Optimistic UI updates during allocation changes
-   - Real-time computed values (remaining budget, total allocated, etc.)
-   - Uses Immer middleware for immutable updates
-   - Getters are functions to ensure real-time calculation on each render
 
 ### Convex Schema (convex/schema.ts)
 
@@ -79,10 +76,8 @@ NEXT_PUBLIC_CONVEX_URL=https://your-project.convex.cloud
 
 - Default savings rate: 20% (0.20)
 - If user sets rate < 20%, `adjustmentReason` field becomes required (min 10 characters)
-- Validation happens in:
-  - Zod schema: `src/lib/validators.ts` (savingsRateSchema)
-  - Convex mutation: `convex/budgets.ts` (updateSavingsRate)
-- Constant `MIN_SAVINGS_RATE = 0.20` defined in `src/lib/utils.ts`
+- Validation happens in: Convex mutation `convex/budgets.ts` (`updateSavingsRate`)
+- Constant `MIN_SAVINGS_RATE = 0.20` defined in `src/lib/utils.ts` (mirrored in `convex/constants.ts`)
 
 ### Current vs Historical Months
 
@@ -159,23 +154,6 @@ export const myQuery = query({
 });
 ```
 
-### Zustand Store Updates
-
-Store uses Immer middleware for immutable updates. Update pattern:
-
-```typescript
-set((state) => {
-  if (state.budgetMonth) {
-    state.budgetMonth.income = newValue;
-  }
-});
-```
-
-Computed values are functions, not properties:
-```typescript
-const remaining = useBudgetStore((s) => s.getRemaining()); // Call the function
-```
-
 ## Path Aliases
 
 TypeScript path alias `@/*` maps to `./src/*` (configured in tsconfig.json).
@@ -195,8 +173,10 @@ import type { Id } from "../../convex/_generated/dataModel";
 ## Important Constants
 
 - `MIN_SAVINGS_RATE = 0.20` - Minimum required savings rate (20%)
-- Supported currencies: SLE (default), USD, GBP, EUR, NGN (see `src/lib/validators.ts`)
+- Supported currencies: SLE (default), USD, GBP, EUR, NGN (see `CURRENCIES` in `src/lib/validators.ts`)
 - Default categories created on signup: Savings, Transport & Food, Utilities, Partner & Child Support, Subscriptions, Fun, Remittance
+
+**Cross-boundary sync:** Several constants are duplicated between `src/lib/utils.ts` and `convex/constants.ts` because Convex files cannot import from `src/`. Keep these in sync manually: `MIN_SAVINGS_RATE`, `MAX_FUTURE_MONTHS`, `VALID_CURRENCIES`/`CURRENCIES`, `DEFAULT_CATEGORIES`/`DEFAULT_CATEGORY_NAMES`.
 
 ## Convex Development
 
@@ -209,3 +189,5 @@ To add a new query/mutation:
 1. Create or edit a file in `convex/` directory
 2. Export a `query` or `mutation` using the Convex helpers
 3. The API is automatically available via `api.filename.functionName`
+
+**Important:** Convex files (`convex/*.ts`) cannot import from `src/`. If a value is needed on both sides, define it in both `convex/constants.ts` and `src/lib/utils.ts` and keep them in sync.
