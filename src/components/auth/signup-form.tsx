@@ -38,11 +38,11 @@ function calculatePasswordStrength(password: string): {
   if (/\d/.test(password)) score += 1;
   if (/[^a-zA-Z0-9]/.test(password)) score += 1;
 
-  if (score <= 1) return { score, label: "Weak", color: "bg-red-500" };
-  if (score <= 2) return { score, label: "Fair", color: "bg-orange-500" };
-  if (score <= 3) return { score, label: "Good", color: "bg-yellow-500" };
-  if (score <= 4) return { score, label: "Strong", color: "bg-green-500" };
-  return { score, label: "Very Strong", color: "bg-emerald-500" };
+  if (score <= 1) return { score, label: "Weak", color: "bg-error" };
+  if (score <= 2) return { score, label: "Fair", color: "bg-warning" };
+  if (score <= 3) return { score, label: "Good", color: "bg-warning" };
+  if (score <= 4) return { score, label: "Strong", color: "bg-success" };
+  return { score, label: "Very Strong", color: "bg-savings" };
 }
 
 // Password requirements
@@ -177,7 +177,7 @@ export function SignUpForm() {
                 disabled={loading}
                 onFocus={() => setFocusedField("email")}
                 onBlur={() => setFocusedField(null)}
-                className="pl-11 h-12 bg-background/50 border-border/50 rounded-xl transition-all focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="pl-11 h-12 bg-background/50 border-border/50 rounded-xl"
               />
             </div>
           </div>
@@ -212,7 +212,7 @@ export function SignUpForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 onFocus={() => setFocusedField("password")}
                 onBlur={() => setFocusedField(null)}
-                className="pl-11 pr-12 h-12 bg-background/50 border-border/50 rounded-xl transition-all focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="pl-11 pr-12 h-12 bg-background/50 border-border/50 rounded-xl"
               />
               <PasswordToggleButton
                 show={showPassword}
@@ -237,12 +237,12 @@ export function SignUpForm() {
                     <span
                       className={`font-medium ${
                         passwordStrength.score <= 1
-                          ? "text-red-500"
+                          ? "text-error"
                           : passwordStrength.score <= 2
-                            ? "text-orange-500"
+                            ? "text-warning"
                             : passwordStrength.score <= 3
-                              ? "text-yellow-500"
-                              : "text-green-500"
+                              ? "text-warning"
+                              : "text-success"
                       }`}
                     >
                       {passwordStrength.label}
@@ -269,7 +269,7 @@ export function SignUpForm() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.05 }}
                         className={`flex items-center gap-2 text-xs ${
-                          passed ? "text-green-500" : "text-muted-foreground"
+                          passed ? "text-success" : "text-muted-foreground"
                         }`}
                       >
                         {passed ? (
@@ -316,11 +316,11 @@ export function SignUpForm() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 onFocus={() => setFocusedField("confirmPassword")}
                 onBlur={() => setFocusedField(null)}
-                className={`pl-11 pr-12 h-12 bg-background/50 border-border/50 rounded-xl transition-all focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+                className={`pl-11 pr-12 h-12 bg-background/50 border-border/50 rounded-xl ${
                   confirmPassword && !passwordsMatch
-                    ? "border-destructive focus:border-destructive focus:ring-destructive/20"
+                    ? "border-destructive"
                     : confirmPassword && passwordsMatch
-                      ? "border-green-500 focus:border-green-500 focus:ring-green-500/20"
+                      ? "border-success"
                       : ""
                 }`}
               />
@@ -335,7 +335,7 @@ export function SignUpForm() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className={`text-xs flex items-center gap-1 ${
-                  passwordsMatch ? "text-green-500" : "text-destructive"
+                  passwordsMatch ? "text-success" : "text-destructive"
                 }`}
               >
                 {passwordsMatch ? (
@@ -452,12 +452,12 @@ export function SignUpForm() {
         className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-muted-foreground"
       >
         <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-green-500" />
+          <Shield className="w-4 h-4 text-success" />
           <span>Bank-level encryption</span>
         </div>
         <div className="hidden sm:block w-1 h-1 rounded-full bg-border" />
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-yellow-500" />
+          <Sparkles className="w-4 h-4 text-warning" />
           <span>Free forever, no credit card</span>
         </div>
       </motion.div>

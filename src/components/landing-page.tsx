@@ -556,14 +556,25 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
         </motion.div>
       </section>
 
-      {/* Stats Section */}
+      {/* Principles Section — what the app stands for, not fabricated metrics */}
       <section className="py-16 border-y border-border/50 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <StatCard value="10K+" label="Active Users" delay={0} />
-            <StatCard value="$2M+" label="Tracked Monthly" delay={0.1} />
-            <StatCard value="20%" label="Avg. Savings Rate" delay={0.2} />
-            <StatCard value="4.9" label="User Rating" delay={0.3} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <PrincipleCard
+              title="Save first"
+              description="20% of every paycheck, before everything else."
+              delay={0}
+            />
+            <PrincipleCard
+              title="Plan honestly"
+              description="If you save less, write down why. No silent slippage."
+              delay={0.1}
+            />
+            <PrincipleCard
+              title="Look back, learn forward"
+              description="Every month becomes a record you can read."
+              delay={0.2}
+            />
           </div>
         </div>
       </section>
@@ -738,8 +749,8 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                   Ready to take control?
                 </h2>
                 <p className="text-primary-foreground/80 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
-                  Join thousands of users building wealth with the smart 20%
-                  savings rule. Start your journey today.
+                  Build the habit of saving 20% of every paycheck — with the
+                  receipts to prove it.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link href="/signup">
@@ -805,14 +816,14 @@ export function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
   );
 }
 
-// Stat Card Component
-function StatCard({
-  value,
-  label,
+// Principle Card Component — replaces fake stats with the app's actual principles
+function PrincipleCard({
+  title,
+  description,
   delay,
 }: {
-  value: string;
-  label: string;
+  title: string;
+  description: string;
   delay: number;
 }) {
   return (
@@ -821,12 +832,14 @@ function StatCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay }}
-      className="text-center"
+      className="text-center md:text-left"
     >
-      <div className="text-3xl md:text-4xl font-mono font-bold text-primary mb-2 tabular-nums">
-        {value}
-      </div>
-      <div className="text-sm text-muted-foreground">{label}</div>
+      <h3 className="text-2xl md:text-3xl font-serif mb-2">
+        <span className="text-primary italic">{title}</span>
+      </h3>
+      <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+        {description}
+      </p>
     </motion.div>
   );
 }

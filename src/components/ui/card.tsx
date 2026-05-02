@@ -28,11 +28,18 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+type CardTitleProps = React.ComponentProps<"h2"> & {
+  as?: "h1" | "h2" | "h3" | "h4" | "div";
+};
+
+function CardTitle({ className, as: Comp = "h2", ...props }: CardTitleProps) {
   return (
-    <div
+    <Comp
       data-slot="card-title"
-      className={cn("leading-none font-semibold", className)}
+      className={cn(
+        "text-lg font-serif font-normal leading-none tracking-tight",
+        className
+      )}
       {...props}
     />
   );
@@ -58,9 +65,36 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+function CardHeaderIcon({
+  className,
+  children,
+  tone = "primary",
+  ...props
+}: React.ComponentProps<"div"> & {
+  tone?: "primary" | "savings" | "warning" | "muted" | "planning";
+}) {
+  const toneClasses = {
+    primary: "bg-primary/10 text-primary",
+    savings: "bg-savings/15 text-savings",
+    warning: "bg-warning/15 text-warning",
+    planning: "bg-[var(--planning)]/15 text-[var(--planning)]",
+    muted: "bg-muted text-muted-foreground",
+  } as const;
+  return (
+    <div
+      data-slot="card-header-icon"
+      className={cn("p-2 rounded-xl flex items-center justify-center", toneClasses[tone], className)}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
 export {
   Card,
   CardHeader,
+  CardHeaderIcon,
   CardTitle,
   CardDescription,
   CardContent,

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { TrendingUp, PieChart, Shield, Sparkles } from "lucide-react";
+import { TrendingUp, PieChart, Shield } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -10,35 +10,17 @@ const features = [
   {
     icon: Shield,
     title: "Smart 20% Savings",
-    description: "Automatically save with accountability",
+    description: "Save first, then spend — with accountability if you don't.",
   },
   {
     icon: PieChart,
     title: "Visual Insights",
-    description: "Beautiful charts to track progress",
+    description: "Beautiful charts to see where your money actually goes.",
   },
   {
     icon: TrendingUp,
-    title: "Grow Your Wealth",
-    description: "Watch your savings compound over time",
-  },
-];
-
-const testimonials = [
-  {
-    quote: "Finally, a budgeting app that actually makes sense!",
-    author: "Sarah K.",
-    role: "Freelance Designer",
-  },
-  {
-    quote: "The 20% rule changed how I think about saving.",
-    author: "Michael T.",
-    role: "Software Engineer",
-  },
-  {
-    quote: "Simple, beautiful, and incredibly effective.",
-    author: "Emma R.",
-    role: "Marketing Manager",
+    title: "A budget you'll keep",
+    description: "Watch your savings compound, month after month.",
   },
 ];
 
@@ -47,16 +29,11 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
-    const timer = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(timer);
   }, []);
 
   if (!mounted) {
@@ -69,102 +46,31 @@ export default function AuthLayout({
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-background">
-      {/* Left Side - Branding & Visual */}
-      <div className="relative lg:w-[45%] xl:w-[50%] bg-gradient-to-br from-primary via-primary/90 to-blue-600 overflow-hidden">
-        {/* Animated Background Elements */}
+      {/* Left Side — Branding */}
+      <div className="relative lg:w-[45%] xl:w-[50%] bg-gradient-to-br from-primary via-primary to-[oklch(0.55_0.16_18)] overflow-hidden">
+        {/* Background pattern + warm orbs */}
         <div className="absolute inset-0">
-          {/* Grid pattern */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_40%,transparent_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_40%,transparent_100%)]" />
 
-          {/* Floating orbs */}
           <motion.div
             className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl"
-            animate={{
-              y: [0, -30, 0],
-              scale: [1, 1.1, 1],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+            animate={{ y: [0, -30, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
-            className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl"
-            animate={{
-              y: [0, 20, 0],
-              x: [0, -20, 0],
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+            className="absolute bottom-20 right-10 w-96 h-96 bg-[oklch(0.55_0.14_165)/0.18] rounded-full blur-3xl"
+            animate={{ y: [0, 20, 0], x: [0, -20, 0] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"
-            animate={{
-              scale: [1, 1.3, 1],
-            }}
-            transition={{
-              duration: 12,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full blur-3xl"
+            animate={{ scale: [1, 1.3, 1] }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
           />
-
-          {/* Floating coins/elements */}
-          <div className="hidden sm:block">
-            <motion.div
-              className="absolute top-[20%] right-[20%] w-12 h-12 bg-yellow-400/80 rounded-full shadow-lg flex items-center justify-center text-yellow-900 font-bold text-xl"
-              animate={{
-                y: [0, -20, 0],
-                rotate: [0, 10, 0],
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            >
-              $
-            </motion.div>
-            <motion.div
-              className="absolute bottom-[30%] left-[15%] w-10 h-10 bg-green-400/80 rounded-full shadow-lg flex items-center justify-center text-green-900 font-bold"
-              animate={{
-                y: [0, 15, 0],
-                rotate: [0, -15, 0],
-              }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 1,
-              }}
-            >
-              €
-            </motion.div>
-            <motion.div
-              className="absolute top-[60%] right-[10%] w-8 h-8 bg-blue-300/80 rounded-full shadow-lg flex items-center justify-center text-blue-900 font-bold text-sm"
-              animate={{
-                y: [0, -12, 0],
-                x: [0, 8, 0],
-              }}
-              transition={{
-                duration: 6,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 2,
-              }}
-            >
-              £
-            </motion.div>
-          </div>
         </div>
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-between h-full p-4 sm:p-6 lg:p-12 text-white min-h-[200px] sm:min-h-[250px] lg:min-h-screen">
-          {/* Logo */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -183,11 +89,14 @@ export default function AuthLayout({
                   className="rounded-2xl shadow-lg"
                 />
               </motion.div>
-              <span className="text-2xl font-bold">Ledgerise</span>
+              <span className="flex items-baseline gap-0.5">
+                <span className="text-2xl font-serif">Ledger</span>
+                <span className="text-2xl font-serif italic">ise</span>
+              </span>
             </Link>
           </motion.div>
 
-          {/* Main Message - Hidden on mobile, visible on desktop */}
+          {/* Main Message */}
           <div className="hidden lg:block">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -195,15 +104,15 @@ export default function AuthLayout({
               transition={{ duration: 0.6, delay: 0.2 }}
               className="max-w-md"
             >
-              <h1 className="text-4xl xl:text-5xl font-bold mb-6 leading-tight">
-                Your financial clarity starts here
+              <h1 className="text-4xl xl:text-5xl font-serif mb-6 leading-tight">
+                Your financial clarity{" "}
+                <span className="italic">starts here</span>
               </h1>
               <p className="text-white/80 text-lg mb-8">
-                Join thousands of people taking control of their finances with
-                smart budgeting and the proven 20% savings rule.
+                Smart budgeting, the 20% rule, and a record of every month —
+                without the guilt-tripping.
               </p>
 
-              {/* Features */}
               <div className="space-y-4">
                 {features.map((feature, i) => (
                   <motion.div
@@ -218,7 +127,7 @@ export default function AuthLayout({
                     </div>
                     <div>
                       <div className="font-semibold">{feature.title}</div>
-                      <div className="text-white/60 text-sm">
+                      <div className="text-white/70 text-sm">
                         {feature.description}
                       </div>
                     </div>
@@ -228,63 +137,19 @@ export default function AuthLayout({
             </motion.div>
           </div>
 
-          {/* Testimonials - Hidden on mobile */}
+          {/* Footer accent */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="hidden lg:block"
+            className="hidden lg:block text-white/60 text-sm"
           >
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 max-w-md">
-              <div className="flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-yellow-300 flex-shrink-0 mt-1" />
-                <div>
-                  <motion.p
-                    key={currentTestimonial}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="text-white/90 italic mb-3"
-                  >
-                    &ldquo;{testimonials[currentTestimonial].quote}&rdquo;
-                  </motion.p>
-                  <motion.div
-                    key={`author-${currentTestimonial}`}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-sm"
-                  >
-                    <span className="font-semibold">
-                      {testimonials[currentTestimonial].author}
-                    </span>
-                    <span className="text-white/60">
-                      {" "}
-                      — {testimonials[currentTestimonial].role}
-                    </span>
-                  </motion.div>
-                </div>
-              </div>
-              {/* Testimonial indicators */}
-              <div className="flex gap-2 mt-4">
-                {testimonials.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentTestimonial(i)}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      i === currentTestimonial
-                        ? "bg-white w-6"
-                        : "bg-white/40 hover:bg-white/60"
-                    }`}
-                    aria-label={`View testimonial ${i + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
+            Save first. Plan honestly. Look back, learn forward.
           </motion.div>
         </div>
       </div>
 
-      {/* Right Side - Form Area */}
+      {/* Right Side — Form */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-12">
         <motion.div
           initial={{ opacity: 0, x: 20 }}

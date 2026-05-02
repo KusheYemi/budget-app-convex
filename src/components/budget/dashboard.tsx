@@ -305,8 +305,8 @@ export function Dashboard({
           className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4"
         >
           <div>
-            <h1 className="text-3xl sm:text-4xl font-serif text-foreground">
-              Budget Overview
+            <h1 className="page-title text-3xl sm:text-4xl">
+              Budget <span className="italic text-gradient">Overview</span>
             </h1>
             <p className="text-muted-foreground mt-1">
               {isReadOnly ? "Viewing historical data" : "Manage your monthly finances"}
@@ -399,8 +399,8 @@ export function Dashboard({
             transition={{ delay: 0.3 }}
             className="lg:col-span-2 space-y-6"
           >
-            {/* Savings Details Card */}
-            <Card className="border-0 bg-gradient-to-br from-savings/10 via-savings/5 to-transparent overflow-hidden">
+            {/* Savings Details Card — signature asymmetric corners */}
+            <Card className="asymmetric border-0 bg-gradient-to-br from-savings/15 via-savings/5 to-transparent overflow-hidden">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-xl bg-savings/20">

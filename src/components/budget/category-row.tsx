@@ -255,9 +255,9 @@ export const CategoryRow = memo(function CategoryRow({
 
       {/* Delete confirmation dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="rounded-2xl">
+        <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-serif">
+            <AlertDialogTitle>
               Remove category from this month?
             </AlertDialogTitle>
             <AlertDialogDescription>

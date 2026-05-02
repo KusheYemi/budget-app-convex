@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ReactMarkdown from "react-markdown";
+import { Sparkles, AlertCircle } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardHeaderIcon,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -21,7 +29,9 @@ export function AIAnalysisCard({ data, currency }: AIAnalysisCardProps) {
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    return () => { abortRef.current?.abort(); };
+    return () => {
+      abortRef.current?.abort();
+    };
   }, []);
 
   async function handleAnalyze() {
@@ -64,7 +74,10 @@ export function AIAnalysisCard({ data, currency }: AIAnalysisCardProps) {
             return;
           }
           try {
-            const parsed = JSON.parse(payload) as { text?: string; error?: string };
+            const parsed = JSON.parse(payload) as {
+              text?: string;
+              error?: string;
+            };
             if (parsed.error) {
               setAnalysisText(parsed.error);
               setStatus("error");
@@ -99,19 +112,7 @@ export function AIAnalysisCard({ data, currency }: AIAnalysisCardProps) {
           variant={status === "done" || status === "error" ? "outline" : "default"}
           className="gap-2"
         >
-          <svg
-            aria-hidden="true"
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 3l1.912 5.813a2 2 0 001.272 1.272L21 12l-5.816 1.916a2 2 0 00-1.272 1.272L12 21l-1.912-5.812a2 2 0 00-1.272-1.272L3 12l5.816-1.916a2 2 0 001.272-1.272z" />
-          </svg>
+          <Sparkles className="w-4 h-4" />
           {status === "idle" && "Get AI Analysis"}
           {status === "loading" && "Connecting..."}
           {status === "streaming" && "Analysing..."}
@@ -122,19 +123,26 @@ export function AIAnalysisCard({ data, currency }: AIAnalysisCardProps) {
       {showCard && (
         <Card
           className={cn(
-            "transition-all duration-300",
-            status === "error" && "border-destructive/40"
+            "border-0 bg-card/50 backdrop-blur-sm overflow-hidden transition-all duration-300",
+            status === "error" && "ring-1 ring-destructive/40"
           )}
         >
           <CardHeader>
-            <CardTitle>
-              <h2 className="text-lg font-semibold flex items-center gap-2">
-                AI Financial Analysis
-                {status === "streaming" && (
-                  <span className="inline-block w-1.5 h-4 bg-primary animate-pulse rounded-sm" />
+            <div className="flex items-center gap-3">
+              <CardHeaderIcon tone={status === "error" ? "warning" : "primary"}>
+                {status === "error" ? (
+                  <AlertCircle className="w-5 h-5" />
+                ) : (
+                  <Sparkles className="w-5 h-5" />
                 )}
-              </h2>
-            </CardTitle>
+              </CardHeaderIcon>
+              <CardTitle className="flex-1">
+                AI Financial <span className="text-primary italic">Analysis</span>
+              </CardTitle>
+              {status === "streaming" && (
+                <span className="inline-block w-1.5 h-4 bg-primary animate-pulse rounded-sm" />
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {status === "loading" && (
@@ -148,9 +156,9 @@ export function AIAnalysisCard({ data, currency }: AIAnalysisCardProps) {
             )}
 
             {(status === "streaming" || status === "done") && analysisText && (
-              <p className="text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
-                {analysisText}
-              </p>
+              <div className="prose-brand">
+                <ReactMarkdown>{analysisText}</ReactMarkdown>
+              </div>
             )}
 
             {status === "error" && (

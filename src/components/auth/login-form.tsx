@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Loader2, Mail, Lock, ArrowRight, Users } from "lucide-react";
+import { Loader2, Mail, Lock, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
@@ -99,7 +99,7 @@ export function LoginForm() {
                 disabled={loading}
                 onFocus={() => setFocusedField("email")}
                 onBlur={() => setFocusedField(null)}
-                className="pl-11 h-12 bg-background/50 border-border/50 rounded-xl transition-all focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="pl-11 h-12 bg-background/50 border-border/50 rounded-xl"
               />
             </div>
           </div>
@@ -140,7 +140,7 @@ export function LoginForm() {
                 disabled={loading}
                 onFocus={() => setFocusedField("password")}
                 onBlur={() => setFocusedField(null)}
-                className="pl-11 pr-12 h-12 bg-background/50 border-border/50 rounded-xl transition-all focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="pl-11 pr-12 h-12 bg-background/50 border-border/50 rounded-xl"
               />
               <PasswordToggleButton
                 show={showPassword}
@@ -197,16 +197,6 @@ export function LoginForm() {
         </Link>
       </AuthCard>
 
-      {/* Social Proof */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
-        className="flex items-center justify-center gap-2 text-sm text-muted-foreground"
-      >
-        <Users className="w-4 h-4" />
-        <span>Join 10,000+ users taking control of their finances</span>
-      </motion.div>
     </div>
   );
 }

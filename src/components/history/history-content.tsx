@@ -2,10 +2,18 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { SlidersHorizontal, ListOrdered } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardHeaderIcon,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -16,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  cn,
   formatCurrency,
   formatMonth,
   formatPercentage,
@@ -107,301 +116,385 @@ export function HistoryContent({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background grain">
       <Header email={email} year={current.year} month={current.month} />
 
-      <main className="container py-4 sm:py-6 space-y-4 sm:space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-2xl sm:text-3xl font-serif">Budget History</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
+      <main className="container py-6 sm:py-8 space-y-6 sm:space-y-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-2"
+        >
+          <h1 className="page-title text-3xl sm:text-4xl text-foreground">
+            Budget <span className="text-primary italic">History</span>
+          </h1>
+          <p className="text-muted-foreground">
             Search and filter all your months, including older records beyond
             the last 12 months.
           </p>
-        </div>
+        </motion.div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <h2 className="text-lg font-semibold flex items-center justify-between">
-                <span>Filters</span>
-                <Badge variant="secondary">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="border-0 bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <CardHeaderIcon tone="primary">
+                  <SlidersHorizontal className="w-5 h-5" />
+                </CardHeaderIcon>
+                <CardTitle className="flex-1">Filters</CardTitle>
+                <Badge variant="secondary" className="tabular-nums">
                   {sortedMonths.length} of {months.length}
                 </Badge>
-              </h2>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="space-y-1">
-                <Label htmlFor="history-search" className="text-xs text-muted-foreground">Search</Label>
-                <Input
-                  id="history-search"
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Month or year (e.g., March 2024)"
-                />
               </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="space-y-1">
+                  <Label
+                    htmlFor="history-search"
+                    className="text-xs text-muted-foreground"
+                  >
+                    Search
+                  </Label>
+                  <Input
+                    id="history-search"
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder="Month or year (e.g., March 2024)"
+                  />
+                </div>
 
-              <div className="space-y-1">
-                <Label htmlFor="history-year" className="text-xs text-muted-foreground">Year</Label>
-                <Select value={yearFilter} onValueChange={setYearFilter}>
-                  <SelectTrigger id="history-year">
-                    <SelectValue placeholder="All years" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All years</SelectItem>
-                    {years.map((year) => (
-                      <SelectItem key={year} value={String(year)}>
-                        {year}
+                <div className="space-y-1">
+                  <Label
+                    htmlFor="history-year"
+                    className="text-xs text-muted-foreground"
+                  >
+                    Year
+                  </Label>
+                  <Select value={yearFilter} onValueChange={setYearFilter}>
+                    <SelectTrigger id="history-year">
+                      <SelectValue placeholder="All years" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All years</SelectItem>
+                      {years.map((year) => (
+                        <SelectItem key={year} value={String(year)}>
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1">
+                  <Label
+                    htmlFor="history-status"
+                    className="text-xs text-muted-foreground"
+                  >
+                    Status
+                  </Label>
+                  <Select
+                    value={statusFilter}
+                    onValueChange={(value) =>
+                      setStatusFilter(value as StatusFilter)
+                    }
+                  >
+                    <SelectTrigger id="history-status">
+                      <SelectValue placeholder="All statuses" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All months</SelectItem>
+                      <SelectItem value="below">
+                        Below {MIN_SAVINGS_RATE_PERCENT}%
                       </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="history-status" className="text-xs text-muted-foreground">Status</Label>
-                <Select
-                  value={statusFilter}
-                  onValueChange={(value) =>
-                    setStatusFilter(value as StatusFilter)
-                  }
-                >
-                  <SelectTrigger id="history-status">
-                    <SelectValue placeholder="All statuses" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All months</SelectItem>
-                    <SelectItem value="below">
-                      Below {MIN_SAVINGS_RATE_PERCENT}%
-                    </SelectItem>
-                    <SelectItem value="has-reason">
-                      Has savings note
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="history-sort" className="text-xs text-muted-foreground">Sort</Label>
-                <Select
-                  value={sortOrder}
-                  onValueChange={(value) =>
-                    setSortOrder(value as SortOrder)
-                  }
-                >
-                  <SelectTrigger id="history-sort">
-                    <SelectValue placeholder="Newest first" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="desc">Newest first</SelectItem>
-                    <SelectItem value="asc">Oldest first</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {hasFilters && (
-              <div className="flex items-center justify-end">
-                <Button variant="ghost" size="sm" onClick={clearFilters}>
-                  Clear filters
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle><h2 className="text-lg font-semibold">Months</h2></CardTitle>
-          </CardHeader>
-          <CardContent>
-            {months.length === 0 && (
-              <div className="py-10 text-center text-muted-foreground">
-                No history yet. Your monthly budgets will appear here once
-                created.
-              </div>
-            )}
-
-            {months.length > 0 && sortedMonths.length === 0 && (
-              <div className="py-10 text-center text-muted-foreground">
-                No months match your filters.
-              </div>
-            )}
-
-            {sortedMonths.length > 0 && (
-              <>
-                {/* Mobile cards */}
-                <div className="sm:hidden space-y-3">
-                  {sortedMonths.map((m) => {
-                    const isCurrent =
-                      m.year === current.year && m.month === current.month;
-                    const isBelow = m.savingsRate < MIN_SAVINGS_RATE;
-                    const href = isCurrent
-                      ? "/dashboard"
-                      : `/budget/${m.year}/${m.month}`;
-                    return (
-                      <div
-                        key={`mobile-${m.year}-${m.month}`}
-                        className="p-3 border rounded-lg space-y-2"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium">
-                              {formatMonth(m.year, m.month)}
-                            </p>
-                            {isCurrent && (
-                              <Badge variant="secondary">Current</Badge>
-                            )}
-                          </div>
-                          <Badge
-                            variant={isBelow ? "destructive" : "secondary"}
-                          >
-                            {isBelow
-                              ? `Below ${MIN_SAVINGS_RATE_PERCENT}%`
-                              : "On track"}
-                          </Badge>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div>
-                            <p className="text-muted-foreground text-xs">
-                              Income
-                            </p>
-                            <p className="font-medium">
-                              {formatCurrency(m.income, currency)}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground text-xs">
-                              Savings
-                            </p>
-                            <p className="font-medium text-savings">
-                              {formatCurrency(m.savingsAmount, currency)}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground text-xs">
-                              Savings Rate
-                            </p>
-                            <p className="font-medium">
-                              {formatPercentage(m.savingsRate * 100, 0)}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground text-xs">
-                              Total Allocated
-                            </p>
-                            <p className="font-medium">
-                              {formatCurrency(m.totalAllocated, currency)}
-                            </p>
-                          </div>
-                        </div>
-
-                        {m.adjustmentReason && (
-                          <div className="text-sm">
-                            <p className="text-xs text-muted-foreground">
-                              Savings note
-                            </p>
-                            <p>{m.adjustmentReason}</p>
-                          </div>
-                        )}
-
-                        <Button asChild variant="outline" size="sm">
-                          <Link href={href}>View month</Link>
-                        </Button>
-                      </div>
-                    );
-                  })}
+                      <SelectItem value="has-reason">
+                        Has savings note
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                {/* Desktop table */}
-                <div className="hidden sm:block overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b">
-                        <th scope="col" className="text-left py-3 px-2">Month</th>
-                        <th scope="col" className="text-right py-3 px-2">Income</th>
-                        <th scope="col" className="text-right py-3 px-2">Savings Rate</th>
-                        <th scope="col" className="text-right py-3 px-2">Savings</th>
-                        <th scope="col" className="text-right py-3 px-2">
-                          Total Allocated
-                        </th>
-                        <th scope="col" className="text-right py-3 px-2">Status</th>
-                        <th scope="col" className="text-right py-3 px-2">View</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sortedMonths.map((m) => {
-                        const isCurrent =
-                          m.year === current.year && m.month === current.month;
-                        const isBelow = m.savingsRate < MIN_SAVINGS_RATE;
-                        const href = isCurrent
-                          ? "/dashboard"
-                          : `/budget/${m.year}/${m.month}`;
-                        return (
-                          <tr
-                            key={`desktop-${m.year}-${m.month}`}
-                            className="border-b hover:bg-muted/50"
-                          >
-                            <td className="py-3 px-2">
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">
-                                  {formatMonth(m.year, m.month)}
-                                </span>
-                                {isCurrent && (
-                                  <Badge variant="secondary">Current</Badge>
-                                )}
-                              </div>
-                              {m.adjustmentReason && (
-                                <p className="text-xs text-muted-foreground mt-1 max-w-[240px] truncate" title={m.adjustmentReason}>
-                                  Note: {m.adjustmentReason}
-                                </p>
+                <div className="space-y-1">
+                  <Label
+                    htmlFor="history-sort"
+                    className="text-xs text-muted-foreground"
+                  >
+                    Sort
+                  </Label>
+                  <Select
+                    value={sortOrder}
+                    onValueChange={(value) => setSortOrder(value as SortOrder)}
+                  >
+                    <SelectTrigger id="history-sort">
+                      <SelectValue placeholder="Newest first" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="desc">Newest first</SelectItem>
+                      <SelectItem value="asc">Oldest first</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {hasFilters && (
+                <div className="flex items-center justify-end">
+                  <Button variant="ghost" size="sm" onClick={clearFilters}>
+                    Clear filters
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="border-0 bg-card/50 backdrop-blur-sm overflow-hidden">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <CardHeaderIcon tone="primary">
+                  <ListOrdered className="w-5 h-5" />
+                </CardHeaderIcon>
+                <CardTitle>Months</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {months.length === 0 && (
+                <div className="py-10 text-center text-muted-foreground">
+                  No history yet. Your monthly budgets will appear here once
+                  created.
+                </div>
+              )}
+
+              {months.length > 0 && sortedMonths.length === 0 && (
+                <div className="py-10 text-center text-muted-foreground">
+                  No months match your filters.
+                </div>
+              )}
+
+              {sortedMonths.length > 0 && (
+                <>
+                  {/* Mobile cards */}
+                  <div className="sm:hidden space-y-3">
+                    {sortedMonths.map((m) => {
+                      const isCurrent =
+                        m.year === current.year && m.month === current.month;
+                      const isBelow = m.savingsRate < MIN_SAVINGS_RATE;
+                      const href = isCurrent
+                        ? "/dashboard"
+                        : `/budget/${m.year}/${m.month}`;
+                      return (
+                        <div
+                          key={`mobile-${m.year}-${m.month}`}
+                          className="p-3 border border-border/50 rounded-xl space-y-2 bg-background/50"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">
+                                {formatMonth(m.year, m.month)}
+                              </p>
+                              {isCurrent && (
+                                <Badge variant="secondary">Current</Badge>
                               )}
-                            </td>
-                            <td className="py-3 px-2 text-right">
-                              {formatCurrency(m.income, currency)}
-                            </td>
-                            <td className="py-3 px-2 text-right">
-                              {formatPercentage(m.savingsRate * 100, 0)}
-                            </td>
-                            <td className="py-3 px-2 text-right text-savings">
-                              {formatCurrency(m.savingsAmount, currency)}
-                            </td>
-                            <td className="py-3 px-2 text-right">
-                              {formatCurrency(m.totalAllocated, currency)}
-                            </td>
-                            <td className="py-3 px-2">
-                              <div className="flex justify-end gap-2">
-                                <Badge
-                                  variant={
-                                    isBelow ? "destructive" : "secondary"
-                                  }
-                                >
-                                  {isBelow
-                                    ? `Below ${MIN_SAVINGS_RATE_PERCENT}%`
-                                    : "On track"}
-                                </Badge>
+                            </div>
+                            <Badge
+                              variant={isBelow ? "destructive" : "secondary"}
+                            >
+                              {isBelow
+                                ? `Below ${MIN_SAVINGS_RATE_PERCENT}%`
+                                : "On track"}
+                            </Badge>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                              <p className="text-muted-foreground text-xs">
+                                Income
+                              </p>
+                              <p className="font-medium font-mono tabular-nums">
+                                {formatCurrency(m.income, currency)}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground text-xs">
+                                Savings
+                              </p>
+                              <p className="font-medium text-savings font-mono tabular-nums">
+                                {formatCurrency(m.savingsAmount, currency)}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground text-xs">
+                                Savings Rate
+                              </p>
+                              <p className="font-medium font-mono tabular-nums">
+                                {formatPercentage(m.savingsRate * 100, 0)}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground text-xs">
+                                Total Allocated
+                              </p>
+                              <p className="font-medium font-mono tabular-nums">
+                                {formatCurrency(m.totalAllocated, currency)}
+                              </p>
+                            </div>
+                          </div>
+
+                          {m.adjustmentReason && (
+                            <div className="text-sm">
+                              <p className="text-xs text-muted-foreground">
+                                Savings note
+                              </p>
+                              <p>{m.adjustmentReason}</p>
+                            </div>
+                          )}
+
+                          <Button asChild variant="outline" size="sm">
+                            <Link href={href}>View month</Link>
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Desktop table */}
+                  <div className="hidden sm:block overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-border/50 text-xs uppercase tracking-wider text-muted-foreground">
+                          <th
+                            scope="col"
+                            className="text-left py-3 px-2 font-medium"
+                          >
+                            Month
+                          </th>
+                          <th
+                            scope="col"
+                            className="text-right py-3 px-2 font-medium"
+                          >
+                            Income
+                          </th>
+                          <th
+                            scope="col"
+                            className="text-right py-3 px-2 font-medium"
+                          >
+                            Savings Rate
+                          </th>
+                          <th
+                            scope="col"
+                            className="text-right py-3 px-2 font-medium"
+                          >
+                            Savings
+                          </th>
+                          <th
+                            scope="col"
+                            className="text-right py-3 px-2 font-medium"
+                          >
+                            Total Allocated
+                          </th>
+                          <th
+                            scope="col"
+                            className="text-right py-3 px-2 font-medium"
+                          >
+                            Status
+                          </th>
+                          <th
+                            scope="col"
+                            className="text-right py-3 px-2 font-medium"
+                          >
+                            View
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sortedMonths.map((m) => {
+                          const isCurrent =
+                            m.year === current.year &&
+                            m.month === current.month;
+                          const isBelow = m.savingsRate < MIN_SAVINGS_RATE;
+                          const href = isCurrent
+                            ? "/dashboard"
+                            : `/budget/${m.year}/${m.month}`;
+                          return (
+                            <tr
+                              key={`desktop-${m.year}-${m.month}`}
+                              className="border-b border-border/30 hover:bg-muted/30 transition-colors"
+                            >
+                              <td className="py-3 px-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium">
+                                    {formatMonth(m.year, m.month)}
+                                  </span>
+                                  {isCurrent && (
+                                    <Badge variant="secondary">Current</Badge>
+                                  )}
+                                </div>
                                 {m.adjustmentReason && (
-                                  <Badge variant="outline">Note</Badge>
+                                  <p
+                                    className="text-xs text-muted-foreground mt-1 max-w-[240px] truncate"
+                                    title={m.adjustmentReason}
+                                  >
+                                    Note: {m.adjustmentReason}
+                                  </p>
                                 )}
-                              </div>
-                            </td>
-                            <td className="py-3 px-2 text-right">
-                              <Button asChild variant="outline" size="sm">
-                                <Link href={href}>View</Link>
-                              </Button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+                              </td>
+                              <td className="py-3 px-2 text-right font-mono tabular-nums">
+                                {formatCurrency(m.income, currency)}
+                              </td>
+                              <td
+                                className={cn(
+                                  "py-3 px-2 text-right font-mono tabular-nums",
+                                  isBelow ? "text-warning" : "text-foreground"
+                                )}
+                              >
+                                {formatPercentage(m.savingsRate * 100, 0)}
+                              </td>
+                              <td className="py-3 px-2 text-right text-savings font-mono tabular-nums">
+                                {formatCurrency(m.savingsAmount, currency)}
+                              </td>
+                              <td className="py-3 px-2 text-right font-mono tabular-nums">
+                                {formatCurrency(m.totalAllocated, currency)}
+                              </td>
+                              <td className="py-3 px-2">
+                                <div className="flex justify-end gap-2">
+                                  <Badge
+                                    variant={
+                                      isBelow ? "destructive" : "secondary"
+                                    }
+                                  >
+                                    {isBelow
+                                      ? `Below ${MIN_SAVINGS_RATE_PERCENT}%`
+                                      : "On track"}
+                                  </Badge>
+                                  {m.adjustmentReason && (
+                                    <Badge variant="outline">Note</Badge>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="py-3 px-2 text-right">
+                                <Button asChild variant="outline" size="sm">
+                                  <Link href={href}>View</Link>
+                                </Button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
       </main>
     </div>
   );

@@ -91,7 +91,7 @@ export function ResetRequestForm() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
-                  className="pl-11 h-12 bg-background/50 border-border/50 rounded-xl transition-all focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="pl-11 h-12 bg-background/50 border-border/50 rounded-xl"
                 />
               </div>
             </div>

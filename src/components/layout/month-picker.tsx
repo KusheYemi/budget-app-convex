@@ -124,8 +124,9 @@ export function MonthPicker({ year, month }: MonthPickerProps) {
       <Button
         variant="outline"
         size="icon"
-        className="h-8 w-8 sm:h-9 sm:w-9"
+        className="h-10 w-10 sm:h-9 sm:w-9"
         onClick={goToPreviousMonth}
+        aria-label="Previous month"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -167,9 +168,10 @@ export function MonthPicker({ year, month }: MonthPickerProps) {
       <Button
         variant="outline"
         size="icon"
-        className="h-8 w-8 sm:h-9 sm:w-9"
+        className="h-10 w-10 sm:h-9 sm:w-9"
         onClick={goToNextMonth}
         disabled={!canGoNext}
+        aria-label="Next month"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -193,7 +195,10 @@ export function MonthPicker({ year, month }: MonthPickerProps) {
         </Badge>
       )}
       {isEditableMonth(year, month) && !isCurrent && (
-        <Badge variant="outline" className="ml-1 sm:ml-2 text-xs border-blue-400 text-blue-600">
+        <Badge
+          variant="outline"
+          className="ml-1 sm:ml-2 text-xs border-planning/40 text-planning bg-planning/5"
+        >
           Planning
         </Badge>
       )}

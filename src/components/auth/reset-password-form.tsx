@@ -109,7 +109,7 @@ export function ResetPasswordForm({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
-                className="h-12 bg-background/50 border-border/50 rounded-xl transition-all focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="h-12 bg-background/50 border-border/50 rounded-xl"
               />
             </div>
           </div>
@@ -130,7 +130,7 @@ export function ResetPasswordForm({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
-                className="pl-11 pr-12 h-12 bg-background/50 border-border/50 rounded-xl transition-all focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="pl-11 pr-12 h-12 bg-background/50 border-border/50 rounded-xl"
               />
               <PasswordToggleButton
                 show={showPassword}
@@ -156,7 +156,7 @@ export function ResetPasswordForm({
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={loading}
-                className="pl-11 pr-12 h-12 bg-background/50 border-border/50 rounded-xl transition-all focus:bg-background focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="pl-11 pr-12 h-12 bg-background/50 border-border/50 rounded-xl"
               />
               <PasswordToggleButton
                 show={showConfirmPassword}
